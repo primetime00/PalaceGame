@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.kegelapps.palace.graphics.CardUtils;
 
 public class Palace extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -14,7 +15,8 @@ public class Palace extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		img = new Texture("card_back.jpg");
+		CardUtils.loadCards("cards.jpg");
         logic = new Logic();
         Gdx.input.setInputProcessor(Input.get());
 	}
