@@ -6,14 +6,14 @@ package com.kegelapps.palace;
 
 public class Card implements Comparable<Card> {
 
-    enum Suit {
+    public enum Suit {
         HEART,
         SPADE,
         CLUB,
         DIAMOND
     }
 
-    enum Rank {
+    public enum Rank {
         TWO, THREE, FOUR, FIVE, SIX, SEVEN,
         EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
     }

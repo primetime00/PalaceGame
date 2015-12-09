@@ -56,4 +56,8 @@ public class Table {
         mCardsInPlay.add(mDeck.Draw());
         System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
     }
+
+    public Deck getDeck() {
+        return mDeck;
+    }
 }

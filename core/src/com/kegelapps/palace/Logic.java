@@ -102,4 +102,8 @@ public class Logic implements Hand.EndCardsListener{
     public Input getInput() {
         return mInput;
     }
+
+    public Table getTable() {
+        return mTable;
+    }
 }
