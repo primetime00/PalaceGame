@@ -1,6 +1,7 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.kegelapps.palace.Card;
 
@@ -11,6 +12,7 @@ public class CardView extends Sprite{
 
     private Card mCard;
     private Side mSide;
+    private TextureAtlas.AtlasRegion mCardRegion;
 
     enum Side {
         FRONT,
@@ -31,8 +33,9 @@ public class CardView extends Sprite{
     }
 
     private void init() {
-        setSize(CardUtils.getCardTextureWidth(), CardUtils.getCardTextureHeight());
-        setRegion(CardUtils.getCardTexture(0));
+        mCardRegion = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        setRegion(mCardRegion);
+        setSize(mCardRegion.originalWidth, mCardRegion.originalHeight);
         mSide = Side.FRONT;
     }
 

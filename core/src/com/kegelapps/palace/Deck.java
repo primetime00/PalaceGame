@@ -48,4 +48,8 @@ public class Deck {
     public List<Card> GetCards() {
         return mCards;
     }
+
+    public int CountCards() {
+        return mCards.size();
+    }
 }

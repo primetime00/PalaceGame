@@ -34,14 +34,19 @@ public class Card implements Comparable<Card> {
         return mRank;
     }
 
-    public String getSuitString() {
-        switch (mSuit) {
+    static public String getSuitString(Card.Suit suit) {
+        switch (suit) {
             case HEART: return "Heart";
             case DIAMOND: return "Diamond";
             case SPADE: return "Spade";
             default:
             case CLUB: return "Club";
         }
+    }
+
+
+    public String getSuitString() {
+        return getSuitString(mSuit);
     }
 
     private int getValue() {
@@ -63,8 +68,8 @@ public class Card implements Comparable<Card> {
         }
     }
 
-    public String getRankString() {
-        switch (mRank) {
+    static public String getRankString(Card.Rank rank) {
+        switch (rank) {
             case TWO: return "2";
             case THREE: return "3";
             case FOUR: return "4";
@@ -80,6 +85,11 @@ public class Card implements Comparable<Card> {
             default:
             case ACE: return "Ace";
         }
+    }
+
+
+    public String getRankString() {
+        return getRankString(mRank);
     }
 
     @Override

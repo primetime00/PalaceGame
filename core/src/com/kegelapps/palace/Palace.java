@@ -8,13 +8,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kegelapps.palace.graphics.CardUtils;
 import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.DeckView;
 
 public class Palace extends ApplicationAdapter {
 	private OrthographicCamera mCamera;
 	SpriteBatch batch;
 	Texture img;
 	Logic logic;
-	CardView card;
+	DeckView deck;
 
 	@Override
 	public void create () {
@@ -24,7 +25,7 @@ public class Palace extends ApplicationAdapter {
 		img = new Texture("cards_tiny.jpg");
 		CardUtils.loadCards(CardUtils.CardSize.TINY);
         logic = new Logic();
-		card = new CardView(logic.getTable().getDeck().GetCards().get(0));
+		deck = new DeckView();
         Gdx.input.setInputProcessor(Input.get());
 	}
 
@@ -38,7 +39,7 @@ public class Palace extends ApplicationAdapter {
 		batch.setProjectionMatrix(mCamera.combined);
 		batch.begin();
 		//batch.draw(CardUtils.getCardTexture(0), 0, 0);
-		card.draw(batch);
+		deck.draw(batch);
 		batch.end();
 	}
 }
