@@ -39,5 +39,9 @@ public class CardView extends Sprite{
         mSide = Side.FRONT;
     }
 
+    public Card getCard() {
+        return mCard;
+    }
+
 
 }

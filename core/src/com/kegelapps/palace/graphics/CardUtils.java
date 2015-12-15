@@ -13,6 +13,7 @@ public class CardUtils {
     static private int cardHeight = 1089;
     static private TextureAtlas mCardAtlas;
     static private TextureAtlas.AtlasRegion mCardBack = null;
+    static private CardSize mLoadedCardSize;
 
     public enum CardSize {
         TINY,
@@ -27,8 +28,15 @@ public class CardUtils {
             case TINY: file = "cards_tiny.pack"; cardWidth = 75; cardHeight = 109; break;
             default: file = "cards_large.png"; cardWidth = 750; cardHeight = 1089; break;
         }
-
+        mLoadedCardSize = size;
         mCardAtlas = new TextureAtlas(file);
+    }
+
+    static int getCardWidth() {
+        return getCardBackRegion().originalWidth;
+    }
+    static int getCardHeight() {
+        return getCardBackRegion().originalHeight;
     }
 
     static public TextureAtlas.AtlasRegion getCardRegion(Card.Suit suit, Card.Rank rank) {

@@ -2,6 +2,7 @@ package com.kegelapps.palace;
 
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ArrayMap;
 
 import java.util.Iterator;
@@ -17,17 +18,34 @@ public class Input implements InputProcessor {
         void onTouched();
     }
 
-    static class InputLogicAdapter implements  OnInputLogic{
+    static public class InputLogicAdapter implements  OnInputLogic{
+        private BoundObject mBound;
+        public InputLogicAdapter() { mBound = null; }
+        public InputLogicAdapter(BoundObject b) { mBound = b; }
 
+        public void process(int screenX, int screenY, int button) {
+            if (mBound == null) {
+                onTouched();
+                return;
+            }
+            Rectangle rect = mBound.getBounds();
+            if (rect.contains(screenX, screenY)) {
+                onTouched();
+            }
+        }
         @Override
         public void onTouched() {
             return;
         }
     }
 
+    public interface BoundObject {
+        Rectangle getBounds();
+    }
+
     private ArrayMap<String, InputLogicAdapter> mAdapterList;
 
-    static Input get() {
+    static public Input get() {
         if (mInstance == null)
             mInstance = new Input();
         return mInstance;
@@ -64,7 +82,7 @@ public class Input implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         for (InputLogicAdapter adapter : mAdapterList.values()) {
-            adapter.onTouched();
+            adapter.process(screenX, screenY, button);
         }
         return false;
     }

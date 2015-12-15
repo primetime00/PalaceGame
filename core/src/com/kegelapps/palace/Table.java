@@ -15,6 +15,14 @@ public class Table {
     //should the table have the hands?
     List<Hand> mHands;
 
+    private TableListener mTableListener;
+
+    public interface TableListener {
+        public void onDealCard(Hand hand, Card c);
+    }
+
+
+
     public Table(Deck deck, int numberOfPlayers, BlockingQueue<Runnable> queue) {
         assert (numberOfPlayers != 3 || numberOfPlayers != 4);
         mDeck = deck;
@@ -44,13 +52,19 @@ public class Table {
         int i;
         for (i=0; i<3; ++i) {
             for (Hand h : mHands) {
-                h.AddHiddenCard(mDeck.Draw());
+                Card c = mDeck.Draw();
+                if (mTableListener != null)
+                    mTableListener.onDealCard(h,c);
+                h.AddHiddenCard(c);
             }
         }
         //next 7 are active!
         for (i=0; i<7; ++i) {
             for (Hand h : mHands) {
-                h.AddActiveCard(mDeck.Draw());
+                Card c = mDeck.Draw();
+                if (mTableListener != null)
+                    mTableListener.onDealCard(h,c);
+                h.AddActiveCard(c);
             }
         }
         mCardsInPlay.add(mDeck.Draw());
@@ -59,5 +73,9 @@ public class Table {
 
     public Deck getDeck() {
         return mDeck;
+    }
+
+    public void setTableListener(TableListener listener) {
+        mTableListener = listener;
     }
 }

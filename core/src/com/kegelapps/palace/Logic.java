@@ -28,15 +28,11 @@ public class Logic implements Hand.EndCardsListener{
 
     private Deck mDeck;
 
-    private Input mInput;
-
     public Logic() {
         mState = GameState.DEAL;
         mNumberOfPlayers = 4;
         mDeck = new Deck();
         mQueue = new LinkedBlockingQueue<Runnable>();
-
-        mInput = new Input();
 
         mTable = new Table(mDeck, mNumberOfPlayers, mQueue);
 
@@ -99,11 +95,4 @@ public class Logic implements Hand.EndCardsListener{
         mTable.DealNewGame();
     }
 
-    public Input getInput() {
-        return mInput;
-    }
-
-    public Table getTable() {
-        return mTable;
-    }
 }

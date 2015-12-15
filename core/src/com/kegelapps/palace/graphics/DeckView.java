@@ -3,14 +3,16 @@ package com.kegelapps.palace.graphics;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Card;
 import com.kegelapps.palace.Deck;
+import com.kegelapps.palace.Input;
 
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class DeckView extends Sprite {
+public class DeckView extends Sprite implements Input.BoundObject {
 
     private Deck mDeck;
 
@@ -50,5 +52,19 @@ public class DeckView extends Sprite {
             setTexture(null);
         }
         super.draw(batch);
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        return getBoundingRectangle();
+    }
+
+    public CardView getCardView(Card c) {
+        for (CardView cardView : mCardViewList) {
+            if (cardView.getCard() == c) {
+                return cardView;
+            }
+        }
+        return null;
     }
 }
