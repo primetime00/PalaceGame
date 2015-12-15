@@ -6,7 +6,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by keg45397 on 12/7/2015.
  */
-public class Table {
+public class Table extends EventObject {
     private Deck mDeck; //the deck on the table
 
     List<Card> mCardsInPlay;
@@ -67,7 +67,9 @@ public class Table {
                 h.AddActiveCard(c);
             }
         }
-        mCardsInPlay.add(mDeck.Draw());
+        Card c = mDeck.Draw();
+        mCardsInPlay.add(c);
+        Trigger(EventType.DRAW_PLAY_CARD, c);
         System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
     }
 

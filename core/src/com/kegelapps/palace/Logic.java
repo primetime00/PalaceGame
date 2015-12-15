@@ -1,4 +1,6 @@
 package com.kegelapps.palace;
+import com.kegelapps.palace.events.LogicEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -16,36 +18,39 @@ public class Logic implements Hand.EndCardsListener{
         MAX
     }
 
-    private BlockingQueue<Runnable> mQueue;
+    private static Logic mLogic;
 
     private GameState mState;
-    private int mNumberOfPlayers;
+    private int mNumberOfPlayers = 0;
 
     private Table mTable;
 
-    private List<Hand> mEndHands;
 
+    private List<Hand> mEndHands;
 
     private Deck mDeck;
 
     public Logic() {
         mState = GameState.DEAL;
-        mNumberOfPlayers = 4;
-        mDeck = new Deck();
-        mQueue = new LinkedBlockingQueue<Runnable>();
-
-        mTable = new Table(mDeck, mNumberOfPlayers, mQueue);
-
         mEndHands = new ArrayList<>();
-/*
-        for (int i=0; i<mNumberOfPlayers; ++i) {
-            Hand h = new Hand(i, i == 0 ? Hand.HandType.HUMAN : Hand.HandType.CPU, mDeck, mQueue);
-            mHands.add(h);
-            h.SetEndCardListener(this);
-        }*/
     }
 
+    static public Logic get() {
+        if (mLogic == null)
+            mLogic = new Logic();
+        return mLogic;
+    }
+
+    public void SetTable(Table table) {
+        mTable = table;
+        mDeck = table.getDeck();
+        mNumberOfPlayers = table.getHands().size();
+    }
+
+
     public void Run() {
+        if (mTable == null)
+            return;
         while (true) {
             switch (mState) {
                 case DEAL:
@@ -61,6 +66,8 @@ public class Logic implements Hand.EndCardsListener{
     }
 
     public void Poll() {
+        if (mTable == null)
+            return;
         switch (mState) {
             case DEAL:
                 mDeck.Shuffle();
@@ -90,8 +97,9 @@ public class Logic implements Hand.EndCardsListener{
         }
     }
 
-
     public void DealCards() {
+        if (mTable == null)
+            return;
         mTable.DealNewGame();
     }
 
