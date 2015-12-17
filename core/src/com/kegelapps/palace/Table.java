@@ -67,11 +67,28 @@ public class Table extends EventObject {
                 h.AddActiveCard(c);
             }
         }
+    }
+
+    public void DealHiddenCard(int player) {
+        Hand h = mHands.get(player);
+        Card c = mDeck.Draw();
+        h.AddHiddenCard(c);
+    }
+
+    public void DealActiveCard(int player) {
+        Hand h = mHands.get(player);
+        Card c = mDeck.Draw();
+        h.AddActiveCard(c);
+    }
+
+    public void PlayCard() {
         Card c = mDeck.Draw();
         mCardsInPlay.add(c);
         Trigger(EventType.DRAW_PLAY_CARD, c);
         System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
     }
+
+
 
     public Deck getDeck() {
         return mDeck;

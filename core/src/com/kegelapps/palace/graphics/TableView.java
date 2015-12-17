@@ -7,14 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
-import com.kegelapps.palace.Card;
-import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Input;
-import com.kegelapps.palace.Table;
+import com.kegelapps.palace.*;
 import com.kegelapps.palace.actions.GraphicActions;
 import com.kegelapps.palace.events.TableEvent;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
@@ -53,11 +49,14 @@ public class TableView extends Group implements Input.BoundObject {
         mTable.AddEvent(new TableEvent() {
             @Override
             public void onFirstCardDrawn(Card c) {
+                Logic.get().Pause(true);
                 CardView cardView = mDeck.getCardView(c);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setSide(CardView.Side.BACK);
                 addActor(cardView);
-                cardView.addAction(GraphicActions.DrawToActive(mDeck, cardView));
+                //cardView.addAction(GraphicActions.DrawToActive(mDeck, cardView));
+                GraphicActions act = new GraphicActions(true);
+                cardView.addAction(new GraphicActions(true).DrawToActive(mDeck, cardView));
             }
         });
     }

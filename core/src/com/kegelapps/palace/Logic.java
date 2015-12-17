@@ -1,10 +1,7 @@
 package com.kegelapps.palace;
-import com.kegelapps.palace.events.LogicEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by Ryan on 12/5/2015.
@@ -12,7 +9,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Logic implements Hand.EndCardsListener{
 
     enum GameState {
+        START,
         DEAL,
+        PLAY_FIRST_CARD,
         SELECT_END_CARDS,
         PLAY,
         MAX
@@ -23,6 +22,9 @@ public class Logic implements Hand.EndCardsListener{
     private GameState mState;
     private int mNumberOfPlayers = 0;
 
+    //states
+    Deal mDealState;
+
     private Table mTable;
 
 
@@ -30,9 +32,12 @@ public class Logic implements Hand.EndCardsListener{
 
     private Deck mDeck;
 
+    boolean mPaused;
+
     public Logic() {
-        mState = GameState.DEAL;
+        mState = GameState.START;
         mEndHands = new ArrayList<>();
+        mPaused = false;
     }
 
     static public Logic get() {
@@ -45,6 +50,17 @@ public class Logic implements Hand.EndCardsListener{
         mTable = table;
         mDeck = table.getDeck();
         mNumberOfPlayers = table.getHands().size();
+        mDealState = new Deal(mTable, new Runnable() {
+            @Override
+            public void run() {
+                mState = GameState.PLAY_FIRST_CARD;
+            }
+        });
+    }
+
+    public void Pause(boolean pause) {
+        System.out.print("Logic system is " + (pause ? "Paused" : "UnPaused") + "\n");
+        mPaused = pause;
     }
 
 
@@ -53,9 +69,15 @@ public class Logic implements Hand.EndCardsListener{
             return;
         while (true) {
             switch (mState) {
-                case DEAL:
+                case START:
                     mDeck.Shuffle();
-                    DealCards();
+                    mState = GameState.DEAL;
+                    break;
+                case DEAL:
+                    mDealState.Run();
+                    break;
+                case PLAY_FIRST_CARD:
+                    mTable.PlayCard();
                     mState = GameState.SELECT_END_CARDS;
                     break;
                 case SELECT_END_CARDS:
@@ -68,10 +90,18 @@ public class Logic implements Hand.EndCardsListener{
     public void Poll() {
         if (mTable == null)
             return;
+        if (mPaused)
+            return;
         switch (mState) {
-            case DEAL:
+            case START:
                 mDeck.Shuffle();
-                DealCards();
+                mState = GameState.DEAL;
+                break;
+            case DEAL:
+                mDealState.Run();
+                break;
+            case PLAY_FIRST_CARD:
+                mTable.PlayCard();
                 mState = GameState.SELECT_END_CARDS;
                 break;
             case SELECT_END_CARDS:
@@ -101,6 +131,47 @@ public class Logic implements Hand.EndCardsListener{
         if (mTable == null)
             return;
         mTable.DealNewGame();
+    }
+
+    static class Deal {
+        private Table mTable;
+        private int mCurrentPlayer;
+        private int mRound;
+        private Runnable mDoneRunnable;
+
+        public Deal(Table table, Runnable done) {
+            mTable = table;
+            mCurrentPlayer = 0;
+            mRound = 0;
+            mDoneRunnable = done;
+        }
+
+        public void Run() {
+            if (mRound == 0 && mCurrentPlayer == 0) {
+                System.out.print("Dealing cards...");
+            }
+            if (mRound < 3) {
+                mTable.DealHiddenCard(mCurrentPlayer);
+                mCurrentPlayer +=1;
+                if (mCurrentPlayer >= 4) {
+                    mCurrentPlayer = 0;
+                    mRound += 1;
+                }
+            }
+            else if (mRound < 10) {
+                mTable.DealActiveCard(mCurrentPlayer);
+                mCurrentPlayer +=1;
+                if (mCurrentPlayer >= 4) {
+                    mCurrentPlayer = 0;
+                    mRound += 1;
+                }
+            }
+            else {
+                if (mDoneRunnable != null) {
+                    mDoneRunnable.run();
+                }
+            }
+        }
     }
 
 }
