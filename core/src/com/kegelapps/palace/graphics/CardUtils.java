@@ -65,5 +65,4 @@ public class CardUtils {
         return cardHeight;
     }
 
-
 }

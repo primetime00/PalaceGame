@@ -43,35 +43,12 @@ public class Table extends EventObject {
         mCardsInPlay.add(c);
     }
 
-
-    public void DealNewGame() {
-        mBurntCards.clear();
-        mCardsInPlay.clear();
-        System.out.print("Dealing cards...");
-        //first 3 are for hidden
-        int i;
-        for (i=0; i<3; ++i) {
-            for (Hand h : mHands) {
-                Card c = mDeck.Draw();
-                if (mTableListener != null)
-                    mTableListener.onDealCard(h,c);
-                h.AddHiddenCard(c);
-            }
-        }
-        //next 7 are active!
-        for (i=0; i<7; ++i) {
-            for (Hand h : mHands) {
-                Card c = mDeck.Draw();
-                if (mTableListener != null)
-                    mTableListener.onDealCard(h,c);
-                h.AddActiveCard(c);
-            }
-        }
-    }
-
     public void DealHiddenCard(int player) {
         Hand h = mHands.get(player);
         Card c = mDeck.Draw();
+        AddParam("hand", h);
+        AddParam("card", c);
+        Trigger(EventType.DEAL_CARD);
         h.AddHiddenCard(c);
     }
 
@@ -84,7 +61,8 @@ public class Table extends EventObject {
     public void PlayCard() {
         Card c = mDeck.Draw();
         mCardsInPlay.add(c);
-        Trigger(EventType.DRAW_PLAY_CARD, c);
+        AddParam("card", c);
+        Trigger(EventType.DRAW_PLAY_CARD);
         System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
     }
 

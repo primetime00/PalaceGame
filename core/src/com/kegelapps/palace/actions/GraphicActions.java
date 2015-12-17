@@ -1,9 +1,15 @@
 package com.kegelapps.palace.actions;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Hand;
 import com.kegelapps.palace.Logic;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.DeckView;
+import com.kegelapps.palace.graphics.HandView;
 import sun.rmi.runtime.Log;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
@@ -15,7 +21,7 @@ import static com.badlogic.gdx.math.Interpolation.*;
  */
 public class GraphicActions {
 
-    interface GraphicTrigger {
+    public interface GraphicTrigger {
         void onActionStart();
         void onActionEnd();
     }
@@ -77,4 +83,64 @@ public class GraphicActions {
         else
             return animation;
     }
+
+    public Action DealToHand(DeckView deck, Hand hand, CardView card) {
+        Action animation;
+        float cardSize = card.getMaxCardSize();
+        int roundSize = MathUtils.round(cardSize) / 10;
+        int variation = (MathUtils.random(roundSize) - (roundSize/2))*10;
+        float duration = 0.7f;
+        float rotation = (MathUtils.random(36) - 18)*10;
+        switch (hand.getID()) {
+            default:
+            case 0: //bottom
+                animation = parallel(moveTo(deck.getX()+variation, -cardSize, duration, exp5Out),
+                        rotateBy(rotation, duration));
+                break;
+            case 1: //left
+                animation = parallel(moveTo(-cardSize, deck.getY()+variation, duration, exp5Out),
+                        rotateBy(rotation, duration));
+                break;
+            case 2: //top
+                animation = parallel(moveTo(deck.getX()+variation, Director.instance().getScreenHeight()+cardSize, duration, exp5Out),
+                        rotateBy(rotation, duration));
+                break;
+            case 3: //right
+                animation = parallel(moveTo(Director.instance().getScreenWidth()+cardSize, deck.getY()+variation, duration, exp5Out),
+                        rotateBy(rotation, duration));
+                break;
+        }
+        if (mTrigger != null)
+            return sequence(mStartAction, animation, mEndAction);
+        return animation;
+    }
+
+    public Action LineUpHiddenCard(Rectangle pos, int handId) {
+        Action animation;
+        float duration = 0.1f;
+        switch (handId) {
+            default:
+            case 0: //bottom
+                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
+                        rotateTo(0.0f, duration));
+                break;
+            case 1: //left
+                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
+                        rotateTo(-90.0f, duration));
+                break;
+            case 2: //top
+                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
+                        rotateTo(180.0f, duration));
+                break;
+            case 3: //right
+                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
+                        rotateTo(90.0f, duration));
+                break;
+        }
+        if (mTrigger != null)
+            return sequence(mStartAction, animation, mEndAction);
+        return animation;
+    }
+
+
 }

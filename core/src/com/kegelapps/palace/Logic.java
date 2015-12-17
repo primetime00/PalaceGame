@@ -127,12 +127,6 @@ public class Logic implements Hand.EndCardsListener{
         }
     }
 
-    public void DealCards() {
-        if (mTable == null)
-            return;
-        mTable.DealNewGame();
-    }
-
     static class Deal {
         private Table mTable;
         private int mCurrentPlayer;

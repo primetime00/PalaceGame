@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Hand {
+public class Hand extends EventObject {
 
     enum HandType {
         HUMAN,
@@ -60,6 +60,9 @@ public class Hand {
 
     public void AddHiddenCard(Card card) {
         mHiddenCards.add(card);
+        AddParam("card", card);
+        AddParam("hand", this);
+        Trigger(EventType.LAYOUT_HIDDEN_CARD);
     }
 
     public void AddActiveCard(Card card) {
@@ -94,5 +97,13 @@ public class Hand {
 
     public HandType getType() {
         return mType;
+    }
+
+    public Deck getDeck() {
+        return mDeck;
+    }
+
+    public List<Card> GetHiddenCards() {
+        return mHiddenCards;
     }
 }

@@ -18,8 +18,6 @@ public class DeckView extends Actor implements Input.BoundObject {
 
     private Deck mDeck;
 
-    private Array<CardView> mCardViewList;
-
     private TextureAtlas.AtlasRegion mDeckBack;
 
     public DeckView() {
@@ -37,10 +35,6 @@ public class DeckView extends Actor implements Input.BoundObject {
     }
 
     private void init() {
-        mCardViewList = new Array<>();
-        for (Card c : mDeck.GetCards()) {
-            mCardViewList.add(new CardView(c));
-        }
         mDeckBack = CardUtils.getCardBackDeckRegion();
         setBounds(0,0,mDeckBack.originalWidth, mDeckBack.originalHeight);
         addListener(new InputListener() {
@@ -75,12 +69,4 @@ public class DeckView extends Actor implements Input.BoundObject {
         return new Rectangle();
     }
 
-    public CardView getCardView(Card c) {
-        for (CardView cardView : mCardViewList) {
-            if (cardView.getCard() == c) {
-                return cardView;
-            }
-        }
-        return null;
-    }
 }
