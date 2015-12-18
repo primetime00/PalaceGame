@@ -1,6 +1,7 @@
 package com.kegelapps.palace.actions;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
@@ -115,7 +116,7 @@ public class GraphicActions {
         return animation;
     }
 
-    public Action LineUpHiddenCard(Rectangle pos, int handId) {
+    public Action LineUpHiddenCard(Polygon pos, int handId) {
         Action animation;
         float duration = 0.1f;
         switch (handId) {

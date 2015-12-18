@@ -26,7 +26,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 public class HandView extends Actor{
 
     private Hand mHand;
-    private Rectangle mHiddenPositions[];
+    private Polygon mHiddenPositions[];
 
     public HandView(Hand hand) {
         super();
@@ -44,7 +44,7 @@ public class HandView extends Actor{
     }
 
     private void setupLayout() {
-        mHiddenPositions = new Rectangle[3];
+        mHiddenPositions = new Polygon[3];
         int cardHeight = CardUtils.getCardHeight();
         int cardWidth = CardUtils.getCardWidth();
         int screenWidth = Director.instance().getScreenWidth();
@@ -54,32 +54,42 @@ public class HandView extends Actor{
         float startX = (screenWidth - hiddenWidth) / 2.0f;
         float startY = (screenHeight - hiddenWidth) / 2.0f;
         float nextX = cardWidth + cardGap;
+        for (int i=0; i<mHiddenPositions.length; ++i) {
+            mHiddenPositions[i] = new Polygon(new float[]{0, 0, cardWidth, 0, cardWidth, cardHeight, 0, cardHeight});
+            mHiddenPositions[i].setOrigin(cardWidth/2.0f, cardHeight/2.0f);
+        }
         switch (mHand.getID()) {
             default:
             case 0: //bottom
-                mHiddenPositions[0] = new Rectangle(startX, -cardHeight/2, cardWidth, cardHeight);
-                mHiddenPositions[1] = new Rectangle(startX + nextX, -cardHeight/2, cardWidth, cardHeight);
-                mHiddenPositions[2] = new Rectangle(startX + nextX + nextX, -cardHeight/2, cardWidth, cardHeight);
+                mHiddenPositions[0].setPosition(startX, -cardHeight/2);
+                mHiddenPositions[1].setPosition(startX + nextX, -cardHeight/2);
+                mHiddenPositions[2].setPosition(startX + nextX + nextX, -cardHeight/2);
                 break;
             case 1: //left
-                mHiddenPositions[0] = new Rectangle(0, startY, cardWidth, cardHeight);
-                mHiddenPositions[1] = new Rectangle(0, startY + nextX, cardHeight, cardWidth);
-                mHiddenPositions[2] = new Rectangle(0, startY + nextX + nextX, cardHeight, cardWidth);
+                mHiddenPositions[0].setPosition(0, startY);
+                mHiddenPositions[0].rotate(-90.0f);
+                mHiddenPositions[1].setPosition(0, startY + nextX);
+                mHiddenPositions[1].rotate(-90.0f);
+                mHiddenPositions[2].setPosition(0, startY + nextX + nextX);
+                mHiddenPositions[2].rotate(-90.0f);
                 break;
             case 2: //top
-                mHiddenPositions[0] = new Rectangle(startX, screenHeight-cardHeight, cardWidth, cardHeight);
-                mHiddenPositions[1] = new Rectangle(startX + nextX, screenHeight-cardHeight, cardWidth, cardHeight);
-                mHiddenPositions[2] = new Rectangle(startX + nextX + nextX, screenHeight-cardHeight, cardWidth, cardHeight);
+                mHiddenPositions[0].setPosition(startX, screenHeight-cardHeight);
+                mHiddenPositions[1].setPosition(startX + nextX, screenHeight-cardHeight);
+                mHiddenPositions[2].setPosition(startX + nextX + nextX, screenHeight-cardHeight);
                 break;
             case 3: //right
-                mHiddenPositions[0] = new Rectangle(screenWidth - cardWidth, startY, cardHeight, cardWidth);
-                mHiddenPositions[1] = new Rectangle(screenWidth - cardWidth, startY + nextX, cardHeight, cardWidth);
-                mHiddenPositions[2] = new Rectangle(screenWidth - cardWidth, startY + nextX + nextX, cardHeight, cardWidth);
+                mHiddenPositions[0].setPosition(screenWidth - cardWidth, startY);
+                mHiddenPositions[0].setRotation(90.0f);
+                mHiddenPositions[1].setPosition(screenWidth - cardWidth, startY + nextX);
+                mHiddenPositions[1].setRotation(90.0f);
+                mHiddenPositions[2].setPosition(screenWidth - cardWidth, startY + nextX + nextX);
+                mHiddenPositions[2].setRotation(90.0f);
                 break;
         }
     }
 
-    public Rectangle getHiddenPosition(int index) {
+    public Polygon getHiddenPosition(int index) {
         if (index > 2)
             index = 0;
         return mHiddenPositions[index];
@@ -92,18 +102,22 @@ public class HandView extends Actor{
             public void onReceivedHiddenCard(OrderedMap<String, Object> data) {
                 CardView cardView = CardView.getCardView((Card) data.get("card"));
                 int pos = getHand().GetHiddenCards().size()-1;
-                Rectangle r = getHiddenPosition(pos);
+                Polygon r = getHiddenPosition(pos);
                 cardView.addSequenceAction(new GraphicActions(false).LineUpHiddenCard(r, getHand().getID()));
             }
         });
     }
 
+    private float rot = 0;
     @Override
     public void drawDebug(ShapeRenderer shapes) {
         super.drawDebug(shapes);
         shapes.setColor(Color.RED);
         for (int i=0; i<mHiddenPositions.length; ++i) {
-            shapes.rect(mHiddenPositions[i].getX(), mHiddenPositions[i].getY(), mHiddenPositions[i].getWidth(), mHiddenPositions[i].getHeight());
+                mHiddenPositions[0].rotate(rot);
+                rot = 90;
+            if (i == 0)
+                shapes.rect(mHiddenPositions[i].getX(), mHiddenPositions[i].getY(), mHiddenPositions[i].getBoundingRectangle().getWidth(), mHiddenPositions[i].getBoundingRectangle().getHeight());
         }
     }
 }
