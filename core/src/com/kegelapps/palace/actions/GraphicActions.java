@@ -137,6 +137,8 @@ public class GraphicActions {
                         rotateTo(90.0f, duration));
                 break;
         }
+        float varianceDelay = MathUtils.random(4)/10.0f;
+        animation = sequence(delay(varianceDelay), animation);
         if (mTrigger != null)
             return sequence(mStartAction, animation, mEndAction);
         return animation;
