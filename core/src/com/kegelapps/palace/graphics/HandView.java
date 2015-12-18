@@ -1,7 +1,11 @@
 package com.kegelapps.palace.graphics;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -53,12 +57,12 @@ public class HandView extends Actor{
         switch (mHand.getID()) {
             default:
             case 0: //bottom
-                mHiddenPositions[0] = new Rectangle(startX, 0, cardWidth, cardHeight);
-                mHiddenPositions[1] = new Rectangle(startX + nextX, 0, cardWidth, cardHeight);
-                mHiddenPositions[2] = new Rectangle(startX + nextX + nextX, 0, cardWidth, cardHeight);
+                mHiddenPositions[0] = new Rectangle(startX, -cardHeight/2, cardWidth, cardHeight);
+                mHiddenPositions[1] = new Rectangle(startX + nextX, -cardHeight/2, cardWidth, cardHeight);
+                mHiddenPositions[2] = new Rectangle(startX + nextX + nextX, -cardHeight/2, cardWidth, cardHeight);
                 break;
             case 1: //left
-                mHiddenPositions[0] = new Rectangle(0, startY, cardHeight, cardWidth);
+                mHiddenPositions[0] = new Rectangle(0, startY, cardWidth, cardHeight);
                 mHiddenPositions[1] = new Rectangle(0, startY + nextX, cardHeight, cardWidth);
                 mHiddenPositions[2] = new Rectangle(0, startY + nextX + nextX, cardHeight, cardWidth);
                 break;
@@ -90,27 +94,16 @@ public class HandView extends Actor{
                 int pos = getHand().GetHiddenCards().size()-1;
                 Rectangle r = getHiddenPosition(pos);
                 cardView.addSequenceAction(new GraphicActions(false).LineUpHiddenCard(r, getHand().getID()));
-
-/*                if (cardView.getActions() != null) {
-                    Action a = cardView.getActions().get(cardView.getActions().size-1);
-                    if (a instanceof SequenceAction) {
-                        ((SequenceAction)a).addAction(new GraphicActions(new GraphicActions.GraphicTrigger() {
-                            @Override
-                            public void onActionStart() {
-                                System.out.print("STARTING ANI\n");
-                            }
-
-                            @Override
-                            public void onActionEnd() {
-                                System.out.print("ENDING ANI\n");
-                            }
-                        }).LineUpHiddenCard(r, getHand().getID()));
-                    }
-                    //cardView.addAction(new GraphicActions(false).LineUpHiddenCard(r, getHand().getID()));
-                }*/
             }
         });
     }
 
-
+    @Override
+    public void drawDebug(ShapeRenderer shapes) {
+        super.drawDebug(shapes);
+        shapes.setColor(Color.RED);
+        for (int i=0; i<mHiddenPositions.length; ++i) {
+            shapes.rect(mHiddenPositions[i].getX(), mHiddenPositions[i].getY(), mHiddenPositions[i].getWidth(), mHiddenPositions[i].getHeight());
+        }
+    }
 }

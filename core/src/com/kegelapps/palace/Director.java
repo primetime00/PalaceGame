@@ -90,4 +90,7 @@ public class Director {
         return 1200;
     }
 
+    public Scene getScene() {
+        return scene;
+    }
 }

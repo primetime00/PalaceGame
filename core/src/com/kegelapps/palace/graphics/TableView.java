@@ -54,6 +54,7 @@ public class TableView extends Group implements Input.BoundObject {
         addActor(mDeck);
         for (HandView hView : mHands){
             addActor(hView);
+            hView.debug();
         }
 
 

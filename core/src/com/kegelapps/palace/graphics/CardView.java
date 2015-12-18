@@ -1,9 +1,11 @@
 package com.kegelapps.palace.graphics;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -52,6 +54,7 @@ public class CardView extends Actor {
             mCardMap = new OrderedMap<>();
         mCardMap.put(mCard, this);
         setName(mCard.toString());
+        debug();
     }
 
     public Card getCard() {
@@ -88,4 +91,11 @@ public class CardView extends Actor {
             addAction(action);
     }
 
+    @Override
+    public void drawDebug(ShapeRenderer shapes) {
+        super.drawDebug(shapes);
+        shapes.setColor(Color.WHITE);
+        shapes.set(ShapeRenderer.ShapeType.Filled);
+        shapes.circle(getOriginX()+getX(), getOriginY()+getY(), 10.0f);
+    }
 }
