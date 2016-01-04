@@ -1,9 +1,7 @@
 package com.kegelapps.palace.graphics;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.kegelapps.palace.Card;
+import com.kegelapps.palace.engine.Card;
 
 /**
  * Created by keg45397 on 12/8/2015.

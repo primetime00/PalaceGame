@@ -2,16 +2,14 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.utils.OrderedMap;
-import com.kegelapps.palace.Card;
+import com.kegelapps.palace.engine.Card;
 
 /**
  * Created by keg45397 on 12/8/2015.
@@ -54,7 +52,6 @@ public class CardView extends Actor {
             mCardMap = new OrderedMap<>();
         mCardMap.put(mCard, this);
         setName(mCard.toString());
-        debug();
     }
 
     public Card getCard() {

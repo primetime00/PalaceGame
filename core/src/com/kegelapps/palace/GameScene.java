@@ -1,6 +1,9 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kegelapps.palace.engine.Deck;
+import com.kegelapps.palace.engine.Logic;
+import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.graphics.TableView;
 
 /**

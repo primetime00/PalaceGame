@@ -1,7 +1,8 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Disposable;
+import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Hand;
 
 /**
  * Created by keg45397 on 12/8/2015.
@@ -37,7 +38,7 @@ public class SelectEndCardAction extends Action {
         });
     }
 
-    void Poll() {
+    public void Poll() {
         if (isDisposed())
             return;
         if (mFirstPoll)

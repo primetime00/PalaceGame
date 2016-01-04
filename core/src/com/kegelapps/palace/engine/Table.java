@@ -1,4 +1,9 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.engine;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.states.DealCard;
+import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.events.EventSystem;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -6,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by keg45397 on 12/7/2015.
  */
-public class Table extends EventObject {
+public class Table {
     private Deck mDeck; //the deck on the table
 
     List<Card> mCardsInPlay;
@@ -14,6 +19,10 @@ public class Table extends EventObject {
 
     //should the table have the hands?
     List<Hand> mHands;
+
+    //state machine
+    DealCard mDealHiddenCardState;
+    DealCard mDealActiveCardState;
 
     private TableListener mTableListener;
 
@@ -43,26 +52,24 @@ public class Table extends EventObject {
         mCardsInPlay.add(c);
     }
 
-    public void DealHiddenCard(int player) {
-        Hand h = mHands.get(player);
-        Card c = mDeck.Draw();
-        AddParam("hand", h);
-        AddParam("card", c);
-        Trigger(EventType.DEAL_CARD);
-        h.AddHiddenCard(c);
+    public boolean DealHiddenCard(int player) {
+        if (mDealHiddenCardState == null || mDealHiddenCardState.getStatus() == State.Status.DONE) {
+            mDealHiddenCardState = new DealCard(mHands.get(player), mDeck, true, null);
+        }
+        return mDealHiddenCardState.Run();
     }
 
-    public void DealActiveCard(int player) {
-        Hand h = mHands.get(player);
-        Card c = mDeck.Draw();
-        h.AddActiveCard(c);
+    public boolean DealActiveCard(int player) {
+        if (mDealActiveCardState == null || mDealActiveCardState.getStatus() == State.Status.DONE) {
+            mDealActiveCardState = new DealCard(mHands.get(player), mDeck, false, null);
+        }
+        return mDealActiveCardState.Run();
     }
 
     public void PlayCard() {
         Card c = mDeck.Draw();
         mCardsInPlay.add(c);
-        AddParam("card", c);
-        Trigger(EventType.DRAW_PLAY_CARD);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_PLAY_CARD, c);
         System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
     }
 

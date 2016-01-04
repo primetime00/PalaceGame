@@ -1,14 +1,10 @@
 package com.kegelapps.palace.graphics;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.utils.Array;
-import com.kegelapps.palace.Card;
-import com.kegelapps.palace.Deck;
+import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.Input;
 
 /**

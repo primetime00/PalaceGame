@@ -1,15 +1,20 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.engine;
+import com.kegelapps.palace.Action;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.SelectEndCardAction;
+import com.kegelapps.palace.events.EventSystem;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Hand extends EventObject {
+public class Hand {
 
-    enum HandType {
+    public enum HandType {
         HUMAN,
         CPU,
         MAX
@@ -60,13 +65,13 @@ public class Hand extends EventObject {
 
     public void AddHiddenCard(Card card) {
         mHiddenCards.add(card);
-        AddParam("card", card);
-        AddParam("hand", this);
-        Trigger(EventType.LAYOUT_HIDDEN_CARD);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID());
     }
 
     public void AddActiveCard(Card card) {
         mActiveCards.add(card);
+        Collections.sort(mActiveCards);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_ACTIVE_CARD, card, getID());
     }
 
     public void SelectEndCards() {
@@ -106,4 +111,6 @@ public class Hand extends EventObject {
     public List<Card> GetHiddenCards() {
         return mHiddenCards;
     }
+
+    public List<Card> GetActiveCards() { return mActiveCards; }
 }

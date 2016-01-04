@@ -1,7 +1,8 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.kegelapps.palace.engine.states.Deal;
 
 /**
  * Created by Ryan on 12/5/2015.
@@ -126,46 +127,4 @@ public class Logic implements Hand.EndCardsListener{
             mState = GameState.PLAY;
         }
     }
-
-    static class Deal {
-        private Table mTable;
-        private int mCurrentPlayer;
-        private int mRound;
-        private Runnable mDoneRunnable;
-
-        public Deal(Table table, Runnable done) {
-            mTable = table;
-            mCurrentPlayer = 0;
-            mRound = 0;
-            mDoneRunnable = done;
-        }
-
-        public void Run() {
-            if (mRound == 0 && mCurrentPlayer == 0) {
-                System.out.print("Dealing cards...");
-            }
-            if (mRound < 3) {
-                mTable.DealHiddenCard(mCurrentPlayer);
-                mCurrentPlayer +=1;
-                if (mCurrentPlayer >= 4) {
-                    mCurrentPlayer = 0;
-                    mRound += 1;
-                }
-            }
-            else if (mRound < 10) {
-                mTable.DealActiveCard(mCurrentPlayer);
-                mCurrentPlayer +=1;
-                if (mCurrentPlayer >= 4) {
-                    mCurrentPlayer = 0;
-                    mRound += 1;
-                }
-            }
-            else {
-                if (mDoneRunnable != null) {
-                    mDoneRunnable.run();
-                }
-            }
-        }
-    }
-
 }

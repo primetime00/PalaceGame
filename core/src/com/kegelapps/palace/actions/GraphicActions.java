@@ -2,16 +2,12 @@ package com.kegelapps.palace.actions;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Hand;
-import com.kegelapps.palace.Logic;
+import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.DeckView;
-import com.kegelapps.palace.graphics.HandView;
-import sun.rmi.runtime.Log;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 import static com.badlogic.gdx.math.Interpolation.*;
@@ -85,12 +81,11 @@ public class GraphicActions {
             return animation;
     }
 
-    public Action DealToHand(DeckView deck, Hand hand, CardView card) {
+    public Action DealToHand(DeckView deck, Hand hand, CardView card, float duration) {
         Action animation;
         float cardSize = card.getMaxCardSize();
         int roundSize = MathUtils.round(cardSize) / 10;
         int variation = (MathUtils.random(roundSize) - (roundSize/2))*10;
-        float duration = 0.7f;
         float rotation = (MathUtils.random(36) - 18)*10;
         switch (hand.getID()) {
             default:
@@ -116,9 +111,15 @@ public class GraphicActions {
         return animation;
     }
 
-    public Action LineUpHiddenCard(Polygon pos, int handId) {
+    public Action DealToHand(DeckView deck, Hand hand, CardView card) {
+        return DealToHand(deck, hand, card, 0.5f);
+    }
+
+    public Action LineUpHiddenCard(Polygon pos, int handId, CardView card) {
         Action animation;
         float duration = 0.1f;
+        float rotDiff = (card.getOriginY() - card.getOriginX())/1;
+        float sideRot = 90.0f;
         switch (handId) {
             default:
             case 0: //bottom
@@ -126,16 +127,16 @@ public class GraphicActions {
                         rotateTo(0.0f, duration));
                 break;
             case 1: //left
-                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
-                        rotateTo(-90.0f, duration));
+                animation = parallel(moveTo(pos.getX()-(rotDiff*MathUtils.sinDeg(-sideRot)) , pos.getY()+(rotDiff*MathUtils.sinDeg(-sideRot)), duration),
+                        rotateTo(-sideRot, duration));
                 break;
             case 2: //top
                 animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
                         rotateTo(180.0f, duration));
                 break;
             case 3: //right
-                animation = parallel(moveTo(pos.getX(), pos.getY(), duration),
-                        rotateTo(90.0f, duration));
+                animation = parallel(moveTo(pos.getX()+(rotDiff*MathUtils.sinDeg(sideRot)) , pos.getY()-(rotDiff*MathUtils.sinDeg(sideRot)), duration),
+                        rotateTo(sideRot, duration));
                 break;
         }
         float varianceDelay = MathUtils.random(4)/10.0f;

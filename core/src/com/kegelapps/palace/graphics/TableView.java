@@ -2,23 +2,22 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.OrderedMap;
 import com.kegelapps.palace.*;
-import com.kegelapps.palace.actions.GraphicActions;
-import com.kegelapps.palace.events.TableEvent;
-import sun.rmi.runtime.Log;
+import com.kegelapps.palace.animations.CameraAnimation;
+import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.events.EventSystem;
 
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
-import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
 /**
@@ -54,7 +53,6 @@ public class TableView extends Group implements Input.BoundObject {
         addActor(mDeck);
         for (HandView hView : mHands){
             addActor(hView);
-            hView.debug();
         }
 
 
@@ -66,28 +64,66 @@ public class TableView extends Group implements Input.BoundObject {
     }
 
     private void createTableEvents() {
-        mTable.AddEvent(new TableEvent() {
+        EventSystem.Event mDrawCardEvent = new EventSystem.Event(EventSystem.EventType.DRAW_PLAY_CARD) {
             @Override
-            public void onFirstCardDrawn(OrderedMap data) {
-                CardView cardView = CardView.getCardView((Card) data.get("card"));
+            public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Card) )
+                    throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
+                CardView cardView = CardView.getCardView((Card) params[0]);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setSide(CardView.Side.BACK);
                 if (findActor(cardView.getCard().toString()) == null)
                     addActor(cardView);
-                cardView.addAction(new GraphicActions(false).DrawToActive(mDeck, cardView));
-            }
 
+                new CardAnimation(true).DrawToActive(mDeck, cardView);
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mDrawCardEvent);
+
+        EventSystem.Event mDealCardEvent = new EventSystem.Event(EventSystem.EventType.DEAL_CARD) {
             @Override
-            public void onCardDeal(OrderedMap<String, Object> data) {
-                CardView cardView = CardView.getCardView((Card) data.get("card"));
-                Hand hand =  (Hand) data.get("hand");
+            public void handle(Object params[]) {
+                if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand))
+                    throw new IllegalArgumentException("Invalid parameters for DEAL_CARD");
+                CardView cardView = CardView.getCardView((Card) params[0]);
+                Hand hand =  (Hand) params[1];
+
+                float duration = params.length >= 3 && params[2] instanceof Float ? (float)params[2] : 0.5f;
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setSide(CardView.Side.BACK);
                 if (findActor(cardView.getCard().toString()) == null)
                     addActor(cardView);
-                cardView.addAction(new GraphicActions(true).DealToHand(mDeck, hand, cardView));
+                for (int index =0; index<mHands.size; ++index)
+                {
+                    if (mHands.get(index).getHand() == hand) {
+                        new CardAnimation(true).DealToHand(mDeck, mHands.get(index), cardView, 0.5f);
+                        break;
+                    }
+                }
             }
-        });
+        };
+        Director.instance().getEventSystem().RegisterEvent(mDealCardEvent);
+
+        EventSystem.Event mDealFirstActiveCard = new EventSystem.Event(EventSystem.EventType.DEAL_ACTIVE_CARDS) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof Integer))
+                    throw new IllegalArgumentException("Invalid parameters for DEAL_ACTIVE_CARDS");
+                int round = (int) params[0];
+                int player = (int) params[1];
+                if (round != 3 && player != 0)
+                    return;
+                float duration = 1.5f;
+                float camX = Director.instance().getScene().getCamera().position.x;
+                float camY = Director.instance().getScene().getCamera().position.y;
+                OrthographicCamera camera = (OrthographicCamera) Director.instance().getScene().getCamera();
+                camX = mDeck.getX()+100;
+                camY = mDeck.getY();
+                new CameraAnimation(false).MoveCamera(duration, camX, camY, 1.4f, camera);
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
+
     }
 
     public void onScreenSize(int w, int h) {
