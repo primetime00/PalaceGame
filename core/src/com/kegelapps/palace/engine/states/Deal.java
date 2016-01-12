@@ -19,7 +19,7 @@ public class Deal extends State{
         mTable = table;
         mCurrentPlayer = 0;
         mLastPlayer = -1;
-        mRound = 3;
+        mRound = 0;
         mDoneRunnable = done;
     }
 
@@ -41,7 +41,7 @@ public class Deal extends State{
             result = false;
         }
         else if (mRound < 10) {
-            if (mLastPlayer != mCurrentPlayer)
+            if (mRound == 3 && mCurrentPlayer == 0)
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_ACTIVE_CARDS, mRound, mCurrentPlayer);
             if (mTable.DealActiveCard(mCurrentPlayer)) {
                 mCurrentPlayer += 1;

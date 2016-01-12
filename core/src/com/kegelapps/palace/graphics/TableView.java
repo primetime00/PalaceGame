@@ -117,9 +117,9 @@ public class TableView extends Group implements Input.BoundObject {
                 float camX = Director.instance().getScene().getCamera().position.x;
                 float camY = Director.instance().getScene().getCamera().position.y;
                 OrthographicCamera camera = (OrthographicCamera) Director.instance().getScene().getCamera();
-                camX = mDeck.getX()+100;
-                camY = mDeck.getY();
-                new CameraAnimation(false).MoveCamera(duration, camX, camY, 1.4f, camera);
+                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
+                camY = mHands.get(0).getY()-mHands.get(0).getHeight(); //mDeck.getY()+(mDeck.getHeight()/2.0f);
+                new CameraAnimation(false).MoveCamera(duration, camX, camY, 1.0f, camera);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
@@ -139,7 +139,9 @@ public class TableView extends Group implements Input.BoundObject {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        batch.draw(mBackground, 0, 0);
+        float x = -(mBackground.getWidth()/2.0f - (mDeck.getX() + mDeck.getWidth()/2.0f));
+        float y = -(mBackground.getHeight()/2.0f - (mDeck.getY() + mDeck.getHeight()/2.0f));
+        batch.draw(mBackground, x,y);
         super.draw(batch, parentAlpha);
     }
 

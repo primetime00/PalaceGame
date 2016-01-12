@@ -55,6 +55,7 @@ public class HandView extends Group{
             default:
             case 0: //bottom
                 mActivePosition = new Rectangle(0, 0, Director.instance().getScreenWidth(), cardHeight);
+                mActivePosition.setY(-cardHeight - (cardHeight*0.10f));
                 break;
             case 1: //left
                 mActivePosition = new Rectangle(0, 0, cardHeight, Director.instance().getScreenHeight());
