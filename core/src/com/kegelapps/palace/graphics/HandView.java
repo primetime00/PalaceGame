@@ -4,12 +4,16 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -26,6 +30,8 @@ public class HandView extends Group{
     private Rectangle mActivePosition;
     private float mCardOverlapPercent;
 
+    private ActorGestureListener mGestureListener;
+
     public HandView(Hand hand) {
         super();
         assert(hand == null);
@@ -38,6 +44,19 @@ public class HandView extends Group{
 
 
         createHandEvents();
+
+        mGestureListener = new ActorGestureListener() {
+            @Override
+            public void fling(InputEvent event, float velocityX, float velocityY, int button) {
+                super.fling(event, velocityX, velocityY, button);
+                if (event.getTarget() instanceof CardView) {
+                    Card c = ((CardView)event.getTarget()).getCard();
+                    Logic.get().PlayerSelectCard(getHand(), c);
+                }
+            }
+        };
+        if (getHand().getType() == Hand.HandType.HUMAN)
+            addListener(mGestureListener);
     }
 
     public void setCardOverLapPercent(float val) {
@@ -59,12 +78,15 @@ public class HandView extends Group{
                 break;
             case 1: //left
                 mActivePosition = new Rectangle(0, 0, cardHeight, Director.instance().getScreenHeight());
+                mActivePosition.setX(-cardHeight - (cardHeight*0.10f));
                 break;
             case 2: //top
                 mActivePosition = new Rectangle(0, Director.instance().getScreenHeight()-cardHeight, Director.instance().getScreenWidth(), cardHeight);
+                mActivePosition.setY(Director.instance().getScreenHeight()+ (cardHeight*0.10f));
                 break;
             case 3: //right
                 mActivePosition = new Rectangle(Director.instance().getScreenWidth()-cardHeight, 0, cardHeight, Director.instance().getScreenHeight());
+                mActivePosition.setX(Director.instance().getScreenWidth()+ (cardHeight*0.10f));
                 break;
         }
     }
@@ -201,5 +223,18 @@ public class HandView extends Group{
         //for (int i=0; i<3; ++i)
         //    shapes.rect(mHiddenPositions[i].getX(), mHiddenPositions[i].getY(), mHiddenPositions[i].getBoundingRectangle().getWidth(), mHiddenPositions[i].getBoundingRectangle().getHeight());
         shapes.rect(mActivePosition.getX(), mActivePosition.getY(), mActivePosition.getWidth(), mActivePosition.getHeight());
+    }
+
+    @Override
+    public Actor hit(float x, float y, boolean touchable) {
+        if (getActivePosition().contains(x,y)) {
+            Actor a = super.hit(x,y,touchable);
+            return a;
+        }
+        return null;
+    }
+
+    public ActorGestureListener getGestureListener() {
+        return mGestureListener;
     }
 }

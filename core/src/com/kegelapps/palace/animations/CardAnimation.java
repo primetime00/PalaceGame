@@ -53,6 +53,7 @@ public class CardAnimation implements TweenCallback {
         animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
 
         Rectangle r = hand.getActivePosition();
+        Polygon pg = hand.getHiddenPosition(0);
         float cardSize = card.getMaxCardSize();
         int roundSize = MathUtils.round(cardSize) / 10;
         int angleVariation = (MathUtils.random(roundSize) - (roundSize/2))*10;
@@ -63,21 +64,21 @@ public class CardAnimation implements TweenCallback {
             default:
             case 0: //bottom
                 //animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+variation, -cardSize).ease(TweenEquations.easeInOutExpo));
-                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+angleVariation, r.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
+                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+angleVariation, pg.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
                 animation.push(Tween.to(card, CardAccessor.ROTATION, duration).target(rotation));
                 break;
             case 1: //left
                 //animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(-cardSize, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
-                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(r.getX() + powerVariation, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
+                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(pg.getX() + powerVariation, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
                 animation.push(Tween.to(card, CardAccessor.ROTATION, duration).target(rotation));
                 break;
             case 2: //top
-                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+angleVariation, r.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
+                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+angleVariation, pg.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
                 //animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(deck.getX()+angleVariation, Director.instance().getScreenHeight()+cardSize).ease(TweenEquations.easeInOutExpo));
                 animation.push(Tween.to(card, CardAccessor.ROTATION, duration).target(rotation));
                 break;
             case 3: //right
-                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(r.getX() + powerVariation, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
+                animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(pg.getX() + powerVariation, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
                 //animation.push(Tween.to(card, CardAccessor.POSITION_XY, duration).target(Director.instance().getScreenWidth()+cardSize, deck.getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
                 animation.push(Tween.to(card, CardAccessor.ROTATION, duration).target(rotation));
                 break;

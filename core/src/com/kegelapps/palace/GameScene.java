@@ -1,5 +1,6 @@
 package com.kegelapps.palace;
 
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;

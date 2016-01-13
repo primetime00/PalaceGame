@@ -1,6 +1,7 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -118,7 +119,7 @@ public class TableView extends Group implements Input.BoundObject {
                 float camY = Director.instance().getScene().getCamera().position.y;
                 OrthographicCamera camera = (OrthographicCamera) Director.instance().getScene().getCamera();
                 camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
-                camY = mHands.get(0).getY()-mHands.get(0).getHeight(); //mDeck.getY()+(mDeck.getHeight()/2.0f);
+                camY = mHands.get(0).getHiddenPosition(0).getY() + CardUtils.getCardHeight();
                 new CameraAnimation(false).MoveCamera(duration, camX, camY, 1.0f, camera);
             }
         };
@@ -150,5 +151,9 @@ public class TableView extends Group implements Input.BoundObject {
     @Override
     public Rectangle getBounds() {
         return new Rectangle(0,0,800,480);
+    }
+
+    public Array<HandView> getHands() {
+        return mHands;
     }
 }

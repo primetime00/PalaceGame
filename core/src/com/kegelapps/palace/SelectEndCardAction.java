@@ -44,14 +44,14 @@ public class SelectEndCardAction extends Action {
         if (mFirstPoll)
             System.out.print("Player " + mHand.getID() + " Select your 3 end cards.\n");
         if (mHand.getType() == Hand.HandType.HUMAN) {
-            if (touched) { //make a runnable?
-                touched = false;
+            for (Card c : mHand.getPlayCards()) { //make a runnable?
                 mCardsToSelect--;
-                Card c = mHand.getActiveCards().get(MathUtils.random(mHand.getActiveCards().size()-1));
-                mHand.getEndCards().add(c);
-                mHand.getActiveCards().remove(c);
+                Card activeCard = mHand.getActiveCards().get(mHand.getActiveCards().indexOf(c));
+                mHand.getEndCards().add(activeCard);
+                mHand.getActiveCards().remove(activeCard);
                 System.out.print("HUMAN SELECTS " + c + "\n");
             }
+            mHand.getPlayCards().clear();
         }
         else {
             mCardsToSelect--;

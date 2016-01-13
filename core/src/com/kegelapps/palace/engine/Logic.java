@@ -9,6 +9,7 @@ import com.kegelapps.palace.engine.states.Deal;
  */
 public class Logic implements Hand.EndCardsListener{
 
+
     enum GameState {
         START,
         DEAL,
@@ -127,4 +128,10 @@ public class Logic implements Hand.EndCardsListener{
             mState = GameState.PLAY;
         }
     }
+
+    public void PlayerSelectCard(Hand h, Card c) {
+        if (mState == GameState.SELECT_END_CARDS)
+            h.PlayCard(c);
+    }
+
 }

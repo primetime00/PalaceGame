@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class Hand {
 
+
     public enum HandType {
         HUMAN,
         CPU,
@@ -26,6 +27,7 @@ public class Hand {
     private List<Card> mHiddenCards;
     private List<Card> mEndCards;
     private List<Card> mActiveCards;
+    private List<Card> mPlayCards;
 
     private EndCardsListener mEndCardListener;
 
@@ -44,6 +46,7 @@ public class Hand {
         mHiddenCards = new ArrayList<>();
         mEndCards = new ArrayList<>();
         mActiveCards = new ArrayList<>();
+        mPlayCards = new ArrayList<>();
 
         SetupInput();
     }
@@ -113,4 +116,12 @@ public class Hand {
     }
 
     public List<Card> GetActiveCards() { return mActiveCards; }
+
+    public void PlayCard(Card c) {
+        mPlayCards.add(c);
+    }
+
+    public List<Card> getPlayCards() {
+        return mPlayCards;
+    }
 }
