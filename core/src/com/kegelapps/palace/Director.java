@@ -3,9 +3,12 @@ package com.kegelapps.palace;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
@@ -20,6 +23,7 @@ public class Director {
     private Scene scene;
     private TweenManager mManager;
     private EventSystem mEventSystem;
+    private BitmapFont mGameFont;
 
     public synchronized static Director instance()
     {
@@ -43,6 +47,12 @@ public class Director {
         Tween.registerAccessor(CardView.class, new CardAccessor());
 
         mManager = new TweenManager();
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(new FileHandle("FatCow.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.size = 45;
+        mGameFont = generator.generateFont(param);
+        generator.dispose();
 
         // Latch onto event source.
         //eventSource = ActorEventSource.instance();
@@ -124,4 +134,6 @@ public class Director {
     public Scene getScene() {
         return scene;
     }
+
+    public BitmapFont getGameFont() { return mGameFont;}
 }

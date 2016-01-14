@@ -52,6 +52,14 @@ public class SelectEndCardAction extends Action {
                 System.out.print("HUMAN SELECTS " + c + "\n");
             }
             mHand.getPlayCards().clear();
+            for (Card c : mHand.getDiscardCards()) { //make a runnable?
+                mCardsToSelect++;
+                Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
+                mHand.getEndCards().remove(activeCard);
+                mHand.getActiveCards().add(activeCard);
+                System.out.print("HUMAN DESELECTS " + c + "\n");
+            }
+            mHand.getDiscardCards().clear();
         }
         else {
             mCardsToSelect--;

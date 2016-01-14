@@ -1,13 +1,15 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
@@ -28,7 +30,9 @@ public class HandView extends Group{
     private Hand mHand;
     private Rectangle mHiddenPositions[];
     private Rectangle mActivePosition;
+
     private float mCardOverlapPercent;
+    private float mEndCardOverlapPercent;
 
     private ActorGestureListener mGestureListener;
 
@@ -37,7 +41,7 @@ public class HandView extends Group{
         assert(hand == null);
         mHand = hand;
         mCardOverlapPercent = 0.75f;
-        debug();
+        mEndCardOverlapPercent = 0.05f;
 
         setupHiddenLayout();
         setupActiveLayout();
@@ -51,7 +55,12 @@ public class HandView extends Group{
                 super.fling(event, velocityX, velocityY, button);
                 if (event.getTarget() instanceof CardView) {
                     Card c = ((CardView)event.getTarget()).getCard();
-                    Logic.get().PlayerSelectCard(getHand(), c);
+                    if (getHand().getActiveCards().contains(c) && velocityY > 200.0f) {
+                        Logic.get().PlayerSelectCard(getHand(), c);
+                    }
+                    else if (getHand().getEndCards().contains(c) && velocityY < -200.0f) {
+                        Logic.get().PlayerUnselectCard(getHand(), c);
+                    }
                 }
             }
         };
@@ -62,10 +71,13 @@ public class HandView extends Group{
     public void setCardOverLapPercent(float val) {
         mCardOverlapPercent = val;
     }
+    public void setEndCardOverlapPercent(float val) { mEndCardOverlapPercent  = val;}
+
 
     public float getCardOverlapPercent() {
         return mCardOverlapPercent;
     }
+    public float getEndCardOverlapPercent() { return mEndCardOverlapPercent; }
 
     private void setupActiveLayout() {
         int cardHeight = CardUtils.getCardHeight();
@@ -170,6 +182,7 @@ public class HandView extends Group{
                 Rectangle r = getHiddenPosition(pos);
 
                 new CardAnimation(false).LineUpHiddenCards(r, getHand().getID(), cardView);
+                cardView.setZIndex(0);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLayoutHiddenCardEvent);
@@ -189,35 +202,68 @@ public class HandView extends Group{
                 cardView.getParent().removeActor(cardView);
                 addActor(cardView);
 
-
-                int size = getHand().GetActiveCards().size();
-                Rectangle r = getActivePosition();
-                float width = (( (size-1) * CardUtils.getCardWidth()) * mCardOverlapPercent) + CardUtils.getCardWidth();
-                if (getHand().getID() == 0 || getHand().getID() == 2) {
-                    r.setWidth(width);
-                    r.setX( (Director.instance().getScreenWidth() - r.getWidth()) /2.0f);
-                }
-                else {
-                    r.setHeight(width);
-                    r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
-                }
-                for (int i =0; i<size; ++i) {
-                    CardView cv = CardView.getCardView(getHand().getActiveCards().get(i));
-                    cv.setZIndex(i);
-                    new CardAnimation(false).LineUpActiveCard(HandView.this, cv, i);
-                }
+                OrganizeCards();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLayoutActiveCardEvent);
 
+        EventSystem.Event mSelectEndCardEvent = new EventSystem.Event(EventSystem.EventType.SELECT_END_CARD) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 3 || !(params[0] instanceof Card) || !(params[1] instanceof Integer) || !(params[2] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for SELECT_END_CARD");
+                }
+                int id = (int) params[1];
+                if (getHand().getID() != id)
+                    return;
+
+                CardView cardView = CardView.getCardView((Card) params[0]);
+                int pos = getHand().getEndCards().size();
+                Rectangle r = getHiddenPosition((int)params[2]);
+
+                float ov = CardUtils.getCardWidth() * getEndCardOverlapPercent();
+                new CardAnimation(false).SelectEndCard(r.getX()+ov, r.getY()+ov, id, cardView);
+
+                OrganizeCards();
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEvent);
+
+    }
+
+    public void OrganizeCards() {
+        int zIndex = 0;
+        int size = getHand().GetActiveCards().size();
+        Rectangle r = getActivePosition();
+        float width = (( (size-1) * CardUtils.getCardWidth()) * mCardOverlapPercent) + CardUtils.getCardWidth();
+        if (getHand().getID() == 0 || getHand().getID() == 2) {
+            r.setWidth(width);
+            r.setX( (Director.instance().getScreenWidth() - r.getWidth()) /2.0f);
+        }
+        else {
+            r.setHeight(width);
+            r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
+        }
+        for (Card c : getHand().GetHiddenCards()) {
+            CardView cv = CardView.getCardView(c);
+            cv.setZIndex(zIndex++);
+        }
+        for (int i =0; i<size; ++i) {
+            CardView cv = CardView.getCardView(getHand().getActiveCards().get(i));
+            cv.setZIndex(zIndex++);
+            new CardAnimation(false).LineUpActiveCard(HandView.this, cv, i);
+        }
+        for (Card c : getHand().getEndCards()) {
+            CardView cv = CardView.getCardView(c);
+            cv.setZIndex(zIndex++);
+        }
     }
 
     @Override
     public void drawDebug(ShapeRenderer shapes) {
         super.drawDebug(shapes);
+        shapes.set(ShapeRenderer.ShapeType.Line);
         shapes.setColor(Color.RED);
-        //for (int i=0; i<3; ++i)
-        //    shapes.rect(mHiddenPositions[i].getX(), mHiddenPositions[i].getY(), mHiddenPositions[i].getBoundingRectangle().getWidth(), mHiddenPositions[i].getBoundingRectangle().getHeight());
         shapes.rect(mActivePosition.getX(), mActivePosition.getY(), mActivePosition.getWidth(), mActivePosition.getHeight());
     }
 
@@ -227,10 +273,22 @@ public class HandView extends Group{
             Actor a = super.hit(x,y,touchable);
             return a;
         }
+        for (int i=0; i<3; i++) {
+            Rectangle r = getHiddenPosition(i);
+            if (r.contains(x,y)) {
+                Actor a = super.hit(x,y,touchable);
+                return a;
+            }
+        }
         return null;
     }
 
     public ActorGestureListener getGestureListener() {
         return mGestureListener;
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
     }
 }

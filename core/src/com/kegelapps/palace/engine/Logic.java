@@ -3,11 +3,13 @@ package com.kegelapps.palace.engine;
 import java.util.ArrayList;
 import java.util.List;
 import com.kegelapps.palace.engine.states.Deal;
+import com.kegelapps.palace.engine.states.SelectEndCards;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Logic implements Hand.EndCardsListener{
+public class Logic {
+
 
 
     enum GameState {
@@ -26,6 +28,7 @@ public class Logic implements Hand.EndCardsListener{
 
     //states
     Deal mDealState;
+    SelectEndCards mSelectEndCardsState;
 
     private Table mTable;
 
@@ -58,6 +61,12 @@ public class Logic implements Hand.EndCardsListener{
                 mState = GameState.PLAY_FIRST_CARD;
             }
         });
+        mSelectEndCardsState = new SelectEndCards(mTable, new Runnable() {
+            @Override
+            public void run() {
+                mState = GameState.PLAY;
+            }
+        });
     }
 
     public void Pause(boolean pause) {
@@ -83,7 +92,8 @@ public class Logic implements Hand.EndCardsListener{
                     mState = GameState.SELECT_END_CARDS;
                     break;
                 case SELECT_END_CARDS:
-                    SelectEndCards();
+                    mSelectEndCardsState.Run();
+                    //SelectEndCards();
                     break;
             }
         }
@@ -107,31 +117,21 @@ public class Logic implements Hand.EndCardsListener{
                 mState = GameState.SELECT_END_CARDS;
                 break;
             case SELECT_END_CARDS:
-                SelectEndCards();
+                mSelectEndCardsState.Run();
                 break;
         }
     }
 
 
-    private void SelectEndCards() {
-        mEndHands.addAll(mTable.getHands());
-        for (Hand h : mTable.getHands()) {
-            h.SetEndCardListener(this);
-            h.SelectEndCards();
-        }
-    }
-
-    @Override
-    public void onEndCardDone(Hand hand) {
-        mEndHands.remove(hand);
-        if (mEndHands.size() == 0) {
-            mState = GameState.PLAY;
-        }
-    }
-
     public void PlayerSelectCard(Hand h, Card c) {
         if (mState == GameState.SELECT_END_CARDS)
-            h.PlayCard(c);
+            h.SelectEndCard(c);
     }
+
+    public void PlayerUnselectCard(Hand h, Card c) {
+        if (mState == GameState.SELECT_END_CARDS)
+            h.DeselectEndCard(c);
+    }
+
 
 }

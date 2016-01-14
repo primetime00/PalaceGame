@@ -15,6 +15,7 @@ import java.util.concurrent.BlockingQueue;
 public class Hand {
 
 
+
     public enum HandType {
         HUMAN,
         CPU,
@@ -28,15 +29,7 @@ public class Hand {
     private List<Card> mEndCards;
     private List<Card> mActiveCards;
     private List<Card> mPlayCards;
-
-    private EndCardsListener mEndCardListener;
-
-    //actions
-    private SelectEndCardAction mEndCardAction;
-
-    public interface EndCardsListener {
-        void onEndCardDone(Hand hand);
-    }
+    private List<Card> mDiscardCards;
 
 
     public Hand(int id, HandType type, Deck deck, BlockingQueue queue) {
@@ -47,23 +40,7 @@ public class Hand {
         mEndCards = new ArrayList<>();
         mActiveCards = new ArrayList<>();
         mPlayCards = new ArrayList<>();
-
-        SetupInput();
-    }
-
-    private void SetupInput() {
-        mEndCardAction = new SelectEndCardAction(this, new Action.OnAction() {
-            @Override
-            public void onActionComplete() {
-                if (mEndCardListener != null) {
-                    mEndCardListener.onEndCardDone(Hand.this);
-                }
-            }
-        });
-    }
-
-    public void SetEndCardListener(EndCardsListener listener) {
-        mEndCardListener = listener;
+        mDiscardCards = new ArrayList<>();
     }
 
     public void AddHiddenCard(Card card) {
@@ -79,13 +56,15 @@ public class Hand {
 
     public void AddEndCard(Card card) {
         getEndCards().add(card);
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID());
         getActiveCards().remove(card);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID(), getEndCards().size()-1);
     }
 
-    public void SelectEndCards() {
-        mEndCardAction.Poll();
+    public void RemoveEndCard(Card card) {
+        getEndCards().remove(card);
+        AddActiveCard(card);
     }
+
 
     @Override
     public String toString() {
@@ -123,11 +102,22 @@ public class Hand {
 
     public List<Card> GetActiveCards() { return mActiveCards; }
 
-    public void PlayCard(Card c) {
+    public void SelectEndCard(Card c) {
         mPlayCards.add(c);
+        if (mDiscardCards.contains(c))
+            mDiscardCards.remove(c);
+    }
+
+    public void DeselectEndCard(Card c) {
+        mDiscardCards.add(c);
+        if (mPlayCards.contains(c))
+            mPlayCards.remove(c);
     }
 
     public List<Card> getPlayCards() {
         return mPlayCards;
+    }
+    public List<Card> getDiscardCards() {
+        return mDiscardCards;
     }
 }

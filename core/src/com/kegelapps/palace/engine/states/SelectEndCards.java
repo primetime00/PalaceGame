@@ -47,6 +47,13 @@ public class SelectEndCards extends State {
                     System.out.print("HUMAN SELECTS " + c + "\n");
                 }
                 mHand.getPlayCards().clear();
+                for (Card c : mHand.getDiscardCards()) { //make a runnable?
+                    Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
+                    mHand.RemoveEndCard(activeCard);
+                    System.out.print("HUMAN DESELECTS " + c + "\n");
+                }
+                mHand.getDiscardCards().clear();
+
             } else {
                 Card c = mHand.getActiveCards().get(MathUtils.random(mHand.getActiveCards().size() - 1));
                 mHand.AddEndCard(c);

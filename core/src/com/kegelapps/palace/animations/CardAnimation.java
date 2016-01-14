@@ -121,7 +121,65 @@ public class CardAnimation implements TweenCallback {
         return animation;
     }
 
+    public BaseTween<Timeline> MoveCard(float x, float y, int id, CardView cardView) {
+        Timeline animation = Timeline.createParallel();
+        animation.setCallback(this);
+        animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
 
+        float duration = 0.1f;
+        float rotDiff = (cardView.getOriginY() - cardView.getOriginX())/1;
+        float sideRot = 90.0f;
+        switch (id) {
+            default:
+            case 0: //bottom
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x, y));
+                break;
+            case 1: //left
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x-(rotDiff*MathUtils.sinDeg(-sideRot)) , y+(rotDiff*MathUtils.sinDeg(-sideRot))));
+                break;
+            case 2: //top
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x,y));
+                break;
+            case 3: //right
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x+(rotDiff*MathUtils.sinDeg(sideRot)) , y-(rotDiff*MathUtils.sinDeg(sideRot))));
+                break;
+        }
+        animation.start(Director.instance().getTweenManager());
+        return animation;
+    }
+
+    public BaseTween<Timeline> SelectEndCard(float x, float y, int id, final CardView cardView) {
+        Timeline animation = Timeline.createParallel();
+        animation.setCallback(this);
+        animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
+
+        float duration = 0.2f;
+        float rotDiff = (cardView.getOriginY() - cardView.getOriginX())/1;
+        float sideRot = 90.0f;
+        switch (id) {
+            default:
+            case 0: //bottom
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x, y));
+                break;
+            case 1: //left
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x-(rotDiff*MathUtils.sinDeg(-sideRot)) , y+(rotDiff*MathUtils.sinDeg(-sideRot))));
+                break;
+            case 2: //top
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x,y));
+                break;
+            case 3: //right
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x+(rotDiff*MathUtils.sinDeg(sideRot)) , y-(rotDiff*MathUtils.sinDeg(sideRot))));
+                break;
+        }
+        animation.push(Tween.call(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                cardView.setSide(CardView.Side.FRONT);
+            }
+        }).delay(0.1f));
+        animation.start(Director.instance().getTweenManager());
+        return animation;
+    }
 
     @Override
     public void onEvent(int type, BaseTween<?> source) {

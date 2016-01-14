@@ -81,20 +81,13 @@ public class CardView extends Actor {
         return null;
     }
 
-    public void addSequenceAction(Action action) {
-        if (getActions() == null || getActions().size  == 0)
-            addAction(action);
-        if (getActions().get(getActions().size-1) instanceof SequenceAction)
-            ((SequenceAction)getActions().get(getActions().size-1)).addAction(action);
-        else
-            addAction(action);
-    }
-
-    @Override
+        @Override
     public void drawDebug(ShapeRenderer shapes) {
         super.drawDebug(shapes);
-        shapes.setColor(Color.WHITE);
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.circle(getOriginX()+getX(), getOriginY()+getY(), 10.0f);
+        if (getZIndex() > 0) {
+            shapes.setColor(Color.WHITE);
+            shapes.set(ShapeRenderer.ShapeType.Filled);
+            shapes.circle(getOriginX() + getX(), getOriginY() + getY(), 10.0f);
+        }
     }
 }
