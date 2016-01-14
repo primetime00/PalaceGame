@@ -1,16 +1,17 @@
-package com.kegelapps.palace.engine.states;
+package com.kegelapps.palace.engine.states.tasks;
 
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 
 /**
  * Created by Ryan on 12/23/2015.
  */
-public class DealCard extends State{
+public class DealCard extends State {
 
     private Hand mHand;
     private Deck mDeck;

@@ -53,7 +53,7 @@ public class CardAnimation implements TweenCallback {
         animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
 
         Rectangle r = hand.getActivePosition();
-        Polygon pg = hand.getHiddenPosition(0);
+        Rectangle pg = hand.getHiddenPosition(0);
         float cardSize = card.getMaxCardSize();
         int roundSize = MathUtils.round(cardSize) / 10;
         int angleVariation = (MathUtils.random(roundSize) - (roundSize/2))*10;
@@ -88,7 +88,7 @@ public class CardAnimation implements TweenCallback {
         return animation;
     }
 
-    public BaseTween<Timeline> LineUpHiddenCards(Polygon poly, int id, CardView cardView) {
+    public BaseTween<Timeline> LineUpHiddenCards(Rectangle rect, int id, CardView cardView) {
         Timeline animation = Timeline.createParallel();
         animation.setCallback(this);
         animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
@@ -101,19 +101,19 @@ public class CardAnimation implements TweenCallback {
         switch (id) {
             default:
             case 0: //bottom
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(poly.getX(), poly.getY()));
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX(), rect.getY()));
                 animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(0.0f));
                 break;
             case 1: //left
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(poly.getX()-(rotDiff*MathUtils.sinDeg(-sideRot)) , poly.getY()+(rotDiff*MathUtils.sinDeg(-sideRot))));
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()-(rotDiff*MathUtils.sinDeg(-sideRot)) , rect.getY()+(rotDiff*MathUtils.sinDeg(-sideRot))));
                 animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(-sideRot));
                 break;
             case 2: //top
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(poly.getX(), poly.getY()));
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX(), rect.getY()));
                 animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(180.0f));
                 break;
             case 3: //right
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(poly.getX()+(rotDiff*MathUtils.sinDeg(sideRot)) , poly.getY()-(rotDiff*MathUtils.sinDeg(sideRot))));
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()+(rotDiff*MathUtils.sinDeg(sideRot)) , rect.getY()-(rotDiff*MathUtils.sinDeg(sideRot))));
                 animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(sideRot));
                 break;
         }

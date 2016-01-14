@@ -77,6 +77,12 @@ public class Hand {
         Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_ACTIVE_CARD, card, getID());
     }
 
+    public void AddEndCard(Card card) {
+        getEndCards().add(card);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID());
+        getActiveCards().remove(card);
+    }
+
     public void SelectEndCards() {
         mEndCardAction.Poll();
     }

@@ -26,7 +26,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 public class HandView extends Group{
 
     private Hand mHand;
-    private Polygon mHiddenPositions[];
+    private Rectangle mHiddenPositions[];
     private Rectangle mActivePosition;
     private float mCardOverlapPercent;
 
@@ -96,7 +96,7 @@ public class HandView extends Group{
     }
 
     private void setupHiddenLayout() {
-        mHiddenPositions = new Polygon[3];
+        mHiddenPositions = new Rectangle[3];
         int cardHeight = CardUtils.getCardHeight();
         int cardWidth = CardUtils.getCardWidth();
         int screenWidth = Director.instance().getScreenWidth();
@@ -107,8 +107,10 @@ public class HandView extends Group{
         float startY = (screenHeight - hiddenWidth) / 2.0f;
         float nextX = cardWidth + cardGap;
         for (int i=0; i<mHiddenPositions.length; ++i) {
-            mHiddenPositions[i] = new Polygon(new float[]{0, 0, cardWidth, 0, cardWidth, cardHeight, 0, cardHeight});
-            mHiddenPositions[i].setOrigin(cardWidth/2.0f, cardHeight/2.0f);
+            if (i == 0 || i == 2)
+                mHiddenPositions[i] = new Rectangle(0, 0, cardWidth, cardHeight);
+            else
+                mHiddenPositions[i] = new Rectangle(0, 0, cardHeight, cardWidth);
         }
         switch (mHand.getID()) {
             default:
@@ -119,11 +121,8 @@ public class HandView extends Group{
                 break;
             case 1: //left
                 mHiddenPositions[0].setPosition(0, startY);
-                mHiddenPositions[0].rotate(-90.0f);
                 mHiddenPositions[1].setPosition(0, startY + nextX);
-                mHiddenPositions[1].rotate(-90.0f);
                 mHiddenPositions[2].setPosition(0, startY + nextX + nextX);
-                mHiddenPositions[2].rotate(-90.0f);
                 break;
             case 2: //top
                 mHiddenPositions[0].setPosition(startX, screenHeight-cardHeight);
@@ -132,16 +131,13 @@ public class HandView extends Group{
                 break;
             case 3: //right
                 mHiddenPositions[0].setPosition(screenWidth - cardHeight, startY);
-                mHiddenPositions[0].setRotation(90.0f);
                 mHiddenPositions[1].setPosition(screenWidth - cardHeight, startY + nextX);
-                mHiddenPositions[1].setRotation(90.0f);
                 mHiddenPositions[2].setPosition(screenWidth - cardHeight, startY + nextX + nextX);
-                mHiddenPositions[2].setRotation(90.0f);
                 break;
         }
     }
 
-    public Polygon getHiddenPosition(int index) {
+    public Rectangle getHiddenPosition(int index) {
         if (index > 2)
             index = 0;
         return mHiddenPositions[index];
@@ -171,7 +167,7 @@ public class HandView extends Group{
                 addActor(cardView);
 
                 int pos = getHand().GetHiddenCards().size()-1;
-                Polygon r = getHiddenPosition(pos);
+                Rectangle r = getHiddenPosition(pos);
 
                 new CardAnimation(false).LineUpHiddenCards(r, getHand().getID(), cardView);
             }

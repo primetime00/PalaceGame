@@ -14,7 +14,7 @@ public class EventSystem implements Disposable{
         DRAW_PLAY_CARD,
         LAYOUT_HIDDEN_CARD,
         LAYOUT_ACTIVE_CARD,
-        DEAL_ACTIVE_CARDS,
+        DEAL_ACTIVE_CARDS, SELECT_END_CARD,
     }
 
     ObjectMap<EventType, Array<Event>> mListeners;

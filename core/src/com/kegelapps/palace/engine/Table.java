@@ -1,6 +1,6 @@
 package com.kegelapps.palace.engine;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.states.DealCard;
+import com.kegelapps.palace.engine.states.tasks.DealCard;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 
