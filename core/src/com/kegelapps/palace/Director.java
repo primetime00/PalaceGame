@@ -12,8 +12,10 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.CardAccessor;
+import com.kegelapps.palace.tween.HighlightAccessor;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -45,6 +47,8 @@ public class Director {
         Tween.registerAccessor(OrthographicCamera.class, new CameraAccessor());
         //create card tweens
         Tween.registerAccessor(CardView.class, new CardAccessor());
+        //create highlight tweens
+        Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
 
         mManager = new TweenManager();
 

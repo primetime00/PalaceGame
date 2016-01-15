@@ -1,64 +1,67 @@
 package com.kegelapps.palace.engine.states;
 
-import com.badlogic.gdx.math.MathUtils;
-import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.tasks.PlaceEndCard;
+import com.kegelapps.palace.engine.states.tasks.TapToStart;
 
 /**
  * Created by Ryan on 1/13/2016.
  */
 public class SelectEndCards extends State {
 
-    private Table mTable;
-    private int mCurrentPlayer, mLastPlayer;
-    private int mRound;
+    private PlaceEndCard mPlaceEndCardState;
+    private TapToStart mTapToStartState;
+    private Runnable mMoveToTapState, mMoveToPlaceState, mTappedDeckState;
+    private int mState = 0;
+
     private Runnable mDoneRunnable;
-    private boolean mFirstPoll;
 
 
     public SelectEndCards(Table table, Runnable done) {
         super();
-        mTable = table;
-        mCurrentPlayer = 0;
-        mLastPlayer = -1;
-        mRound = 0;
+        mState = 0;
+        if (mMoveToTapState == null) {
+            mMoveToTapState = new Runnable() {
+                @Override
+                public void run() {
+                    mState = 1;
+                }
+            };
+        }
+        if (mMoveToPlaceState == null) {
+            mMoveToPlaceState = new Runnable() {
+                @Override
+                public void run() {
+                    mState = 0;
+                }
+            };
+        }
+        if (mTappedDeckState == null) {
+            mTappedDeckState = new Runnable() {
+                @Override
+                public void run() {
+                    mState = 2;
+                }
+            };
+        }
         mDoneRunnable = done;
-        mFirstPoll = true;
+        mPlaceEndCardState = new PlaceEndCard(table, mMoveToTapState);
+        mTapToStartState = new TapToStart(table, mMoveToPlaceState, mTappedDeckState);
     }
 
     @Override
     public boolean Run() {
-        boolean mStillSelecting = false;
-        Hand mHand = mTable.getHands().get(mCurrentPlayer);
-        if (mFirstPoll) {
-            System.out.print("Player " + mHand.getID() + " Select your 3 end cards.\n");
-            mFirstPoll = false;
+        super.Run();
+        switch (mState) {
+            case 0: mPlaceEndCardState.Run(); break;
+            case 1: mTapToStartState.Run(); break;
+            default: break;
         }
-        for (int i=0; i<mTable.getHands().size(); ++i) {
-            mHand = mTable.getHands().get(i);
-            if (mHand.getEndCards().size() == 3)
-                continue;
-            mStillSelecting = true;
-            if (mHand.getType() == Hand.HandType.HUMAN) {
-                for (Card c : mHand.getPlayCards()) { //make a runnable?
-                    Card activeCard = mHand.getActiveCards().get(mHand.getActiveCards().indexOf(c));
-                    mHand.AddEndCard(activeCard);
-                    System.out.print("HUMAN SELECTS " + c + "\n");
-                }
-                mHand.getPlayCards().clear();
-                for (Card c : mHand.getDiscardCards()) { //make a runnable?
-                    Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
-                    mHand.RemoveEndCard(activeCard);
-                    System.out.print("HUMAN DESELECTS " + c + "\n");
-                }
-                mHand.getDiscardCards().clear();
-
-            } else {
-                Card c = mHand.getActiveCards().get(MathUtils.random(mHand.getActiveCards().size() - 1));
-                mHand.AddEndCard(c);
-            }
+        if (mState > 1) {
+            if (mDoneRunnable != null)
+                mDoneRunnable.run();
+            return true;
         }
-        return !mStillSelecting;
+        return false;
     }
 }

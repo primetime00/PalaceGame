@@ -1,6 +1,10 @@
 package com.kegelapps.palace.graphics;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 
 /**
@@ -12,6 +16,10 @@ public class CardUtils {
     static private TextureAtlas mCardAtlas;
     static private TextureAtlas.AtlasRegion mCardBack = null;
     static private CardSize mLoadedCardSize;
+
+    static private Pixmap mCardHighlight;
+    static private Texture mCardHighlightTexture;
+
 
     public enum CardSize {
         TINY,
@@ -28,6 +36,12 @@ public class CardUtils {
         }
         mLoadedCardSize = size;
         mCardAtlas = new TextureAtlas(file);
+        int ov = (int)(getCardWidth() * 0.05f);
+        mCardHighlight = new Pixmap(getCardWidth()-ov, getCardHeight()-ov, Pixmap.Format.RGBA8888);
+        mCardHighlight.setColor(Color.WHITE);
+        mCardHighlight.fillRectangle(0, 0, mCardHighlight.getWidth(), mCardHighlight.getHeight());
+        mCardHighlightTexture = new Texture(mCardHighlight);
+
     }
 
     static int getCardWidth() {
@@ -62,5 +76,7 @@ public class CardUtils {
     static public int getCardTextureHeight() {
         return cardHeight;
     }
+
+    static public Texture getCardHighlight() { return mCardHighlightTexture;}
 
 }

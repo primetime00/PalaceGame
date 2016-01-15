@@ -22,7 +22,8 @@ public class TextView extends Actor{
         if (txt.equals(mText))
             return;
         mText = txt;
-        mLayout = new GlyphLayout();
+        if (mLayout == null)
+            mLayout = new GlyphLayout();
         mLayout.setText(mFont, txt);
         setHeight(mLayout.height);
         setWidth(mLayout.width);

@@ -24,6 +24,8 @@ public class CardView extends Actor {
     private TextureAtlas.AtlasRegion mCardFace;
     private float mMaxCardSize;
 
+    private HighlightView mHighlightView;
+
     public enum Side {
         FRONT,
         BACK
@@ -54,6 +56,7 @@ public class CardView extends Actor {
             mCardMap = new OrderedMap<>();
         mCardMap.put(mCard, this);
         setName(mCard.toString());
+        mHighlightView = new HighlightView();
     }
 
     public Card getCard() {
@@ -64,6 +67,9 @@ public class CardView extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         batch.draw(mCardRegion,getX(), getY(),getOriginX(),getOriginY(),getWidth(),getHeight(),getScaleX(),getScaleY(),getRotation());
+        if (mHighlightView.isVisible()) {
+            mHighlightView.draw(batch, this);
+        }
     }
 
     public void setSide(Side side) {
@@ -89,5 +95,13 @@ public class CardView extends Actor {
             shapes.set(ShapeRenderer.ShapeType.Filled);
             shapes.circle(getOriginX() + getX(), getOriginY() + getY(), 10.0f);
         }
+    }
+
+
+    public void setHighlight(boolean highlight) {
+        if (highlight)
+            mHighlightView.show();
+        else
+            mHighlightView.hide();
     }
 }
