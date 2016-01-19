@@ -218,7 +218,6 @@ public class HandView extends Group{
                     return;
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
-                int pos = getHand().getEndCards().size();
                 Rectangle r = getHiddenPosition((int)params[2]);
 
                 float ov = CardUtils.getCardWidth() * getEndCardOverlapPercent();
@@ -254,8 +253,10 @@ public class HandView extends Group{
             new CardAnimation(false).LineUpActiveCard(HandView.this, cv, i);
         }
         for (Card c : getHand().getEndCards()) {
-            CardView cv = CardView.getCardView(c);
-            cv.setZIndex(zIndex++);
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(zIndex++);
+            }
         }
     }
 

@@ -2,46 +2,27 @@ package com.kegelapps.palace.engine;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.kegelapps.palace.engine.states.Deal;
-import com.kegelapps.palace.engine.states.SelectEndCards;
+
+import com.kegelapps.palace.engine.states.*;
+import com.kegelapps.palace.engine.states.tasks.PlaceEndCard;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
 public class Logic {
 
-
-
-    enum GameState {
-        START,
-        DEAL,
-        PLAY_FIRST_CARD,
-        SELECT_END_CARDS,
-        PLAY,
-        MAX
-    }
-
     private static Logic mLogic;
 
-    private GameState mState;
     private int mNumberOfPlayers = 0;
 
     //states
-    Deal mDealState;
-    SelectEndCards mSelectEndCardsState;
+    Main mMainState;
 
     private Table mTable;
-
-
-    private List<Hand> mEndHands;
-
-    private Deck mDeck;
 
     boolean mPaused;
 
     public Logic() {
-        mState = GameState.START;
-        mEndHands = new ArrayList<>();
         mPaused = false;
     }
 
@@ -53,83 +34,37 @@ public class Logic {
 
     public void SetTable(Table table) {
         mTable = table;
-        mDeck = table.getDeck();
+        mMainState = new Main(mTable);
         mNumberOfPlayers = table.getHands().size();
-        mDealState = new Deal(mTable, new Runnable() {
-            @Override
-            public void run() {
-                mState = GameState.PLAY_FIRST_CARD;
-            }
-        });
-        mSelectEndCardsState = new SelectEndCards(mTable, new Runnable() {
-            @Override
-            public void run() {
-                mState = GameState.PLAY;
-            }
-        });
     }
 
     public void Pause(boolean pause) {
         System.out.print("Logic system is " + (pause ? "Paused" : "UnPaused") + "\n");
+        if (mMainState != null) {
+            if (pause)
+                mMainState.pause();
+            else
+                mMainState.resume();
+        }
         mPaused = pause;
     }
 
-
-    public void Run() {
-        if (mTable == null)
-            return;
-        while (true) {
-            switch (mState) {
-                case START:
-                    mDeck.Shuffle();
-                    mState = GameState.DEAL;
-                    break;
-                case DEAL:
-                    mDealState.Run();
-                    break;
-                case PLAY_FIRST_CARD:
-                    mTable.PlayCard();
-                    mState = GameState.SELECT_END_CARDS;
-                    break;
-                case SELECT_END_CARDS:
-                    mSelectEndCardsState.Run();
-                    //SelectEndCards();
-                    break;
-            }
-        }
-    }
-
     public void Poll() {
-        if (mTable == null)
+        if (mMainState == null)
             return;
-        if (mPaused)
+        if (mMainState.getStatus() == State.Status.PAUSED)
             return;
-        switch (mState) {
-            case START:
-                mDeck.Shuffle();
-                mState = GameState.DEAL;
-                break;
-            case DEAL:
-                mDealState.Run();
-                break;
-            case PLAY_FIRST_CARD:
-                mTable.PlayCard();
-                mState = GameState.SELECT_END_CARDS;
-                break;
-            case SELECT_END_CARDS:
-                mSelectEndCardsState.Run();
-                break;
-        }
+        mMainState.Run();
     }
 
 
     public void PlayerSelectCard(Hand h, Card c) {
-        if (mState == GameState.SELECT_END_CARDS)
+        if (mMainState != null && mMainState.containsState(PlaceEndCard.class))
             h.SelectEndCard(c);
     }
 
     public void PlayerUnselectCard(Hand h, Card c) {
-        if (mState == GameState.SELECT_END_CARDS)
+        if (mMainState != null)
             h.DeselectEndCard(c);
     }
 

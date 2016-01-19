@@ -5,6 +5,7 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.StateListener;
 
 /**
  * Created by keg45397 on 1/15/2016.
@@ -14,17 +15,17 @@ public class PlaceEndCard extends State {
     private Table mTable;
     private int mCurrentPlayer, mLastPlayer;
     private int mRound;
-    private Runnable mDoneRunnable;
+    private StateListener mStateListener;
     private boolean mFirstPoll;
 
 
-    public PlaceEndCard(Table table, Runnable done) {
-        super();
+    public PlaceEndCard(State parent, Table table, StateListener done) {
+        super(parent);
         mTable = table;
         mCurrentPlayer = 0;
         mLastPlayer = -1;
         mRound = 0;
-        mDoneRunnable = done;
+        mStateListener = done;
         mFirstPoll = true;
     }
 
@@ -39,7 +40,7 @@ public class PlaceEndCard extends State {
         }
         for (int i=0; i<mTable.getHands().size(); ++i) {
             mHand = mTable.getHands().get(i);
-            if (mHand.getEndCards().size() == 3)
+            if (!mHand.getEndCards().contains(null)) //we have all of our cards
                 continue;
             mStillSelecting = true;
             if (mHand.getType() == Hand.HandType.HUMAN) {
@@ -61,8 +62,8 @@ public class PlaceEndCard extends State {
             }
         }
         if (!mStillSelecting) {
-            if (mDoneRunnable != null)
-                mDoneRunnable.run();
+            if (mStateListener != null)
+                mStateListener.onContinueState();
             return true;
         }
         return false;

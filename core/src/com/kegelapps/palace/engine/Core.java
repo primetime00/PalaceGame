@@ -6,7 +6,7 @@ package com.kegelapps.palace.engine;
 public class Core {
     public static void main(String [] args) {
         Logic gameEngine = new Logic();
-        gameEngine.Run();
+        //gameEngine.Run();
 
     }
 }

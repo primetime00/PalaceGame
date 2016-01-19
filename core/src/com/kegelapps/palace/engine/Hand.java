@@ -1,10 +1,9 @@
 package com.kegelapps.palace.engine;
-import com.kegelapps.palace.Action;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.SelectEndCardAction;
 import com.kegelapps.palace.events.EventSystem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -26,7 +25,7 @@ public class Hand {
     private HandType mType;
 
     private List<Card> mHiddenCards;
-    private List<Card> mEndCards;
+    private Card mEndCards[];
     private List<Card> mActiveCards;
     private List<Card> mPlayCards;
     private List<Card> mDiscardCards;
@@ -37,7 +36,7 @@ public class Hand {
         mType = type;
         mDeck = deck;
         mHiddenCards = new ArrayList<>();
-        mEndCards = new ArrayList<>();
+        mEndCards = new Card[3];
         mActiveCards = new ArrayList<>();
         mPlayCards = new ArrayList<>();
         mDiscardCards = new ArrayList<>();
@@ -55,13 +54,23 @@ public class Hand {
     }
 
     public void AddEndCard(Card card) {
-        getEndCards().add(card);
-        getActiveCards().remove(card);
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID(), getEndCards().size()-1);
+        int pos = -1;
+        for (int i=0; i<3; ++i) {
+            if (mEndCards[i] == null) {
+                mEndCards[i] = card;
+                pos = i;
+                break;
+            }
+        }
+        if (pos > -1) {
+            getActiveCards().remove(card);
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID(), pos);
+        }
     }
 
     public void RemoveEndCard(Card card) {
-        getEndCards().remove(card);
+        int i = getEndCards().indexOf(card);
+        mEndCards[i] = null;
         AddActiveCard(card);
     }
 
@@ -85,7 +94,7 @@ public class Hand {
     }
 
     public List<Card> getEndCards() {
-        return mEndCards;
+        return Arrays.asList(mEndCards);
     }
 
     public HandType getType() {

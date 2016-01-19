@@ -9,57 +9,58 @@ import com.kegelapps.palace.engine.states.tasks.TapToStart;
  */
 public class SelectEndCards extends State {
 
-    private PlaceEndCard mPlaceEndCardState;
-    private TapToStart mTapToStartState;
-    private Runnable mMoveToTapState, mMoveToPlaceState, mTappedDeckState;
+    private StateListener mPlaceCardListener, mTapDeckListener, mTappedDeckRunnable;
+
     private int mState = 0;
 
-    private Runnable mDoneRunnable;
+    private StateListener mStateListener;
+    State [] mStates;
 
 
-    public SelectEndCards(Table table, Runnable done) {
-        super();
+    public SelectEndCards(State parent, Table table, StateListener done) {
+        super(parent);
+        createStates(table);
         mState = 0;
-        if (mMoveToTapState == null) {
-            mMoveToTapState = new Runnable() {
-                @Override
-                public void run() {
-                    mState = 1;
-                }
-            };
-        }
-        if (mMoveToPlaceState == null) {
-            mMoveToPlaceState = new Runnable() {
-                @Override
-                public void run() {
-                    mState = 0;
-                }
-            };
-        }
-        if (mTappedDeckState == null) {
-            mTappedDeckState = new Runnable() {
-                @Override
-                public void run() {
-                    mState = 2;
-                }
-            };
-        }
-        mDoneRunnable = done;
-        mPlaceEndCardState = new PlaceEndCard(table, mMoveToTapState);
-        mTapToStartState = new TapToStart(table, mMoveToPlaceState, mTappedDeckState);
+        mStateListener = done;
+    }
+
+    private void createStates(Table table) {
+        mStates = new State[3];
+        mPlaceCardListener = new StateListener() {
+            @Override
+            public void onContinueState() {
+                mStates[mState].setStatus(Status.NOT_STARTED);
+                mState = 1;
+            }
+        };
+
+        mTapDeckListener = new StateListener() {
+            @Override
+            public void onContinueState() {
+                mStates[mState].setStatus(Status.NOT_STARTED);
+                mState = 2;
+            }
+
+            @Override
+            public void onBackState() {
+                mStates[mState].setStatus(Status.NOT_STARTED);
+                mState = 0;
+            }
+        };
+
+        mStates[0] = new PlaceEndCard(this, table, mPlaceCardListener);
+        mStates[1] = new TapToStart(this, table, mTapDeckListener);
+
+
     }
 
     @Override
     public boolean Run() {
         super.Run();
-        switch (mState) {
-            case 0: mPlaceEndCardState.Run(); break;
-            case 1: mTapToStartState.Run(); break;
-            default: break;
-        }
+        mStates[mState].Run();
         if (mState > 1) {
-            if (mDoneRunnable != null)
-                mDoneRunnable.run();
+            if (mStateListener != null)
+                mStateListener.onContinueState();
             return true;
         }
         return false;
