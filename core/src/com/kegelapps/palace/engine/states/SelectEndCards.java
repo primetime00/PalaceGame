@@ -25,7 +25,7 @@ public class SelectEndCards extends State {
     }
 
     private void createStates(Table table) {
-        mStates = new State[3];
+        mStates = new State[2];
         mPlaceCardListener = new StateListener() {
             @Override
             public void onContinueState() {
@@ -57,12 +57,18 @@ public class SelectEndCards extends State {
     @Override
     public boolean Run() {
         super.Run();
-        mStates[mState].Run();
+        if (mState < mStates.length)
+            mStates[mState].Run();
         if (mState > 1) {
             if (mStateListener != null)
                 mStateListener.onContinueState();
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Names getStateName() {
+        return Names.SELECT_END_CARDS;
     }
 }

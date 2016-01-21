@@ -62,4 +62,9 @@ public class Deal extends State{
         mLastPlayer = mCurrentPlayer;
         return result;
     }
+
+    @Override
+    public Names getStateName() {
+        return Names.DEAL;
+    }
 }

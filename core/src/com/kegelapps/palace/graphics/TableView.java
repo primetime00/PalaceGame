@@ -17,6 +17,8 @@ import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
@@ -34,11 +36,16 @@ public class TableView extends Group implements Input.BoundObject {
     private Pixmap mPixmap;
     private Texture mBackground;
 
+    private TextView mHelperText;
+
     public TableView(Table table) {
         mTable = table;
         mDeck = new DeckView(table.getDeck());
         mCards = new Array<>();
         mHands = new Array<>();
+
+        mHelperText = new TextView(Director.instance().getGameFont());
+
         for (Hand h : mTable.getHands()) {
             mHands.add(new HandView(h));
         }
@@ -125,6 +132,28 @@ public class TableView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
 
+        EventSystem.Event mTapDeckEvent = new EventSystem.Event(EventSystem.EventType.STATE_CHANGE) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof State)) {
+                    throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
+                }
+                if ((params[0] instanceof TapToStart)) {
+                    mHelperText.setText("Double Tap Deck To Start!");
+                    float x = mDeck.getX() - (mHelperText.getWidth() + mDeck.getWidth())/4.0f;
+                    float y = mDeck.getY()-(mDeck.getHeight()*0.05f);
+                    mHelperText.setX(x);
+                    mHelperText.setY(y);
+                    mHelperText.setColor(Color.RED);
+                    return;
+                }
+                mHelperText.setText("");
+
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mTapDeckEvent);
+
+
     }
 
     public void onScreenSize(int w, int h) {
@@ -144,6 +173,8 @@ public class TableView extends Group implements Input.BoundObject {
         float y = -(mBackground.getHeight()/2.0f - (mDeck.getY() + mDeck.getHeight()/2.0f));
         batch.draw(mBackground, x,y);
         super.draw(batch, parentAlpha);
+        if (mHelperText.getText().length() > 0)
+            mHelperText.draw(batch, parentAlpha);
     }
 
 

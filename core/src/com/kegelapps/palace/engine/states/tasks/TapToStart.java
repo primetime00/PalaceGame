@@ -45,4 +45,14 @@ public class TapToStart extends State {
         }
         return false;
     }
+
+    public void Tapped() {
+        if (mStateListener != null)
+            mStateListener.onContinueState();
+    }
+
+    @Override
+    public Names getStateName() {
+        return Names.TAP_DECK_START;
+    }
 }

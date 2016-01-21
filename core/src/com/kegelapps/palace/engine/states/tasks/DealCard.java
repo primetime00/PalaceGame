@@ -68,4 +68,9 @@ public class DealCard extends State {
                 return true;
         }
     }
+
+    @Override
+    public Names getStateName() {
+        return Names.DEAL_CARD;
+    }
 }

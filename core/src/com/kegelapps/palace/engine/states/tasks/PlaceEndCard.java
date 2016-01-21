@@ -69,4 +69,8 @@ public class PlaceEndCard extends State {
         return false;
     }
 
+    @Override
+    public Names getStateName() {
+        return Names.PLACE_END_CARD;
+    }
 }

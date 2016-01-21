@@ -1,5 +1,6 @@
 package com.kegelapps.palace.graphics;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -34,6 +35,12 @@ public class TextView extends Actor{
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+        mFont.setColor(Color.BLACK);
+        mFont.draw(batch, mText, getX()-2, getY());
+        mFont.draw(batch, mText, getX()+2, getY());
+        mFont.draw(batch, mText, getX(), getY()-2);
+        mFont.draw(batch, mText, getX(), getY()+2);
+        mFont.setColor(getColor());
         mFont.draw(batch, mText, getX(), getY());
     }
 }

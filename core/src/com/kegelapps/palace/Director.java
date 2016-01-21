@@ -13,9 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.HighlightView;
+import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.CardAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
+import com.kegelapps.palace.tween.MessageBandAccessor;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -49,6 +51,8 @@ public class Director {
         Tween.registerAccessor(CardView.class, new CardAccessor());
         //create highlight tweens
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
+        //create message band tweens
+        Tween.registerAccessor(MessageBandView.class, new MessageBandAccessor());
 
         mManager = new TweenManager();
 

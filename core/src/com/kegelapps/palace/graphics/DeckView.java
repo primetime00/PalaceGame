@@ -4,11 +4,14 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.Input;
+import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
@@ -22,6 +25,8 @@ public class DeckView extends Actor implements Input.BoundObject {
 
     private TextureAtlas.AtlasRegion mDeckBack;
     private HighlightView mHighlightView;
+
+    private ActorGestureListener mGestureListener;
 
     public DeckView() {
         super();
@@ -40,20 +45,39 @@ public class DeckView extends Actor implements Input.BoundObject {
     private void init() {
         mDeckBack = CardUtils.getCardBackDeckRegion();
         setBounds(0,0,mDeckBack.originalWidth, mDeckBack.originalHeight);
-        addListener(new InputListener() {
+        mHighlightView = new HighlightView();
+        createEvents();
+        createGestures();
+    }
+
+    private void createGestures() {
+        mGestureListener = new ActorGestureListener() {
+
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.print("Down");
-                return true;
+            public void tap(InputEvent event, float x, float y, int count, int button) {
+                super.tap(event, x, y, count, button);
+                if (count >= 2) {
+                    Logic.get().Request(Logic.LogicRequest.PLAY_START);
+                }
             }
 
             @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.print("Up");
+            public void fling(InputEvent event, float velocityX, float velocityY, int button) {
+                super.fling(event, velocityX, velocityY, button);
+/*                if (event.getTarget() instanceof CardView) {
+                    Card c = ((CardView)event.getTarget()).getCard();
+                    if (getHand().getActiveCards().contains(c) && velocityY > 200.0f) {
+                        Logic.get().PlayerSelectCard(getHand(), c);
+                    }
+                    else if (getHand().getEndCards().contains(c) && velocityY < -200.0f) {
+                        Logic.get().PlayerUnselectCard(getHand(), c);
+                    }
+                }*/
             }
-        });
-        mHighlightView = new HighlightView();
-        createEvents();
+        };
+        addListener(mGestureListener);
+        //if (getHand().getType() == Hand.HandType.HUMAN)
+        //    addListener(mGestureListener);
     }
 
     private void createEvents() {

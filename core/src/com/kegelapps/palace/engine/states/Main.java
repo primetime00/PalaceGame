@@ -69,7 +69,14 @@ public class Main extends State {
             case SELECT_END_CARDS:
                 mSelectEndCardsState.Run();
                 break;
+            case PLAY:
+                System.out.print("YOU STARTED THE GAME!\n");
         }
         return false;
+    }
+
+    @Override
+    public Names getStateName() {
+        return Names.MAIN;
     }
 }
