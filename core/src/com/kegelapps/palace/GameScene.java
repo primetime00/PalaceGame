@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
@@ -14,6 +16,11 @@ import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.protos.TableProtos;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -48,6 +55,7 @@ public class GameScene extends Scene {
     }
 
     private boolean once = false;
+    private boolean state = false;
 
     private void createEvents() {
         EventSystem.Event mTapDeckEvent = new EventSystem.Event(EventSystem.EventType.STATE_CHANGE) {
@@ -60,6 +68,7 @@ public class GameScene extends Scene {
                     if (once == false) {
                         mMessageBand.showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE);
                         once = true;
+                        state = true;
                     }
                 }
             }
@@ -71,6 +80,20 @@ public class GameScene extends Scene {
     public void act(float delta) {
         super.act(delta);
         logic.Poll();
+        if (state) {
+            if (tableView != null) {
+                TableProtos.TableView tv = (TableProtos.TableView) tableView.WriteBuffer();
+                try {
+                    FileOutputStream bs = new FileOutputStream("test.dat");
+                    CodedOutputStream output = CodedOutputStream.newInstance(bs);
+                    tv.writeTo(output);
+                    output.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            state = false;
+        }
     }
 
     @Override

@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
@@ -15,13 +17,15 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.CardProtos;
+import com.kegelapps.palace.protos.DeckProtos;
 
 import java.util.Collections;
 
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class DeckView extends Group implements Input.BoundObject {
+public class DeckView extends Group implements Input.BoundObject, Serializer {
 
     private Deck mDeck;
 
@@ -149,5 +153,22 @@ public class DeckView extends Group implements Input.BoundObject {
             mHighlightView.hide();
     }
 
+    @Override
+    public void ReadBuffer() {
 
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        DeckProtos.DeckView.Builder builder = DeckProtos.DeckView.newBuilder();
+        for (int i = mDeck.GetCards().size()-1; i>=0; --i) {
+            Card c = mDeck.GetCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        builder.setY(getY());
+        builder.setX(getX());
+        return builder.build();
+    }
 }

@@ -88,6 +88,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile 'com.google.protobuf:protoc:2.6.1'
+        compile "com.google.protobuf:protobuf-java:2.6.1"
         compile fileTree(dir: '../libs', include: '*.jar')
     }
 }

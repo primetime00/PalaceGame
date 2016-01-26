@@ -11,12 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.google.protobuf.Message;
+import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.CardProtos;
+import com.kegelapps.palace.protos.HandProtos;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.parallel;
@@ -25,7 +29,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class HandView extends Group{
+public class HandView extends Group implements Serializer{
 
     private Hand mHand;
     private Rectangle mHiddenPositions[];
@@ -292,5 +296,54 @@ public class HandView extends Group{
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+    }
+
+    @Override
+    public void ReadBuffer() {
+
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        int i;
+        HandProtos.HandView.Builder builder = HandProtos.HandView.newBuilder();
+        builder.setX(getX());
+        builder.setY(getY());
+        builder.setHand(HandProtos.HandView.Hand.newBuilder()
+                .setId(mHand.getID())
+                .setType(mHand.getType().ordinal()).build());
+        for (i = mHand.getActiveCards().size()-1; i>=0; --i) {
+            Card c = mHand.getActiveCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addActiveCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        for (i = mHand.getHiddenCards().size()-1; i>=0; --i) {
+            Card c = mHand.getHiddenCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addHiddenCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        for (i = mHand.getEndCards().size()-1; i>=0; --i) {
+            Card c = (Card) mHand.getEndCards().toArray()[i];
+            if (c == null)
+                continue;
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addEndCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        for (i = mHand.getPlayCards().size()-1; i>=0; --i) {
+            Card c = mHand.getPlayCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addPlayCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        for (i = mHand.getDiscardCards().size()-1; i>=0; --i) {
+            Card c = mHand.getDiscardCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addDiscarCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        return builder.build();
     }
 }

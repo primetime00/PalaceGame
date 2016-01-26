@@ -133,6 +133,7 @@ public class Hand {
     public List<Card> getDiscardCards() {
         return mDiscardCards;
     }
+    public List<Card> getHiddenCards() { return mHiddenCards;}
 
     public boolean ContainsRank(Card.Rank rank) {
         for (Card c : getActiveCards()) {

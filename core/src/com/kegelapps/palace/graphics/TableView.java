@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.*;
 import com.kegelapps.palace.animations.CameraAnimation;
 import com.kegelapps.palace.animations.CardAnimation;
@@ -20,13 +21,17 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.DeckProtos;
+import com.kegelapps.palace.protos.HandProtos;
+import com.kegelapps.palace.protos.InPlayProtos;
+import com.kegelapps.palace.protos.TableProtos;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class TableView extends Group implements Input.BoundObject {
+public class TableView extends Group implements Input.BoundObject, Serializer {
 
     private Table mTable;
     private DeckView mDeck;
@@ -234,5 +239,25 @@ public class TableView extends Group implements Input.BoundObject {
 
     public Array<HandView> getHands() {
         return mHands;
+    }
+
+    @Override
+    public void ReadBuffer() {
+
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        //// TODO: 1/26/2016 Hand Play card and InPlay card can be in both groups at the same time.  Fix this!
+        TableProtos.TableView.Builder builder = TableProtos.TableView.newBuilder();
+        builder.setY(getY());
+        builder.setX(getX());
+        builder.setDeck((DeckProtos.DeckView) mDeck.WriteBuffer());
+        builder.setInPlay((InPlayProtos.InPlayView) mPlayView.WriteBuffer());
+        for (int i=0; i<mHands.size; ++i) {
+            HandView hv = mHands.get(i);
+            builder.addHands((HandProtos.HandView) hv.WriteBuffer());
+        }
+        return builder.build();
     }
 }

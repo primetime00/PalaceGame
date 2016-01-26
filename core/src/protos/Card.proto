@@ -1,0 +1,16 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "CardProtos";
+
+message CardView {
+    required int32 side = 1;
+    optional float x = 2;
+    optional float y = 3;
+
+    message Card {
+    required int32 suit = 1;
+    required int32 rank = 2;
+    }
+    required Card card = 4;
+}

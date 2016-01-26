@@ -1,20 +1,14 @@
 package com.kegelapps.palace.graphics;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
-
-import java.io.Serializable;
+import com.kegelapps.palace.protos.CardProtos;
 
 /**
  * Created by keg45397 on 12/8/2015.
@@ -58,7 +52,6 @@ public class CardView extends Actor implements Serializer{
         if (mCardMap == null)
             mCardMap = new OrderedMap<>();
         mCardMap.put(mCard, this);
-        setName(mCard.toString());
         mHighlightView = new HighlightView();
     }
 
@@ -98,15 +91,28 @@ public class CardView extends Actor implements Serializer{
             mHighlightView.hide();
     }
 
-
     @Override
-    public void ReadBuffer() {
-
+    public String getName() {
+        if (mCard != null)
+            return mCard.toString();
+        return "";
     }
 
     @Override
-    public void WriteBuffer() {
+    public void ReadBuffer() {
+    }
 
+    @Override
+    public Message WriteBuffer() {
+        com.kegelapps.palace.protos.CardProtos.CardView c = com.kegelapps.palace.protos.CardProtos.CardView.newBuilder()
+                .setY(getY())
+                .setX(getX())
+                .setSide(mSide.ordinal())
+                .setCard(CardProtos.CardView.Card.newBuilder()
+                .setRank(mCard.getRank().ordinal())
+                .setSuit(mCard.getSuit().ordinal()).build())
+                .build();
+        return c;
     }
 
 

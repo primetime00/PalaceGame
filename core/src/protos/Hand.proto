@@ -1,0 +1,20 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "HandProtos";
+import "Card.proto";
+
+message HandView {
+    repeated CardView activeCards = 1;
+    repeated CardView hiddenCards = 2;
+    repeated CardView endCards = 3;
+    repeated CardView playCards = 4;
+    repeated CardView discarCards = 5;
+    optional float x = 6;
+    optional float y = 7;
+    message Hand {
+        required int32 id = 1;
+        required int32 type = 2;
+    }
+    required Hand hand = 8;
+}

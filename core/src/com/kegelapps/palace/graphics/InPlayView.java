@@ -7,12 +7,17 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.google.protobuf.Message;
+import com.kegelapps.palace.Serializer;
+import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
+import com.kegelapps.palace.protos.CardProtos;
+import com.kegelapps.palace.protos.InPlayProtos;
 
 /**
  * Created by Ryan on 1/25/2016.
  */
-public class InPlayView extends Group {
+public class InPlayView extends Group implements Serializer {
 
     Rectangle mPlayRectangle;
     InPlay mInPlayCards;
@@ -68,4 +73,23 @@ public class InPlayView extends Group {
         drawChildren(batch, parentAlpha);
     }
 
+
+    @Override
+    public void ReadBuffer() {
+
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        InPlayProtos.InPlayView.Builder builder = InPlayProtos.InPlayView.newBuilder();
+        builder.setX(getX());
+        builder.setY(getY());
+        for (int i = mInPlayCards.GetCards().size()-1; i>=0; --i) {
+            Card c = mInPlayCards.GetCards().get(i);
+            CardView cv = CardView.getCardView(c);
+            if (cv != null)
+                builder.addCards((CardProtos.CardView) cv.WriteBuffer());
+        }
+        return builder.build();
+    }
 }
