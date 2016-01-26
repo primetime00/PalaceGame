@@ -14,7 +14,8 @@ import java.util.concurrent.BlockingQueue;
 public class Table {
     private Deck mDeck; //the deck on the table
 
-    List<Card> mCardsInPlay;
+    InPlay mPlayCards;
+
     List<Card> mBurntCards;
 
     //should the table have the hands?
@@ -35,7 +36,7 @@ public class Table {
     public Table(Deck deck, int numberOfPlayers, BlockingQueue<Runnable> queue) {
         assert (numberOfPlayers != 3 || numberOfPlayers != 4);
         mDeck = deck;
-        mCardsInPlay = new ArrayList<>();
+        mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
         for (int i=0; i<numberOfPlayers; ++i) {
@@ -47,10 +48,7 @@ public class Table {
         return mHands;
     }
 
-    public void DrawPlayCard() {
-        Card c = mDeck.Draw();
-        mCardsInPlay.add(c);
-    }
+    public InPlay getInPlay() { return mPlayCards; }
 
     public boolean DealHiddenCard(int player) {
         if (mDealHiddenCardState == null || mDealHiddenCardState.getStatus() == State.Status.DONE) {
@@ -66,11 +64,18 @@ public class Table {
         return mDealActiveCardState.Run();
     }
 
-    public void PlayCard() {
+    public void DrawCard() {
         Card c = mDeck.Draw();
-        mCardsInPlay.add(c);
+        mPlayCards.AddCard(c);
         Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_PLAY_CARD, c);
-        System.out.print("Card in play is: " + mCardsInPlay.get(0) + "\n");
+    }
+
+    public Card GetTopPlayCard() {
+        return mPlayCards.GetTopCard();
+    }
+
+    public List<Card> GetPlayCards() {
+        return mPlayCards.GetCards();
     }
 
 
@@ -79,7 +84,18 @@ public class Table {
         return mDeck;
     }
 
-    public void setTableListener(TableListener listener) {
-        mTableListener = listener;
+    public boolean AddPlayCard(Hand hand, Card activeCard) {
+        Card top = GetTopPlayCard();
+        if (activeCard.compareTo(top) > -1) {
+            GetPlayCards().add(GetPlayCards().size(), activeCard);
+            hand.getActiveCards().remove(activeCard);
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
+            return true;
+        }
+        else {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, hand);
+            return false;
+        }
     }
+
 }

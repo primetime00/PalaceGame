@@ -24,7 +24,7 @@ public class State {
         DEAL_CARD,
         SELECT_END_CARDS,
         PLACE_END_CARD,
-        TAP_DECK_START
+        PLAY, PLAY_HUMAN_TURN, PLAY_CPU_TURN, TAP_DECK_START
     }
 
     public interface OnStateListener {
@@ -67,6 +67,7 @@ public class State {
             if (mParent != null) {
                 mParent.addChild(this);
             }
+            firstRun();
         }
         return true;
     }
@@ -109,6 +110,10 @@ public class State {
     public void resume() {
         if (mStatus == Status.PAUSED)
             mStatus = mPreviousStatus;
+    }
+
+    protected void firstRun() {
+
     }
 
     public Names getStateName() {

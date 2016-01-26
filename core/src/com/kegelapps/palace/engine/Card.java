@@ -6,6 +6,9 @@ package com.kegelapps.palace.engine;
 
 public class Card implements Comparable<Card> {
 
+    static private int mCardNumberTotal = 0;
+    private int mCardNumber;
+
     public enum Suit {
         HEART,
         SPADE,
@@ -24,6 +27,8 @@ public class Card implements Comparable<Card> {
     public Card(Suit suit, Rank rank) {
         mSuit = suit;
         mRank = rank;
+        mCardNumber = mCardNumberTotal++;
+        mCardNumberTotal = mCardNumberTotal % (Rank.values().length * Suit.values().length);
     }
 
     public Suit getSuit() {
@@ -94,7 +99,7 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        return getRankString() + " of " + getSuitString()+"s";
+        return getRankString() + " of " + getSuitString()+"s" + " [" + mCardNumber +"]";
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.kegelapps.palace.engine.states.tasks.TapToStart;
  */
 public class SelectEndCards extends State {
 
-    private StateListener mPlaceCardListener, mTapDeckListener, mTappedDeckRunnable;
+    private StateListener mPlaceCardListener, mTapDeckListener;
 
     private int mState = 0;
 

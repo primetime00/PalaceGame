@@ -181,7 +181,7 @@ public class HandView extends Group{
                 int pos = getHand().GetHiddenCards().size()-1;
                 Rectangle r = getHiddenPosition(pos);
 
-                new CardAnimation(false).LineUpHiddenCards(r, getHand().getID(), cardView);
+                new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(r, getHand().getID(), cardView);
                 cardView.setZIndex(0);
             }
         };
@@ -221,13 +221,12 @@ public class HandView extends Group{
                 Rectangle r = getHiddenPosition((int)params[2]);
 
                 float ov = CardUtils.getCardWidth() * getEndCardOverlapPercent();
-                new CardAnimation(false).SelectEndCard(r.getX()+ov, r.getY()+ov, id, cardView);
+                new CardAnimation(false, "Selecting end cards").SelectEndCard(r.getX()+ov, r.getY()+ov, id, cardView);
 
                 OrganizeCards();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEvent);
-
     }
 
     public void OrganizeCards() {
@@ -247,16 +246,18 @@ public class HandView extends Group{
             CardView cv = CardView.getCardView(c);
             cv.setZIndex(zIndex++);
         }
-        for (int i =0; i<size; ++i) {
-            CardView cv = CardView.getCardView(getHand().getActiveCards().get(i));
-            cv.setZIndex(zIndex++);
-            new CardAnimation(false).LineUpActiveCard(HandView.this, cv, i);
-        }
+
         for (Card c : getHand().getEndCards()) {
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
                 cv.setZIndex(zIndex++);
             }
+        }
+
+        for (int i =0; i<size; ++i) {
+            CardView cv = CardView.getCardView(getHand().getActiveCards().get(i));
+            cv.setZIndex(zIndex++);
+            new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
         }
     }
 

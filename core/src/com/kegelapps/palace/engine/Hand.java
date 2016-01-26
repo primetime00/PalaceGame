@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.events.EventSystem;
+import sun.rmi.runtime.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,6 @@ import java.util.concurrent.BlockingQueue;
  * Created by Ryan on 12/5/2015.
  */
 public class Hand {
-
 
 
     public enum HandType {
@@ -74,7 +74,6 @@ public class Hand {
         AddActiveCard(card);
     }
 
-
     @Override
     public String toString() {
         String s = "Active Cards: ";
@@ -123,10 +122,24 @@ public class Hand {
             mPlayCards.remove(c);
     }
 
+    public void SelectPlayCard(Card c) {
+        SelectEndCard(c);
+    }
+
+
     public List<Card> getPlayCards() {
         return mPlayCards;
     }
     public List<Card> getDiscardCards() {
         return mDiscardCards;
     }
+
+    public boolean ContainsRank(Card.Rank rank) {
+        for (Card c : getActiveCards()) {
+            if (c.getRank() == rank)
+                return true;
+        }
+        return false;
+    }
+
 }

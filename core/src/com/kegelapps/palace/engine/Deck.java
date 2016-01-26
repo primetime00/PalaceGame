@@ -8,11 +8,28 @@ public class Deck {
 
     private List<Card> mCards;
 
+    private List<Card.Rank> mDebugRanks;
+
     public Deck() {
+        mDebugRanks = new ArrayList<>();
+        //mDebugRanks.add(Card.Rank.THREE);
+        //mDebugRanks.add(Card.Rank.FOUR);
+        //mDebugRanks.add(Card.Rank.FIVE);
         mCards = new ArrayList<Card>();
-        for (Card.Rank r : Card.Rank.values()) {
+
+        if (mDebugRanks.size() > 0) { //this is debug mode
             for (Card.Suit s : Card.Suit.values()) {
-                mCards.add(new Card(s, r));
+                for (int rank = 0; rank < Card.Rank.values().length; ++rank) {
+                    Card.Rank r = mDebugRanks.get(rank % mDebugRanks.size());
+                    mCards.add(new Card(s, r));
+                }
+            }
+        }
+        else {
+            for (Card.Suit s : Card.Suit.values()) {
+                for (Card.Rank r : Card.Rank.values()) {
+                    mCards.add(new Card(s, r));
+                }
             }
         }
     }
@@ -20,20 +37,6 @@ public class Deck {
     public void Shuffle() {
         long seed = System.nanoTime();
         Collections.shuffle(mCards, new Random(seed));
-    }
-
-    public List<Card> Draw(int cards) {
-        if (mCards.size() <= 0) {
-            return null;
-        }
-        List<Card> drawCards = new ArrayList<>();
-        for (int i=0; i<cards; ++i) {
-            drawCards.add(mCards.get(0));
-            mCards.remove(0);
-            if (mCards.size() == 0)
-                break;
-        }
-        return drawCards;
     }
 
     public Card Draw() {

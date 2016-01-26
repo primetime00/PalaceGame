@@ -11,12 +11,15 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
+
+import java.io.Serializable;
 
 /**
  * Created by keg45397 on 12/8/2015.
  */
-public class CardView extends Actor {
+public class CardView extends Actor implements Serializer{
 
     private Card mCard;
     private Side mSide;
@@ -87,16 +90,6 @@ public class CardView extends Actor {
         return null;
     }
 
-        @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-        if (getZIndex() > 0) {
-            shapes.setColor(Color.WHITE);
-            shapes.set(ShapeRenderer.ShapeType.Filled);
-            shapes.circle(getOriginX() + getX(), getOriginY() + getY(), 10.0f);
-        }
-    }
-
 
     public void setHighlight(boolean highlight) {
         if (highlight)
@@ -104,4 +97,17 @@ public class CardView extends Actor {
         else
             mHighlightView.hide();
     }
+
+
+    @Override
+    public void ReadBuffer() {
+
+    }
+
+    @Override
+    public void WriteBuffer() {
+
+    }
+
+
 }

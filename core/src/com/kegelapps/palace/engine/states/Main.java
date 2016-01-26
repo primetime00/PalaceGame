@@ -1,6 +1,8 @@
 package com.kegelapps.palace.engine.states;
 
+import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 
 /**
@@ -25,6 +27,7 @@ public class Main extends State {
     //states
     Deal mDealState;
     SelectEndCards mSelectEndCardsState;
+    Play mPlayState;
 
 
     public Main(Table table) {
@@ -44,6 +47,7 @@ public class Main extends State {
                 mState = GameState.PLAY;
             }
         });
+        mPlayState = new Play(this, mTable, null);
 
     }
 
@@ -56,6 +60,7 @@ public class Main extends State {
             return false;
         switch (mState) {
             case START:
+                Logic.get().setFastDeal(true);
                 mDeck.Shuffle();
                 mState = GameState.DEAL;
                 break;
@@ -63,14 +68,21 @@ public class Main extends State {
                 mDealState.Run();
                 break;
             case PLAY_FIRST_CARD:
-                mTable.PlayCard();
-                mState = GameState.SELECT_END_CARDS;
+                Logic.get().setFastDeal(false);
+                mTable.DrawCard();
+                if (mTable.GetTopPlayCard().getRank() == Card.Rank.TWO && mTable.getDeck().GetCards().size() > 0) {//we need to draw again!
+                    mState = GameState.PLAY_FIRST_CARD;
+                }
+                else {
+                    mState = GameState.SELECT_END_CARDS;
+                }
                 break;
             case SELECT_END_CARDS:
                 mSelectEndCardsState.Run();
                 break;
             case PLAY:
-                System.out.print("YOU STARTED THE GAME!\n");
+                mPlayState.Run();
+                break;
         }
         return false;
     }

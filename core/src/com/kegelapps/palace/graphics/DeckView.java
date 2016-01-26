@@ -16,10 +16,12 @@ import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 
+import java.util.Collections;
+
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class DeckView extends Actor implements Input.BoundObject {
+public class DeckView extends Group implements Input.BoundObject {
 
     private Deck mDeck;
 
@@ -27,6 +29,8 @@ public class DeckView extends Actor implements Input.BoundObject {
     private HighlightView mHighlightView;
 
     private ActorGestureListener mGestureListener;
+
+    private boolean mDeckLow = false;
 
     public DeckView() {
         super();
@@ -48,6 +52,7 @@ public class DeckView extends Actor implements Input.BoundObject {
         mHighlightView = new HighlightView();
         createEvents();
         createGestures();
+        mDeckLow = false;
     }
 
     private void createGestures() {
@@ -76,8 +81,6 @@ public class DeckView extends Actor implements Input.BoundObject {
             }
         };
         addListener(mGestureListener);
-        //if (getHand().getType() == Hand.HandType.HUMAN)
-        //    addListener(mGestureListener);
     }
 
     private void createEvents() {
@@ -96,18 +99,40 @@ public class DeckView extends Actor implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mTapToStartEvent);
 
+        EventSystem.Event mDrawCardEvent = new EventSystem.Event(EventSystem.EventType.DRAW_PLAY_CARD) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Card) )
+                    throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
+                if (mDeck.GetCards().size() <= 4 && mDeckLow == false) { //we just hit 4 cards
+                    mDeckLow = true;
+                    int cascade = 0;
+                    for (int i = mDeck.GetCards().size()-1; i >=0; --i) {
+                        Card c = mDeck.GetCards().get(i);
+                        CardView cardView = CardView.getCardView(c);
+                        cardView.setSide(CardView.Side.BACK);
+                        cardView.setX(cascade);
+                        cardView.setY(0);
+                        cascade += (cardView.getWidth() * 0.04f);
+                        if (cardView.getParent() != null)
+                            cardView.getParent().removeActor(cardView);
+                        if (findActor(cardView.getName()) == null)
+                            addActor(cardView);
+                    }
+                }
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mDrawCardEvent);
+
+
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
-        if ( mDeck.CountCards() > 4 ) { //lets draw the stack of cards
+        if (mDeckLow)
+            super.draw(batch, parentAlpha);
+        else
             batch.draw(mDeckBack, getX(), getY());
-        }
-        /*
-        else if (mDeck.CountCards() <= 4) { //we will draw cascaded cards?
-            setTexture(null);
-        }*/
         if (mHighlightView.isVisible())
             mHighlightView.draw(batch, this);
     }

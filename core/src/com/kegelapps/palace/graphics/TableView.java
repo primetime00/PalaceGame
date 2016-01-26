@@ -30,17 +30,21 @@ public class TableView extends Group implements Input.BoundObject {
 
     private Table mTable;
     private DeckView mDeck;
+    private InPlayView mPlayView;
     private Array<HandView> mHands;
     private Array<CardView> mCards;
 
     private Pixmap mPixmap;
     private Texture mBackground;
 
+    final private float mDeckToActiveGap = 0.10f;
+
     private TextView mHelperText;
 
     public TableView(Table table) {
         mTable = table;
         mDeck = new DeckView(table.getDeck());
+        mPlayView = new InPlayView(table.getInPlay());
         mCards = new Array<>();
         mHands = new Array<>();
 
@@ -59,6 +63,7 @@ public class TableView extends Group implements Input.BoundObject {
         mBackground = new Texture(mPixmap);
         onScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         addActor(mDeck);
+        addActor(mPlayView);
         for (HandView hView : mHands){
             addActor(hView);
         }
@@ -69,25 +74,28 @@ public class TableView extends Group implements Input.BoundObject {
         float w = (Director.instance().getScreenWidth() - CardUtils.getCardTextureWidth())/2.0f;
         float h = (Director.instance().getScreenHeight() - CardUtils.getCardTextureHeight())/2.0f;
         mDeck.setPosition(w,h);
+        mPlayView.setPosition(mDeck.getX()+CardUtils.getCardWidth()+(CardUtils.getCardWidth()*mDeckToActiveGap), mDeck.getY());
     }
 
     private void createTableEvents() {
+        //Triggered when a card is drawn from the deck to the play card pile
         EventSystem.Event mDrawCardEvent = new EventSystem.Event(EventSystem.EventType.DRAW_PLAY_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Card) )
                     throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
                 CardView cardView = CardView.getCardView((Card) params[0]);
+                cardView.remove();
+                if (mPlayView.findActor(cardView.getName()) == null)
+                    mPlayView.addActor(cardView);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
-                cardView.setSide(CardView.Side.BACK);
-                if (findActor(cardView.getCard().toString()) == null)
-                    addActor(cardView);
 
-                new CardAnimation(true).DrawToActive(mDeck, cardView);
+                new CardAnimation(true, "Drawing from deck to active").DrawToActive(mDeck, mPlayView, cardView);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDrawCardEvent);
 
+        //Triggered when a card is dealt from the deck
         EventSystem.Event mDealCardEvent = new EventSystem.Event(EventSystem.EventType.DEAL_CARD) {
             @Override
             public void handle(Object params[]) {
@@ -99,12 +107,13 @@ public class TableView extends Group implements Input.BoundObject {
                 float duration = params.length >= 3 && params[2] instanceof Float ? (float)params[2] : 0.5f;
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setSide(CardView.Side.BACK);
+
                 if (findActor(cardView.getCard().toString()) == null)
                     addActor(cardView);
                 for (int index =0; index<mHands.size; ++index)
                 {
                     if (mHands.get(index).getHand() == hand) {
-                        new CardAnimation(true).DealToHand(mDeck, mHands.get(index), cardView, 0.5f);
+                        new CardAnimation(true, "Dealing to a hand").DealToHand(mDeck, mHands.get(index), cardView, duration);
                         break;
                     }
                 }
@@ -112,6 +121,7 @@ public class TableView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mDealCardEvent);
 
+        //Triggered when dealing the 7 active cards
         EventSystem.Event mDealFirstActiveCard = new EventSystem.Event(EventSystem.EventType.DEAL_ACTIVE_CARDS) {
             @Override
             public void handle(Object params[]) {
@@ -122,8 +132,8 @@ public class TableView extends Group implements Input.BoundObject {
                 if (round != 3 && player != 0)
                     return;
                 float duration = 1.5f;
-                float camX = Director.instance().getScene().getCamera().position.x;
-                float camY = Director.instance().getScene().getCamera().position.y;
+                float camX;
+                float camY;
                 OrthographicCamera camera = (OrthographicCamera) Director.instance().getScene().getCamera();
                 camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
                 camY = mHands.get(0).getHiddenPosition(0).getY() + CardUtils.getCardHeight();
@@ -132,6 +142,7 @@ public class TableView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
 
+        //Triggered when the state engine changes state
         EventSystem.Event mTapDeckEvent = new EventSystem.Event(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
@@ -153,12 +164,49 @@ public class TableView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEvent);
 
+        //Triggered when the player tries to play an invalid card
+        EventSystem.Event mCardPlayFailed = new EventSystem.Event(EventSystem.EventType.CARD_PLAY_FAILED) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
+                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_FAILED");
+                }
+                Hand hand =  (Hand) params[1];
+
+                CardView cardView = CardView.getCardView((Card) params[0]);
+
+                new CardAnimation(true, "Failed card").PlayFailedCard(mPlayView, hand.getID(), cardView);
+
+                mHands.get(hand.getID()).OrganizeCards();
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mCardPlayFailed);
+
+        //Triggered when the player plays a valid card
+        EventSystem.Event mCardPlaySuccess = new EventSystem.Event(EventSystem.EventType.CARD_PLAY_SUCCESS) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
+                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_FAILED");
+                }
+                Hand hand =  (Hand) params[1];
+
+                CardView cardView = CardView.getCardView((Card) params[0]);
+
+                cardView.remove();
+                if (mPlayView.findActor(cardView.getName()) == null)
+                    mPlayView.addActor(cardView);
+
+                new CardAnimation(true, "Success card").PlaySuccessCard(mPlayView, hand.getID(), cardView);
+
+                mHands.get(hand.getID()).OrganizeCards();
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mCardPlaySuccess);
 
     }
 
     public void onScreenSize(int w, int h) {
-        //mDeck.setPosition( (w - CardUtils.getCardTextureWidth())/2.0f, (h - CardUtils.getCardHeight())/2.0f);
-        //mDeck.setSize(CardUtils.getCardTextureWidth(), CardUtils.getCardHeight());
         setBounds(0,0,w,h);
     }
 

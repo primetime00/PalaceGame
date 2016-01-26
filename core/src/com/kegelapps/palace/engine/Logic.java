@@ -14,11 +14,14 @@ public class Logic {
 
     private static Logic mLogic;
 
+
     public enum LogicRequest {
         PLAY_START;
     }
 
     private int mNumberOfPlayers = 0;
+
+    private boolean mFastDeal = false;
 
     //states
     Main mMainState;
@@ -64,8 +67,12 @@ public class Logic {
 
 
     public void PlayerSelectCard(Hand h, Card c) {
-        if (mMainState != null && mMainState.containsState(State.Names.PLACE_END_CARD))
+        if (mMainState == null)
+            return;
+        if (mMainState.containsState(State.Names.PLACE_END_CARD))
             h.SelectEndCard(c);
+        else if (mMainState.containsState(State.Names.PLAY))
+            h.SelectPlayCard(c);
     }
 
     public void PlayerUnselectCard(Hand h, Card c) {
@@ -83,5 +90,19 @@ public class Logic {
         }
     }
 
+    public boolean isFastDeal() {
+            return mFastDeal;
+    }
+
+    public void setFastDeal(boolean mFastDeal) {
+        this.mFastDeal = mFastDeal;
+    }
+
+    public boolean TestCard(Card card) {
+        Card top = mTable.GetTopPlayCard();
+        if (top == null)
+            return false;
+        return card.compareTo(top) > -1;
+    }
 
 }
