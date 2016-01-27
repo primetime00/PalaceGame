@@ -3,7 +3,6 @@ package com.kegelapps.palace.engine.states.tasks;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
-import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
@@ -20,20 +19,19 @@ public class PlayHumanTurn extends State {
     private Card mPlayCard;
 
 
-    public PlayHumanTurn(State parent, Table table, int id, StateListener done) {
+    public PlayHumanTurn(State parent, Table table, int id, StateListener listener) {
         super(parent);
-        mStateListener = done;
+        mStateListener = listener;
         mTable = table;
         mHand = table.getHands().get(id);
         mPlayCard = null;
     }
 
     @Override
-    public boolean Run() {
+    protected boolean Run() {
         boolean hasPlayed =false;
-        super.Run();
-        for (Card c : mHand.getPlayCards()) { //make a runnable?
-            Card activeCard = mHand.getActiveCards().get(mHand.getActiveCards().indexOf(c));
+        for (Card c : mHand.GetPlayCards()) { //make a runnable?
+            Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
             if (mPlayCard != null && mPlayCard.getRank() != activeCard.getRank()) { //trying to add more than one card with different ranks
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, mHand);
                 continue;
@@ -46,9 +44,7 @@ public class PlayHumanTurn extends State {
                 }
             }
         }
-        mHand.getPlayCards().clear();
-        if (hasPlayed && mStateListener != null)
-            mStateListener.onContinueState();
+        mHand.GetPlayCards().clear();
         return hasPlayed;
     }
 

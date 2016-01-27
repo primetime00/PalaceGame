@@ -1,18 +1,18 @@
 package com.kegelapps.palace.engine;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.events.EventSystem;
-import sun.rmi.runtime.Log;
+import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Hand {
+public class Hand implements Serializer{
 
 
     public enum HandType {
@@ -20,31 +20,47 @@ public class Hand {
         CPU,
         MAX
     }
-    private Deck mDeck; //the deck we are playing from
     private int mID;
     private HandType mType;
 
-    private List<Card> mHiddenCards;
+    private Card mHiddenCards[];
     private Card mEndCards[];
     private List<Card> mActiveCards;
     private List<Card> mPlayCards;
     private List<Card> mDiscardCards;
 
 
-    public Hand(int id, HandType type, Deck deck, BlockingQueue queue) {
+    public Hand(int id, HandType type, Deck deck) {
         mID = id;
         mType = type;
-        mDeck = deck;
-        mHiddenCards = new ArrayList<>();
+        mHiddenCards = new Card[3];
         mEndCards = new Card[3];
         mActiveCards = new ArrayList<>();
         mPlayCards = new ArrayList<>();
         mDiscardCards = new ArrayList<>();
     }
 
+    public Hand(StatusProtos.Hand hand) {
+        mHiddenCards = new Card[3];
+        mEndCards = new Card[3];
+        mActiveCards = new ArrayList<>();
+        mPlayCards = new ArrayList<>();
+        mDiscardCards = new ArrayList<>();
+        ReadBuffer(hand);
+    }
+
     public void AddHiddenCard(Card card) {
-        mHiddenCards.add(card);
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID());
+        int pos = -1;
+        for (int i=0; i<3; ++i) {
+            if (mHiddenCards[i] == null) {
+                mHiddenCards[i] = card;
+                pos = i;
+                break;
+            }
+        }
+        if (pos > -1) {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID());
+        }
     }
 
     public void AddActiveCard(Card card) {
@@ -63,7 +79,7 @@ public class Hand {
             }
         }
         if (pos > -1) {
-            getActiveCards().remove(card);
+            GetActiveCards().remove(card);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID(), pos);
         }
     }
@@ -88,10 +104,6 @@ public class Hand {
     }
 
 
-    public List<Card> getActiveCards() {
-        return mActiveCards;
-    }
-
     public List<Card> getEndCards() {
         return Arrays.asList(mEndCards);
     }
@@ -100,12 +112,15 @@ public class Hand {
         return mType;
     }
 
-    public Deck getDeck() {
-        return mDeck;
+    public List<Card> GetHiddenCards() {
+        return Arrays.asList(mHiddenCards);
     }
 
-    public List<Card> GetHiddenCards() {
-        return mHiddenCards;
+    public int GetAvailableHiddenCardPosition() {
+        for (int i=0; i<mHiddenCards.length; ++i)
+            if (mHiddenCards[i] == null)
+                return i;
+        return -1;
     }
 
     public List<Card> GetActiveCards() { return mActiveCards; }
@@ -127,20 +142,71 @@ public class Hand {
     }
 
 
-    public List<Card> getPlayCards() {
+    public List<Card> GetPlayCards() {
         return mPlayCards;
     }
-    public List<Card> getDiscardCards() {
+    public List<Card> GetDiscardCards() {
         return mDiscardCards;
     }
-    public List<Card> getHiddenCards() { return mHiddenCards;}
 
     public boolean ContainsRank(Card.Rank rank) {
-        for (Card c : getActiveCards()) {
+        for (Card c : GetActiveCards()) {
             if (c.getRank() == rank)
                 return true;
         }
         return false;
     }
 
+    @Override
+    public void ReadBuffer(Message msg) {
+        StatusProtos.Hand hand = (StatusProtos.Hand) msg;
+        GetActiveCards().clear();
+        GetDiscardCards().clear();
+        GetPlayCards().clear();
+        mID = hand.getId();
+        mType = HandType.values()[hand.getType()];
+
+        for (StatusProtos.Card protoCard : hand.getActiveCardsList()) {
+            GetActiveCards().add(new Card(protoCard));
+        }
+        for (StatusProtos.Card protoCard : hand.getDiscarCardsList()) {
+            GetDiscardCards().add(new Card(protoCard));
+        }
+        for (StatusProtos.Card protoCard : hand.getPlayCardsList()) {
+            GetPlayCards().add(new Card(protoCard));
+        }
+        for (StatusProtos.PositionCard protoCard : hand.getHiddenCardsList()) {
+            mHiddenCards[protoCard.getPosition()] = new Card(protoCard.getCard());
+        }
+        for (StatusProtos.PositionCard protoCard : hand.getEndCardsList()) {
+            mEndCards[protoCard.getPosition()] = new Card(protoCard.getCard());
+        }
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StatusProtos.Hand.Builder builder = StatusProtos.Hand.newBuilder();
+        for (Card c : GetActiveCards()) {
+            builder.addActiveCards((StatusProtos.Card) c.WriteBuffer());
+        }
+        for (Card c : GetDiscardCards()) {
+            builder.addDiscarCards((StatusProtos.Card) c.WriteBuffer());
+        }
+        for (Card c : GetPlayCards()) {
+            builder.addPlayCards((StatusProtos.Card) c.WriteBuffer());
+        }
+        for (int i = 0; i<mHiddenCards.length; ++i) {
+            Card c = mHiddenCards[i];
+            if (c != null)
+                builder.addHiddenCards(StatusProtos.PositionCard.newBuilder().setPosition(i).setCard((StatusProtos.Card)c.WriteBuffer()).build());
+        }
+        for (int i = 0; i<mEndCards.length; ++i) {
+            Card c = mEndCards[i];
+            if (c != null)
+                builder.addEndCards(StatusProtos.PositionCard.newBuilder().setPosition(i).setCard((StatusProtos.Card)c.WriteBuffer()).build());
+        }
+        builder.setId(getID());
+        builder.setType(getType().ordinal());
+        return builder.build();
+    }
 }

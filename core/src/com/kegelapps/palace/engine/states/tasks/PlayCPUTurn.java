@@ -16,27 +16,25 @@ public class PlayCPUTurn extends State {
     private StateListener mStateListener;
     private Table mTable;
     private Hand mHand;
-    private Card mPlayCard;
 
     private long mTime;
 
 
-    public PlayCPUTurn(State parent, Table table, int id, StateListener done) {
+    public PlayCPUTurn(State parent, Table table, int id, StateListener listener) {
         super(parent);
-        mStateListener = done;
+        mStateListener = listener;
         mTable = table;
         mHand = table.getHands().get(id);
-        mPlayCard = null;
     }
 
     @Override
-    public boolean Run() {
+    protected boolean Run() {
         boolean hasPlayed =false;
         super.Run();
         if (System.currentTimeMillis() - mTime < 1000)
             return false;
 
-        for (Card c : mHand.getActiveCards()) {
+        for (Card c : mHand.GetActiveCards()) {
             Card current = mTable.GetTopPlayCard();
             if (c.compareTo(current) > -1) {
                 mTable.AddPlayCard(mHand, c);
@@ -45,16 +43,14 @@ public class PlayCPUTurn extends State {
                 break;
             }
         }
-        if (hasPlayed && mStateListener != null)
-            mStateListener.onContinueState();
-        else if (!hasPlayed) {
+        if (!hasPlayed) {
             System.out.print("CPU NEED TO PICK UP!");
         }
         return hasPlayed;
     }
 
     @Override
-    protected void firstRun() {
+    protected void FirstRun() {
         mTime = System.currentTimeMillis();
     }
 

@@ -1,9 +1,11 @@
 package com.kegelapps.palace.engine.states;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by keg45397 on 1/18/2016.
@@ -31,16 +33,18 @@ public class Main extends State {
 
 
     public Main(Table table) {
+        super();
         mTable = table;
         mState = GameState.START;
         mDeck = mTable.getDeck();
 
-        mDealState = new Deal(mTable, new Runnable() {
+        mDealState = new Deal(this, mTable, new StateListener() {
             @Override
-            public void run() {
+            public void onDoneState() {
                 mState = GameState.PLAY_FIRST_CARD;
             }
         });
+
         mSelectEndCardsState = new SelectEndCards(this, mTable, new StateListener() {
             @Override
             public void onContinueState() {
@@ -52,10 +56,9 @@ public class Main extends State {
     }
 
     @Override
-    public boolean Run() {
-        super.Run();
+    protected boolean Run() {
         if (mTable == null)
-            return false;
+            return true;
         if (mPaused)
             return false;
         switch (mState) {
@@ -65,7 +68,7 @@ public class Main extends State {
                 mState = GameState.DEAL;
                 break;
             case DEAL:
-                mDealState.Run();
+                mDealState.Execute();
                 break;
             case PLAY_FIRST_CARD:
                 Logic.get().setFastDeal(false);
@@ -78,10 +81,10 @@ public class Main extends State {
                 }
                 break;
             case SELECT_END_CARDS:
-                mSelectEndCardsState.Run();
+                mSelectEndCardsState.Execute();
                 break;
             case PLAY:
-                mPlayState.Run();
+                mPlayState.Execute();
                 break;
         }
         return false;
@@ -90,5 +93,21 @@ public class Main extends State {
     @Override
     public Names getStateName() {
         return Names.MAIN;
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+
+        StateProtos.MainState.Builder builder = StateProtos.MainState.newBuilder();
+        builder.setMainState(mState.ordinal());
+
+        s = s.toBuilder().setExtension(StateProtos.MainState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
     }
 }

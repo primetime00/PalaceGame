@@ -31,7 +31,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class TableView extends Group implements Input.BoundObject, Serializer {
+public class TableView extends Group implements Input.BoundObject {
 
     private Table mTable;
     private DeckView mDeck;
@@ -45,9 +45,6 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
     final private float mDeckToActiveGap = 0.10f;
 
     private TextView mHelperText;
-
-    public TableView() {
-    }
 
     public TableView(Table table) {
         mTable = table;
@@ -247,47 +244,6 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
 
     public Array<HandView> getHands() {
         return mHands;
-    }
-
-    @Override
-    public void ReadBuffer(Message msg) {
-        TableProtos.TableView tv = (TableProtos.TableView) msg;
-        setPosition(tv.getX(), tv.getY());
-        mDeck = new DeckView();
-        mDeck.ReadBuffer(tv.getDeck());
-        mPlayView = new InPlayView(null);
-        mPlayView.ReadBuffer(tv.getInPlay());
-        mHands = new Array<>();
-        ArrayList<Hand> hands = new ArrayList<>();
-        for (int i=0; i<tv.getHandsCount(); ++i) {
-            HandView hv = new HandView();
-            hv.ReadBuffer(tv.getHands(i));
-            mHands.add(hv);
-            hands.add(hv.getHand());
-        }
-        mTable = new Table(mDeck.getDeck(),hands, mPlayView.getInPlay());
-        init();
-    }
-
-    @Override
-    public Message WriteBuffer() {
-        //// TODO: 1/26/2016 Hand Play card and InPlay card can be in both groups at the same time.  Fix this!
-        TableProtos.TableView.Builder builder = TableProtos.TableView.newBuilder();
-        builder.setY(getY());
-        builder.setX(getX());
-        builder.setDeck((DeckProtos.DeckView) mDeck.WriteBuffer());
-        builder.setInPlay((InPlayProtos.InPlayView) mPlayView.WriteBuffer());
-        for (int i=0; i<mHands.size; ++i) {
-            HandView hv = mHands.get(i);
-            builder.addHands((HandProtos.HandView) hv.WriteBuffer());
-        }
-        return builder.build();
-    }
-
-    public static TableView build(TableProtos.TableView tv) {
-        TableView tableView = new TableView();
-        tableView.ReadBuffer(tv);
-        return tableView;
     }
 
     public Table getTable() {

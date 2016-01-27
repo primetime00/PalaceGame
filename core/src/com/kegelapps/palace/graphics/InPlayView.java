@@ -4,19 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.google.protobuf.Message;
-import com.kegelapps.palace.Serializer;
-import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.InPlay;
-import com.kegelapps.palace.protos.CardProtos;
-import com.kegelapps.palace.protos.DeckProtos;
-import com.kegelapps.palace.protos.InPlayProtos;
 
 /**
  * Created by Ryan on 1/25/2016.
  */
-public class InPlayView extends Group implements Serializer {
+public class InPlayView extends Group {
 
     Rectangle mPlayRectangle;
     InPlay mInPlayCards;
@@ -25,10 +18,6 @@ public class InPlayView extends Group implements Serializer {
     final private float overlapPercentY = 0.15f;
     private int mOldSize = -1;
     Vector2 mNextCardPosition;
-
-    public InPlayView() {
-        super();
-    }
 
     public InPlayView(InPlay play) {
         super();
@@ -79,35 +68,6 @@ public class InPlayView extends Group implements Serializer {
     public void draw(Batch batch, float parentAlpha) {
         //we don't want to apply a transform
         drawChildren(batch, parentAlpha);
-    }
-
-
-    @Override
-    public void ReadBuffer(Message msg) {
-        InPlayProtos.InPlayView pv = (InPlayProtos.InPlayView) msg;
-        setPosition(pv.getX(), pv.getY());
-        mInPlayCards = new InPlay();
-        mInPlayCards.GetCards().clear();
-        for (int i=0; i<pv.getCardsCount(); ++i) {
-            CardView cv = new CardView();
-            cv.ReadBuffer(pv.getCards(i));
-            mInPlayCards.GetCards().add(cv.getCard());
-        }
-        init();
-    }
-
-    @Override
-    public Message WriteBuffer() {
-        InPlayProtos.InPlayView.Builder builder = InPlayProtos.InPlayView.newBuilder();
-        builder.setX(getX());
-        builder.setY(getY());
-        for (int i = mInPlayCards.GetCards().size()-1; i>=0; --i) {
-            Card c = mInPlayCards.GetCards().get(i);
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        return builder.build();
     }
 
     public InPlay getInPlay() {

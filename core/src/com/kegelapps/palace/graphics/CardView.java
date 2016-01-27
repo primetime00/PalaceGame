@@ -5,16 +5,12 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.OrderedMap;
-import com.google.protobuf.Message;
-import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.protos.CardProtos;
-import com.kegelapps.palace.protos.HandProtos;
 
 /**
  * Created by keg45397 on 12/8/2015.
  */
-public class CardView extends Actor implements Serializer{
+public class CardView extends Actor {
 
     private Card mCard;
     private Side mSide;
@@ -31,15 +27,11 @@ public class CardView extends Actor implements Serializer{
 
     private static OrderedMap<Card, CardView> mCardMap;
 
-    public CardView() {
-        super();
-    }
-
     public CardView(Card.Suit suit, Card.Rank rank) {
         super();
         mCard = new Card(suit, rank);
-        setSide(Side.FRONT);
         mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        setSide(Side.FRONT);
         init();
     }
 
@@ -47,8 +39,8 @@ public class CardView extends Actor implements Serializer{
         super();
         assert(card == null);
         mCard = card;
-        setSide(Side.FRONT);
         mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        setSide(Side.FRONT);
         init();
     }
 
@@ -104,30 +96,4 @@ public class CardView extends Actor implements Serializer{
             return mCard.toString();
         return "";
     }
-
-    @Override
-    public void ReadBuffer(Message msg) {
-        CardProtos.CardView cv = (CardProtos.CardView) msg;
-        if (cv.hasX() && cv.hasY())
-            setPosition(cv.getX(), cv.getY());
-        mCard = new Card(Card.Suit.values()[cv.getCard().getSuit()], Card.Rank.values()[cv.getCard().getRank()]);
-        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
-        setSide(Side.values()[cv.getSide()]);
-        init();
-    }
-
-    @Override
-    public Message WriteBuffer() {
-        com.kegelapps.palace.protos.CardProtos.CardView c = com.kegelapps.palace.protos.CardProtos.CardView.newBuilder()
-                .setY(getY())
-                .setX(getX())
-                .setSide(mSide.ordinal())
-                .setCard(CardProtos.CardView.Card.newBuilder()
-                .setRank(mCard.getRank().ordinal())
-                .setSuit(mCard.getSuit().ordinal()).build())
-                .build();
-        return c;
-    }
-
-
 }

@@ -1,14 +1,17 @@
 package com.kegelapps.palace.engine.states;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Serializer;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
 
 /**
  * Created by Ryan on 12/23/2015.
  */
-public class State {
+public class State implements Serializer{
 
     public enum Status{
         NOT_STARTED,
@@ -30,12 +33,15 @@ public class State {
     public interface OnStateListener {
         void onContinueState();
         void onBackState();
+        void onDoneState();
     }
 
     protected boolean mPaused;
 
 
     private Status mStatus, mPreviousStatus;
+
+    protected StateListener mStateListener;
 
     private State mParent;
     private ArrayList<State> mChildren;
@@ -59,17 +65,39 @@ public class State {
         mStatus = stat;
     }
 
-    public boolean Run() {
-        if (mStatus == Status.NOT_STARTED) {
+    public void Execute() {
+        boolean ret;
+        if (mStatus == Status.NOT_STARTED || mStatus == Status.DONE) {
             mStatus = Status.ACTIVE;
             Director.instance().getEventSystem().Fire(EventSystem.EventType.STATE_CHANGE, this);
             //System.out.print("State changed to " + this + "\n");
             if (mParent != null) {
                 mParent.addChild(this);
             }
-            firstRun();
+            FirstRun();
         }
+        ret = Run();
+        if (ret == true) {//we finished the state?
+            EndRun();
+            mStatus = Status.DONE;
+            if (mStateListener != null)
+                mStateListener.onDoneState();
+            if (mParent != null) {
+                mParent.removeChild(this);
+            }
+        }
+    }
+
+    protected boolean Run() {
         return true;
+    }
+
+    protected void EndRun() {
+
+    }
+
+    public void UserSignal() {
+
     }
 
     public void addChild(State child) {
@@ -78,6 +106,13 @@ public class State {
         mChildren.clear();
         mChildren.add(child);
     }
+
+    private void removeChild(State state) {
+        if (mChildren == null)
+            return;
+        mChildren.remove(state);
+    }
+
 
     public boolean containsState(Names name) {
         if (getStateName() == name)
@@ -112,11 +147,33 @@ public class State {
             mStatus = mPreviousStatus;
     }
 
-    protected void firstRun() {
+    protected void FirstRun() {
 
     }
 
     public Names getStateName() {
         return Names.GENERIC;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State.Builder builder = StateProtos.State.newBuilder();
+        builder.setType(getStateName().ordinal());
+        builder.setPaused(mPaused);
+        builder.setStatus(mStatus.ordinal());
+        if (mPreviousStatus != null)
+            builder.setPreviousStatus(mPreviousStatus.ordinal());
+        if (mChildren != null) {
+            for (State s : mChildren) {
+                builder.addChildren(s.getStateName().ordinal());
+                builder.addChildrenStates((StateProtos.State) s.WriteBuffer());
+            }
+        }
+        return builder.build();
     }
 }

@@ -1,10 +1,13 @@
 package com.kegelapps.palace.engine;
+import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.StatusProtos;
+
 import java.util.*;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Deck {
+public class Deck implements Serializer{
 
     private List<Card> mCards;
 
@@ -15,7 +18,7 @@ public class Deck {
         //mDebugRanks.add(Card.Rank.THREE);
         //mDebugRanks.add(Card.Rank.FOUR);
         //mDebugRanks.add(Card.Rank.FIVE);
-        mCards = new ArrayList<Card>();
+        mCards = new ArrayList<>();
 
         if (mDebugRanks.size() > 0) { //this is debug mode
             for (Card.Suit s : Card.Suit.values()) {
@@ -32,6 +35,11 @@ public class Deck {
                 }
             }
         }
+    }
+
+    public Deck(StatusProtos.Deck deckProto) {
+        mCards = new ArrayList<>();
+        ReadBuffer(deckProto);
     }
 
     public void Shuffle() {
@@ -54,5 +62,24 @@ public class Deck {
 
     public int CountCards() {
         return mCards.size();
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StatusProtos.Deck.Builder builder = StatusProtos.Deck.newBuilder();
+        for (int i = GetCards().size()-1; i>=0; --i) {
+            Card c = GetCards().get(i);
+            builder.addCards((StatusProtos.Card) c.WriteBuffer());
+        }
+        return builder.build();
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        StatusProtos.Deck deck = (StatusProtos.Deck) msg;
+        mCards.clear();
+        for (StatusProtos.Card protoCard : deck.getCardsList()) {
+             mCards.add(new Card(protoCard));
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
 

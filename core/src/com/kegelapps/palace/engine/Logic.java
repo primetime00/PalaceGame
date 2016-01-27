@@ -62,7 +62,7 @@ public class Logic {
             return;
         if (mMainState.getStatus() == State.Status.PAUSED)
             return;
-        mMainState.Run();
+        mMainState.Execute();
     }
 
 
@@ -80,12 +80,12 @@ public class Logic {
             h.DeselectEndCard(c);
     }
 
-    public void Request(LogicRequest req) {
+    public void Request(LogicRequest req, State.Names stateName) {
         switch (req) {
             default:
             case PLAY_START:
-                if (mMainState.containsState(State.Names.TAP_DECK_START))
-                    ((TapToStart)(mMainState.getState(State.Names.TAP_DECK_START))).Tapped();
+                if (mMainState.containsState(stateName))
+                    mMainState.getState(stateName).UserSignal();
                 break;
         }
     }
@@ -105,4 +105,7 @@ public class Logic {
         return card.compareTo(top) > -1;
     }
 
+    public State getMainState() {
+        return mMainState;
+    }
 }

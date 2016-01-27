@@ -4,7 +4,10 @@
 
 package com.kegelapps.palace.engine;
 
-public class Card implements Comparable<Card> {
+import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.StatusProtos;
+
+public class Card implements Comparable<Card>, Serializer {
 
     static private int mCardNumberTotal = 0;
     private int mCardNumber;
@@ -27,6 +30,15 @@ public class Card implements Comparable<Card> {
     public Card(Suit suit, Rank rank) {
         mSuit = suit;
         mRank = rank;
+        init();
+    }
+
+    public Card(StatusProtos.Card cardProto) {
+        ReadBuffer(cardProto);
+        init();
+    }
+
+    private void init() {
         mCardNumber = mCardNumberTotal++;
         mCardNumberTotal = mCardNumberTotal % (Rank.values().length * Suit.values().length);
     }
@@ -108,4 +120,15 @@ public class Card implements Comparable<Card> {
         return value.compareTo(o.getValue());
     }
 
+    @Override
+    public void ReadBuffer(Message msg) {
+        StatusProtos.Card cardProto = (StatusProtos.Card) msg;
+        mSuit = Suit.values()[cardProto.getSuit()];
+        mRank = Rank.values()[cardProto.getRank()];
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        return StatusProtos.Card.newBuilder().setRank(getRank().ordinal()).setSuit(getSuit().ordinal()).build();
+    }
 }

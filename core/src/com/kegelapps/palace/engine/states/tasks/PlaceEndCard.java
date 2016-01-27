@@ -13,60 +13,51 @@ import com.kegelapps.palace.engine.states.StateListener;
 public class PlaceEndCard extends State {
 
     private Table mTable;
-    private int mCurrentPlayer, mLastPlayer;
-    private int mRound;
-    private StateListener mStateListener;
-    private boolean mFirstPoll;
 
 
-    public PlaceEndCard(State parent, Table table, StateListener done) {
+    public PlaceEndCard(State parent, Table table, StateListener listener) {
         super(parent);
         mTable = table;
-        mCurrentPlayer = 0;
-        mLastPlayer = -1;
-        mRound = 0;
-        mStateListener = done;
-        mFirstPoll = true;
+        mStateListener = listener;
     }
 
     @Override
-    public boolean Run() {
-        super.Run();
-        boolean mStillSelecting = false;
-        Hand mHand = mTable.getHands().get(mCurrentPlayer);
-        if (mFirstPoll) {
-            System.out.print("Player " + mHand.getID() + " Select your 3 end cards.\n");
-            mFirstPoll = false;
-        }
+    protected void FirstRun() {
+        Hand mHand = mTable.getHands().get(0);
+        System.out.print("Player " + mHand.getID() + " Select your 3 end cards.\n");
+    }
+
+    @Override
+    protected boolean Run() {
+        boolean res = true;
         for (int i=0; i<mTable.getHands().size(); ++i) {
-            mHand = mTable.getHands().get(i);
+            Hand mHand = mTable.getHands().get(i);
             if (!mHand.getEndCards().contains(null)) //we have all of our cards
                 continue;
-            mStillSelecting = true;
+            res = false;
             if (mHand.getType() == Hand.HandType.HUMAN) {
-                for (Card c : mHand.getPlayCards()) { //make a runnable?
-                    Card activeCard = mHand.getActiveCards().get(mHand.getActiveCards().indexOf(c));
+                for (Card c : mHand.GetPlayCards()) { //make a runnable?
+                    Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
                     mHand.AddEndCard(activeCard);
                     System.out.print("HUMAN SELECTS " + c + "\n");
                 }
-                mHand.getPlayCards().clear();
-                for (Card c : mHand.getDiscardCards()) { //make a runnable?
+                mHand.GetPlayCards().clear();
+                for (Card c : mHand.GetDiscardCards()) { //make a runnable?
                     Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
                     mHand.RemoveEndCard(activeCard);
                     System.out.print("HUMAN DESELECTS " + c + "\n");
                 }
-                mHand.getDiscardCards().clear();
+                mHand.GetDiscardCards().clear();
             } else {
-                Card c = mHand.getActiveCards().get(MathUtils.random(mHand.getActiveCards().size() - 1));
+                Card c = mHand.GetActiveCards().get(MathUtils.random(mHand.GetActiveCards().size() - 1));
                 mHand.AddEndCard(c);
             }
         }
-        if (!mStillSelecting) {
+        if (res) {
             if (mStateListener != null)
                 mStateListener.onContinueState();
-            return true;
         }
-        return false;
+        return res;
     }
 
     @Override

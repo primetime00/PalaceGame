@@ -1,10 +1,10 @@
 package com.kegelapps.palace.engine.states.tasks;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.StateListener;
 
 /**
  * Created by keg45397 on 1/15/2016.
@@ -12,43 +12,49 @@ import com.kegelapps.palace.engine.states.State;
 public class TapToStart extends State {
 
     private Table mTable;
+    private boolean mTapped;
 
-    private OnStateListener mStateListener;
-
-    public TapToStart(State parent, Table table, OnStateListener listener) {
+    public TapToStart(State parent, Table table, StateListener listener) {
         super(parent);
         mTable = table;
         mStateListener = listener;
+        mTapped = false;
     }
 
+    @Override
+    protected void FirstRun() {
+        mTapped = false;
+    }
 
     @Override
-    public boolean Run() {
-        super.Run();
-
-        Hand mHand;
+    protected boolean Run() {
+        if (mTapped) {
+            if (mStateListener != null)
+                mStateListener.onContinueState();
+            return true;
+        }
 
         for (int i=0; i<mTable.getHands().size(); ++i) {
-            mHand = mTable.getHands().get(i);
+            Hand mHand = mTable.getHands().get(i);
             if (mHand.getType() == Hand.HandType.HUMAN) {
-                for (Card c : mHand.getDiscardCards()) { //make a runnable?
+                for (Card c : mHand.GetDiscardCards()) { //make a runnable?
                     Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
                     mHand.RemoveEndCard(activeCard);
                     System.out.print("HUMAN DESELECTS " + c + "\n");
                     if (mStateListener != null)
                         mStateListener.onBackState();
-                    mHand.getDiscardCards().remove(activeCard);
+                    mHand.GetDiscardCards().remove(activeCard);
                     return true;
                 }
-                mHand.getDiscardCards().clear();
+                mHand.GetDiscardCards().clear();
             }
         }
         return false;
     }
 
-    public void Tapped() {
-        if (mStateListener != null)
-            mStateListener.onContinueState();
+    @Override
+    public void UserSignal() {
+        mTapped = true;
     }
 
     @Override

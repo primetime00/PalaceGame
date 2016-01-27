@@ -1,0 +1,82 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "StateProtos";
+
+message State {
+    extensions 100 to max;
+    required int32 type = 1;
+
+    required int32 status = 2;
+    optional int32 previous_status = 3;
+
+    required bool  paused = 4;
+
+    repeated int32 children = 5;
+    repeated State childrenStates = 6;
+}
+
+message MainState {
+    extend State {
+        optional MainState state = 100;
+    }
+    required int32 mainState = 1;
+}
+
+message DealState {
+    extend State {
+        optional DealState state = 101;
+    }
+    required int32 currentPlayer = 1;
+    required int32 round=2;
+}
+
+message PlayState {
+    extend State {
+        optional PlayState state = 102;
+    }
+    required int32 currentPlayer = 1;
+}
+
+message SelectEndCardState {
+    extend State {
+        optional SelectEndCardState state = 103;
+    }
+    required int32 currentState = 1;
+}
+//Substates
+message DealCardState {
+    extend State {
+        optional DealCardState state = 104;
+    }
+    required int32 currentState = 1;
+    required bool hidden = 2;
+}
+
+message PlaceEndCardState {
+    extend State {
+        optional PlaceEndCardState state = 105;
+    }
+    required int32 currentPlayer = 1;
+    required bool firstPoll = 2;
+}
+
+message PlayCPUTurnState {
+    extend State {
+        optional PlayCPUTurnState state = 106;
+    }
+}
+
+message PlayHumanTurnState {
+    extend State {
+        optional PlayHumanTurnState state = 107;
+    }
+}
+
+message TapToStartState {
+    extend State {
+        optional TapToStartState state = 108;
+    }
+}
+
+

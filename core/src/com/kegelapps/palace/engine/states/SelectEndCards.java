@@ -13,15 +13,14 @@ public class SelectEndCards extends State {
 
     private int mState = 0;
 
-    private StateListener mStateListener;
     State [] mStates;
 
 
-    public SelectEndCards(State parent, Table table, StateListener done) {
+    public SelectEndCards(State parent, Table table, StateListener listener) {
         super(parent);
         createStates(table);
         mState = 0;
-        mStateListener = done;
+        mStateListener = listener;
     }
 
     private void createStates(Table table) {
@@ -29,7 +28,6 @@ public class SelectEndCards extends State {
         mPlaceCardListener = new StateListener() {
             @Override
             public void onContinueState() {
-                mStates[mState].setStatus(Status.NOT_STARTED);
                 mState = 1;
             }
         };
@@ -37,13 +35,11 @@ public class SelectEndCards extends State {
         mTapDeckListener = new StateListener() {
             @Override
             public void onContinueState() {
-                mStates[mState].setStatus(Status.NOT_STARTED);
                 mState = 2;
             }
 
             @Override
             public void onBackState() {
-                mStates[mState].setStatus(Status.NOT_STARTED);
                 mState = 0;
             }
         };
@@ -56,9 +52,8 @@ public class SelectEndCards extends State {
 
     @Override
     public boolean Run() {
-        super.Run();
         if (mState < mStates.length)
-            mStates[mState].Run();
+            mStates[mState].Execute();
         if (mState > 1) {
             if (mStateListener != null)
                 mStateListener.onContinueState();

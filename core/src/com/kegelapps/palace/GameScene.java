@@ -11,12 +11,16 @@ import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.tasks.DealCard;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.protos.StateProtos;
+import com.kegelapps.palace.protos.StatusProtos;
 import com.kegelapps.palace.protos.TableProtos;
 
 import java.io.ByteArrayOutputStream;
@@ -47,10 +51,10 @@ public class GameScene extends Scene {
 
     private void init() {
         logic = Logic.get();
-        if (!checkForSave()) {
-            table = new Table(new Deck(), 4, null);
-            tableView = new TableView(table);
-        }
+        //if (!checkForSave()) {
+            table = new Table(new Deck(), 4);
+        //}
+        tableView = new TableView(table);
         logic.SetTable(table);
         mMessageBand = new MessageBandView();
         addActor(tableView);
@@ -59,16 +63,15 @@ public class GameScene extends Scene {
     }
 
     private boolean checkForSave() {
-        TableProtos.TableView tv;
+        StatusProtos.Table tv;
         try {
             FileInputStream fs = new FileInputStream("test.dat");
             CodedInputStream istream = CodedInputStream.newInstance(fs);
-            tv = TableProtos.TableView.parseFrom(istream);
+            tv = StatusProtos.Table.parseFrom(istream);
         } catch (Exception e) {
             return false;
         }
-        tableView = TableView.build(tv);
-        table = tableView.getTable();
+        table = new Table(tv);
         return true;
     }
 
@@ -81,6 +84,9 @@ public class GameScene extends Scene {
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
+                }
+                if ((params[0] instanceof Play)) {
+                    Logic.get().getMainState().WriteBuffer();
                 }
                 if ((params[0] instanceof SelectEndCards)) {
                     if (once == false) {
@@ -99,12 +105,15 @@ public class GameScene extends Scene {
         super.act(delta);
         logic.Poll();
         if (state) {
-            if (tableView != null) {
-                TableProtos.TableView tv = (TableProtos.TableView) tableView.WriteBuffer();
+            if (table != null) {
+                StatusProtos.Status.Builder statBuilder = StatusProtos.Status.newBuilder();
+                statBuilder.setTable((StatusProtos.Table) table.WriteBuffer());
+                statBuilder.setMainState((StateProtos.State) logic.getMainState().WriteBuffer());
+                StatusProtos.Status st = statBuilder.build();
                 try {
                     FileOutputStream bs = new FileOutputStream("test.dat");
                     CodedOutputStream output = CodedOutputStream.newInstance(bs);
-                    tv.writeTo(output);
+                    st.writeTo(output);
                     output.flush();
                 } catch (IOException e) {
                     e.printStackTrace();

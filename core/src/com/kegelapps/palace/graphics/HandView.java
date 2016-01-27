@@ -8,18 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.google.protobuf.Message;
-import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.animations.CardAnimation;
-import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.CardProtos;
-import com.kegelapps.palace.protos.HandProtos;
-import com.kegelapps.palace.protos.InPlayProtos;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.parallel;
@@ -28,7 +22,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class HandView extends Group implements Serializer{
+public class HandView extends Group {
 
     private Hand mHand;
     private Rectangle mHiddenPositions[];
@@ -38,10 +32,6 @@ public class HandView extends Group implements Serializer{
     private float mEndCardOverlapPercent;
 
     private ActorGestureListener mGestureListener;
-
-    public HandView() {
-
-    }
 
     public HandView(Hand hand) {
         super();
@@ -67,7 +57,7 @@ public class HandView extends Group implements Serializer{
                 super.fling(event, velocityX, velocityY, button);
                 if (event.getTarget() instanceof CardView) {
                     Card c = ((CardView)event.getTarget()).getCard();
-                    if (getHand().getActiveCards().contains(c) && velocityY > 200.0f) {
+                    if (getHand().GetActiveCards().contains(c) && velocityY > 200.0f) {
                         Logic.get().PlayerSelectCard(getHand(), c);
                     }
                     else if (getHand().getEndCards().contains(c) && velocityY < -200.0f) {
@@ -162,7 +152,7 @@ public class HandView extends Group implements Serializer{
     }
 
     public Rectangle getHiddenPosition(int index) {
-        if (index > 2)
+        if (index > 2 || index < 0)
             index = 0;
         return mHiddenPositions[index];
     }
@@ -190,7 +180,7 @@ public class HandView extends Group implements Serializer{
                 cardView.getParent().removeActor(cardView);
                 addActor(cardView);
 
-                int pos = getHand().GetHiddenCards().size()-1;
+                int pos = getHand().GetAvailableHiddenCardPosition();
                 Rectangle r = getHiddenPosition(pos);
 
                 new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(r, getHand().getID(), cardView);
@@ -255,8 +245,10 @@ public class HandView extends Group implements Serializer{
             r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
         }
         for (Card c : getHand().GetHiddenCards()) {
-            CardView cv = CardView.getCardView(c);
-            cv.setZIndex(zIndex++);
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(zIndex++);
+            }
         }
 
         for (Card c : getHand().getEndCards()) {
@@ -267,7 +259,7 @@ public class HandView extends Group implements Serializer{
         }
 
         for (int i =0; i<size; ++i) {
-            CardView cv = CardView.getCardView(getHand().getActiveCards().get(i));
+            CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             cv.setZIndex(zIndex++);
             new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
         }
@@ -306,80 +298,4 @@ public class HandView extends Group implements Serializer{
         super.draw(batch, parentAlpha);
     }
 
-    @Override
-    public void ReadBuffer(Message msg) {
-        int i;
-        HandProtos.HandView hv = (HandProtos.HandView) msg;
-        setPosition(hv.getX(), hv.getY());
-        mHand = new Hand(hv.getHand().getId(), Hand.HandType.values()[hv.getHand().getType()], null, null);
-        mHand.getActiveCards().clear();
-        for (CardProtos.CardView cv : hv.getActiveCardsList()) {
-            CardView rCard = new CardView();
-            rCard.ReadBuffer(cv);
-            mHand.getActiveCards().add(rCard.getCard());
-        }
-        mHand.getPlayCards().clear();
-        for (CardProtos.CardView cv : hv.getPlayCardsList()) {
-            CardView rCard = new CardView();
-            rCard.ReadBuffer(cv);
-            mHand.getPlayCards().add(rCard.getCard());
-        }
-        i=0;
-        for (CardProtos.CardView cv : hv.getEndCardsList()) {
-            CardView rCard = new CardView();
-            rCard.ReadBuffer(cv);
-            mHand.getEndCards().set(i++, rCard.getCard());
-        }
-        mHand.GetHiddenCards().clear();
-        for (CardProtos.CardView cv : hv.getHiddenCardsList()) {
-            CardView rCard = new CardView();
-            rCard.ReadBuffer(cv);
-            mHand.GetHiddenCards().add(rCard.getCard());
-        }
-        init();
-    }
-
-    @Override
-    public Message WriteBuffer() {
-        int i;
-        HandProtos.HandView.Builder builder = HandProtos.HandView.newBuilder();
-        builder.setX(getX());
-        builder.setY(getY());
-        builder.setHand(HandProtos.HandView.Hand.newBuilder()
-                .setId(mHand.getID())
-                .setType(mHand.getType().ordinal()).build());
-        for (i = mHand.getActiveCards().size()-1; i>=0; --i) {
-            Card c = mHand.getActiveCards().get(i);
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addActiveCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        for (i = mHand.getHiddenCards().size()-1; i>=0; --i) {
-            Card c = mHand.getHiddenCards().get(i);
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addHiddenCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        for (i = mHand.getEndCards().size()-1; i>=0; --i) {
-            Card c = (Card) mHand.getEndCards().toArray()[i];
-            if (c == null)
-                continue;
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addEndCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        for (i = mHand.getPlayCards().size()-1; i>=0; --i) {
-            Card c = mHand.getPlayCards().get(i);
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addPlayCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        for (i = mHand.getDiscardCards().size()-1; i>=0; --i) {
-            Card c = mHand.getDiscardCards().get(i);
-            CardView cv = CardView.getCardView(c);
-            if (cv != null)
-                builder.addDiscarCards((CardProtos.CardView) cv.WriteBuffer());
-        }
-        return builder.build();
-    }
 }

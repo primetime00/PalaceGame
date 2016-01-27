@@ -24,16 +24,16 @@ public class Play extends State {
     private StateListener mSingleTurnDone;
 
 
-    public Play(State parent, Table table, StateListener done) {
+    public Play(State parent, Table table, StateListener listener) {
         super(parent);
         mState = 0;
-        mStateListener = done;
+        mStateListener = listener;
         mCurrentPlayer = 0;
         mTable = table;
 
         mSingleTurnDone = new StateListener() {
             @Override
-            public void onContinueState() {
+            public void onDoneState() {
                 mCurrentPlayer++;
                 mCurrentPlayer %= mTable.getHands().size();
             }
@@ -49,8 +49,7 @@ public class Play extends State {
     }
 
     @Override
-    public boolean Run() {
-        super.Run();
+    protected boolean Run() {
         mTurnState[mCurrentPlayer].Run();
         return false;
     }

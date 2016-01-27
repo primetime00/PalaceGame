@@ -1,17 +1,18 @@
 package com.kegelapps.palace.engine;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.states.tasks.DealCard;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by keg45397 on 12/7/2015.
  */
-public class Table {
+public class Table  implements Serializer{
     private Deck mDeck; //the deck on the table
 
     InPlay mPlayCards;
@@ -21,29 +22,25 @@ public class Table {
     //should the table have the hands?
     List<Hand> mHands;
 
-    //state machine
-    DealCard mDealHiddenCardState;
-    DealCard mDealActiveCardState;
-
     public interface TableListener {
         public void onDealCard(Hand hand, Card c);
     }
 
-    public Table(Deck deck, ArrayList<Hand> hands, InPlay inPlay)
-    {
-        mDeck = deck;
-        mPlayCards = inPlay;
-        mHands = hands;
+    public Table (StatusProtos.Table tableProto) {
+        mPlayCards = new InPlay();
+        mBurntCards = new ArrayList<>();
+        mHands = new ArrayList<>();
+        ReadBuffer(tableProto);
     }
 
-    public Table(Deck deck, int numberOfPlayers, BlockingQueue<Runnable> queue) {
+    public Table(Deck deck, int numberOfPlayers) {
         assert (numberOfPlayers != 3 || numberOfPlayers != 4);
         mDeck = deck;
         mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
         for (int i=0; i<numberOfPlayers; ++i) {
-            mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU, mDeck, queue));
+            mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU, mDeck));
         }
     }
 
@@ -52,20 +49,6 @@ public class Table {
     }
 
     public InPlay getInPlay() { return mPlayCards; }
-
-    public boolean DealHiddenCard(int player) {
-        if (mDealHiddenCardState == null || mDealHiddenCardState.getStatus() == State.Status.DONE) {
-            mDealHiddenCardState = new DealCard(mHands.get(player), mDeck, true, null);
-        }
-        return mDealHiddenCardState.Run();
-    }
-
-    public boolean DealActiveCard(int player) {
-        if (mDealActiveCardState == null || mDealActiveCardState.getStatus() == State.Status.DONE) {
-            mDealActiveCardState = new DealCard(mHands.get(player), mDeck, false, null);
-        }
-        return mDealActiveCardState.Run();
-    }
 
     public void DrawCard() {
         Card c = mDeck.Draw();
@@ -91,7 +74,7 @@ public class Table {
         Card top = GetTopPlayCard();
         if (activeCard.compareTo(top) > -1) {
             GetPlayCards().add(GetPlayCards().size(), activeCard);
-            hand.getActiveCards().remove(activeCard);
+            hand.GetActiveCards().remove(activeCard);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
             return true;
         }
@@ -101,4 +84,25 @@ public class Table {
         }
     }
 
+    @Override
+    public void ReadBuffer(Message msg) {
+        StatusProtos.Table table = (StatusProtos.Table) msg;
+        mDeck = new Deck(table.getDeck());
+        mPlayCards = new InPlay(table.getPlayed());
+        mHands.clear();
+        for (StatusProtos.Hand handProto : table.getHandsList()) {
+            mHands.add(new Hand(handProto));
+        }
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StatusProtos.Table.Builder tableBuilder = StatusProtos.Table.newBuilder();
+        tableBuilder.setDeck((StatusProtos.Deck) mDeck.WriteBuffer());
+        tableBuilder.setPlayed((StatusProtos.Played) mPlayCards.WriteBuffer());
+        for (Hand hand : mHands) {
+            tableBuilder.addHands((StatusProtos.Hand) hand.WriteBuffer());
+        }
+        return tableBuilder.build();
+    }
 }
