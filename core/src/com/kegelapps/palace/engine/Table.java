@@ -25,13 +25,16 @@ public class Table {
     DealCard mDealHiddenCardState;
     DealCard mDealActiveCardState;
 
-    private TableListener mTableListener;
-
     public interface TableListener {
         public void onDealCard(Hand hand, Card c);
     }
 
-
+    public Table(Deck deck, ArrayList<Hand> hands, InPlay inPlay)
+    {
+        mDeck = deck;
+        mPlayCards = inPlay;
+        mHands = hands;
+    }
 
     public Table(Deck deck, int numberOfPlayers, BlockingQueue<Runnable> queue) {
         assert (numberOfPlayers != 3 || numberOfPlayers != 4);

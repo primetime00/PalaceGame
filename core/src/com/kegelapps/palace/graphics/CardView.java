@@ -9,6 +9,7 @@ import com.google.protobuf.Message;
 import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.protos.CardProtos;
+import com.kegelapps.palace.protos.HandProtos;
 
 /**
  * Created by keg45397 on 12/8/2015.
@@ -30,9 +31,15 @@ public class CardView extends Actor implements Serializer{
 
     private static OrderedMap<Card, CardView> mCardMap;
 
+    public CardView() {
+        super();
+    }
+
     public CardView(Card.Suit suit, Card.Rank rank) {
         super();
         mCard = new Card(suit, rank);
+        setSide(Side.FRONT);
+        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
         init();
     }
 
@@ -40,12 +47,12 @@ public class CardView extends Actor implements Serializer{
         super();
         assert(card == null);
         mCard = card;
+        setSide(Side.FRONT);
+        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
         init();
     }
 
     private void init() {
-        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
-        setSide(Side.FRONT);
         setBounds(0,0,mCardRegion.originalWidth, mCardRegion.originalHeight);
         setOrigin(mCardRegion.originalWidth/2.0f, mCardRegion.originalHeight/2.0f);
         mMaxCardSize = new Vector2(mCardRegion.originalWidth, mCardRegion.originalHeight).len();
@@ -99,7 +106,14 @@ public class CardView extends Actor implements Serializer{
     }
 
     @Override
-    public void ReadBuffer() {
+    public void ReadBuffer(Message msg) {
+        CardProtos.CardView cv = (CardProtos.CardView) msg;
+        if (cv.hasX() && cv.hasY())
+            setPosition(cv.getX(), cv.getY());
+        mCard = new Card(Card.Suit.values()[cv.getCard().getSuit()], Card.Rank.values()[cv.getCard().getRank()]);
+        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        setSide(Side.values()[cv.getSide()]);
+        init();
     }
 
     @Override

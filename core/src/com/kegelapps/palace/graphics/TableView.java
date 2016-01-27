@@ -1,13 +1,11 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.utils.Array;
@@ -25,6 +23,8 @@ import com.kegelapps.palace.protos.DeckProtos;
 import com.kegelapps.palace.protos.HandProtos;
 import com.kegelapps.palace.protos.InPlayProtos;
 import com.kegelapps.palace.protos.TableProtos;
+
+import java.util.ArrayList;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
@@ -46,6 +46,9 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
 
     private TextView mHelperText;
 
+    public TableView() {
+    }
+
     public TableView(Table table) {
         mTable = table;
         mDeck = new DeckView(table.getDeck());
@@ -53,14 +56,19 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
         mCards = new Array<>();
         mHands = new Array<>();
 
-        mHelperText = new TextView(Director.instance().getGameFont());
-
         for (Hand h : mTable.getHands()) {
             mHands.add(new HandView(h));
         }
         for (Card c : mTable.getDeck().GetCards()) {
             mCards.add(new CardView(c));
         }
+
+        init();
+    }
+
+    private void init() {
+        mHelperText = new TextView(Director.instance().getGameFont());
+
 
         mPixmap = new Pixmap(Director.instance().getVirtualWidth(),Director.instance().getVirtualHeight(), Pixmap.Format.RGB888);
         mPixmap.setColor(Color.GREEN);
@@ -242,8 +250,23 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
     }
 
     @Override
-    public void ReadBuffer() {
-
+    public void ReadBuffer(Message msg) {
+        TableProtos.TableView tv = (TableProtos.TableView) msg;
+        setPosition(tv.getX(), tv.getY());
+        mDeck = new DeckView();
+        mDeck.ReadBuffer(tv.getDeck());
+        mPlayView = new InPlayView(null);
+        mPlayView.ReadBuffer(tv.getInPlay());
+        mHands = new Array<>();
+        ArrayList<Hand> hands = new ArrayList<>();
+        for (int i=0; i<tv.getHandsCount(); ++i) {
+            HandView hv = new HandView();
+            hv.ReadBuffer(tv.getHands(i));
+            mHands.add(hv);
+            hands.add(hv.getHand());
+        }
+        mTable = new Table(mDeck.getDeck(),hands, mPlayView.getInPlay());
+        init();
     }
 
     @Override
@@ -259,5 +282,15 @@ public class TableView extends Group implements Input.BoundObject, Serializer {
             builder.addHands((HandProtos.HandView) hv.WriteBuffer());
         }
         return builder.build();
+    }
+
+    public static TableView build(TableProtos.TableView tv) {
+        TableView tableView = new TableView();
+        tableView.ReadBuffer(tv);
+        return tableView;
+    }
+
+    public Table getTable() {
+        return mTable;
     }
 }

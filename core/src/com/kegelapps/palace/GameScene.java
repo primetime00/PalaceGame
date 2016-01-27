@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Deck;
@@ -19,6 +20,7 @@ import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.protos.TableProtos;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -45,13 +47,29 @@ public class GameScene extends Scene {
 
     private void init() {
         logic = Logic.get();
-        table = new Table(new Deck(), 4, null);
+        if (!checkForSave()) {
+            table = new Table(new Deck(), 4, null);
+            tableView = new TableView(table);
+        }
         logic.SetTable(table);
-        tableView = new TableView(table);
         mMessageBand = new MessageBandView();
         addActor(tableView);
 
         createEvents();
+    }
+
+    private boolean checkForSave() {
+        TableProtos.TableView tv;
+        try {
+            FileInputStream fs = new FileInputStream("test.dat");
+            CodedInputStream istream = CodedInputStream.newInstance(fs);
+            tv = TableProtos.TableView.parseFrom(istream);
+        } catch (Exception e) {
+            return false;
+        }
+        tableView = TableView.build(tv);
+        table = tableView.getTable();
+        return true;
     }
 
     private boolean once = false;

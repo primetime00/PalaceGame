@@ -8,19 +8,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Serializer;
-import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.Input;
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.DeckProtos;
-
-import java.util.Collections;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -131,6 +127,14 @@ public class DeckView extends Group implements Input.BoundObject, Serializer {
 
     }
 
+    public Deck getDeck() {
+        return mDeck;
+    }
+
+    public void setmDeck(Deck mDeck) {
+        this.mDeck = mDeck;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
         if (mDeckLow)
@@ -154,7 +158,16 @@ public class DeckView extends Group implements Input.BoundObject, Serializer {
     }
 
     @Override
-    public void ReadBuffer() {
+    public void ReadBuffer(Message msg) {
+        DeckProtos.DeckView dv = (DeckProtos.DeckView) msg;
+        setPosition(dv.getX(), dv.getY());
+        mDeck = new Deck();
+        mDeck.GetCards().clear();
+        for (int i=0; i<dv.getCardsCount(); ++i) {
+            CardView cv = new CardView();
+            cv.ReadBuffer(dv.getCards(i));
+            mDeck.GetCards().add(cv.getCard());
+        }
 
     }
 

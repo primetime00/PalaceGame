@@ -1,17 +1,16 @@
 package com.kegelapps.palace.graphics;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Serializer;
 import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.protos.CardProtos;
+import com.kegelapps.palace.protos.DeckProtos;
 import com.kegelapps.palace.protos.InPlayProtos;
 
 /**
@@ -27,13 +26,22 @@ public class InPlayView extends Group implements Serializer {
     private int mOldSize = -1;
     Vector2 mNextCardPosition;
 
+    public InPlayView() {
+        super();
+    }
+
     public InPlayView(InPlay play) {
         super();
         mInPlayCards = play;
+        init();
+    }
+
+    private void init() {
         mOldSize = -1;
         mNextCardPosition = new Vector2();
         mPlayRectangle = new Rectangle(0, 0, CardUtils.getCardWidth(), CardUtils.getCardHeight());
     }
+
 
     private void CalculatePositionAndSize() {
         float x = mPlayRectangle.getX();
@@ -75,8 +83,17 @@ public class InPlayView extends Group implements Serializer {
 
 
     @Override
-    public void ReadBuffer() {
-
+    public void ReadBuffer(Message msg) {
+        InPlayProtos.InPlayView pv = (InPlayProtos.InPlayView) msg;
+        setPosition(pv.getX(), pv.getY());
+        mInPlayCards = new InPlay();
+        mInPlayCards.GetCards().clear();
+        for (int i=0; i<pv.getCardsCount(); ++i) {
+            CardView cv = new CardView();
+            cv.ReadBuffer(pv.getCards(i));
+            mInPlayCards.GetCards().add(cv.getCard());
+        }
+        init();
     }
 
     @Override
@@ -91,5 +108,9 @@ public class InPlayView extends Group implements Serializer {
                 builder.addCards((CardProtos.CardView) cv.WriteBuffer());
         }
         return builder.build();
+    }
+
+    public InPlay getInPlay() {
+        return mInPlayCards;
     }
 }

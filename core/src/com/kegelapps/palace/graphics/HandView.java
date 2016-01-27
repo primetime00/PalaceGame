@@ -2,14 +2,11 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Serializer;
@@ -17,10 +14,12 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.HandProtos;
+import com.kegelapps.palace.protos.InPlayProtos;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.parallel;
@@ -40,10 +39,19 @@ public class HandView extends Group implements Serializer{
 
     private ActorGestureListener mGestureListener;
 
+    public HandView() {
+
+    }
+
     public HandView(Hand hand) {
         super();
         assert(hand == null);
         mHand = hand;
+
+        init();
+    }
+
+    private void init() {
         mCardOverlapPercent = 0.75f;
         mEndCardOverlapPercent = 0.05f;
 
@@ -299,8 +307,36 @@ public class HandView extends Group implements Serializer{
     }
 
     @Override
-    public void ReadBuffer() {
-
+    public void ReadBuffer(Message msg) {
+        int i;
+        HandProtos.HandView hv = (HandProtos.HandView) msg;
+        setPosition(hv.getX(), hv.getY());
+        mHand = new Hand(hv.getHand().getId(), Hand.HandType.values()[hv.getHand().getType()], null, null);
+        mHand.getActiveCards().clear();
+        for (CardProtos.CardView cv : hv.getActiveCardsList()) {
+            CardView rCard = new CardView();
+            rCard.ReadBuffer(cv);
+            mHand.getActiveCards().add(rCard.getCard());
+        }
+        mHand.getPlayCards().clear();
+        for (CardProtos.CardView cv : hv.getPlayCardsList()) {
+            CardView rCard = new CardView();
+            rCard.ReadBuffer(cv);
+            mHand.getPlayCards().add(rCard.getCard());
+        }
+        i=0;
+        for (CardProtos.CardView cv : hv.getEndCardsList()) {
+            CardView rCard = new CardView();
+            rCard.ReadBuffer(cv);
+            mHand.getEndCards().set(i++, rCard.getCard());
+        }
+        mHand.GetHiddenCards().clear();
+        for (CardProtos.CardView cv : hv.getHiddenCardsList()) {
+            CardView rCard = new CardView();
+            rCard.ReadBuffer(cv);
+            mHand.GetHiddenCards().add(rCard.getCard());
+        }
+        init();
     }
 
     @Override
