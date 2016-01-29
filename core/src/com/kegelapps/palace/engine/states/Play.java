@@ -24,10 +24,9 @@ public class Play extends State {
     private StateListener mSingleTurnDone;
 
 
-    public Play(State parent, Table table, StateListener listener) {
+    public Play(State parent, Table table) {
         super(parent);
         mState = 0;
-        mStateListener = listener;
         mCurrentPlayer = 0;
         mTable = table;
 
@@ -41,16 +40,20 @@ public class Play extends State {
 
         mTurnState = new State[mTable.getHands().size()];
         for (int i=0; i<mTable.getHands().size(); ++i) {
-            if (mTable.getHands().get(i).getType() == Hand.HandType.HUMAN)
-                mTurnState[i] = new PlayHumanTurn(this, mTable, i, mSingleTurnDone);
-            else
-                mTurnState[i] = new PlayCPUTurn(this, mTable, i, mSingleTurnDone);
+            if (mTable.getHands().get(i).getType() == Hand.HandType.HUMAN) {
+                mTurnState[i] = StateFactory.get().createState(Names.PLAY_HUMAN_TURN, this, i);
+                mTurnState[i].setStateListener(mSingleTurnDone);
+            }
+            else {
+                mTurnState[i] = StateFactory.get().createState(Names.PLAY_CPU_TURN, this, i);
+                mTurnState[i].setStateListener(mSingleTurnDone);
+            }
         }
     }
 
     @Override
-    protected boolean Run() {
-        mTurnState[mCurrentPlayer].Run();
+    protected boolean OnRun() {
+        mTurnState[mCurrentPlayer].Execute();
         return false;
     }
 

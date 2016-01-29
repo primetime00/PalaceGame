@@ -2,8 +2,6 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.animations.CameraAnimation;
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.tasks.DealCard;
 import com.kegelapps.palace.events.EventSystem;
@@ -23,14 +21,17 @@ public class Deal extends State{
     DealCard mDealActiveCardState[];
 
 
-    public Deal(State parent, Table table, StateListener listener) {
+    public Deal(State parent, Table table) {
         super(parent);
         mTable = table;
         mCurrentPlayer = 0;
         mLastPlayer = -1;
         mRound = 0;
-        mStateListener = listener;
 
+        createStates();
+    }
+
+    private void createStates() {
         StateListener mDealCardStateListener = new StateListener() {
             @Override
             public void onDoneState() {
@@ -42,22 +43,27 @@ public class Deal extends State{
             }
         };
 
-        mDealActiveCardState = new DealCard[table.getHands().size()];
-        mDealHiddenCardState = new DealCard[table.getHands().size()];
+        mDealActiveCardState = new DealCard[mTable.getHands().size()];
+        mDealHiddenCardState = new DealCard[mTable.getHands().size()];
 
-        for (int i=0; i<table.getHands().size(); ++i) {
-            mDealActiveCardState[i] = new DealCard(this, table.getHands().get(i), table.getDeck(),false, mDealCardStateListener );
-            mDealHiddenCardState[i] = new DealCard(this, table.getHands().get(i), table.getDeck(),true, mDealCardStateListener );
+        for (int i=0; i<mTable.getHands().size(); ++i) {
+            mDealActiveCardState[i] = (DealCard) StateFactory.get().createState(Names.DEAL_CARD, this, i);
+            mDealActiveCardState[i].setHidden(false);
+            mDealActiveCardState[i].setStateListener(mDealCardStateListener);
+
+            mDealHiddenCardState[i] = (DealCard) StateFactory.get().createState(Names.DEAL_CARD, this, i);
+            mDealHiddenCardState[i].setHidden(true);
+            mDealHiddenCardState[i].setStateListener(mDealCardStateListener);
         }
     }
 
     @Override
-    protected void FirstRun() {
+    protected void OnFirstRun() {
         System.out.print("Dealing cards...");
     }
 
     @Override
-    protected boolean Run() {
+    protected boolean OnRun() {
         if (mRound < 3) {
             mDealHiddenCardState[mCurrentPlayer].Execute();
         }

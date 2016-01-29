@@ -16,11 +16,10 @@ public class SelectEndCards extends State {
     State [] mStates;
 
 
-    public SelectEndCards(State parent, Table table, StateListener listener) {
+    public SelectEndCards(State parent, Table table) {
         super(parent);
         createStates(table);
         mState = 0;
-        mStateListener = listener;
     }
 
     private void createStates(Table table) {
@@ -44,14 +43,14 @@ public class SelectEndCards extends State {
             }
         };
 
-        mStates[0] = new PlaceEndCard(this, table, mPlaceCardListener);
-        mStates[1] = new TapToStart(this, table, mTapDeckListener);
-
-
+        mStates[0] = StateFactory.get().createState(Names.PLACE_END_CARD, this);
+        mStates[1] = StateFactory.get().createState(Names.TAP_DECK_START, this);
+        mStates[0].setStateListener(mPlaceCardListener);
+        mStates[1].setStateListener(mTapDeckListener);
     }
 
     @Override
-    public boolean Run() {
+    public boolean OnRun() {
         if (mState < mStates.length)
             mStates[mState].Execute();
         if (mState > 1) {

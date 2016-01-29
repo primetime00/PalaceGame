@@ -15,20 +15,19 @@ public class PlaceEndCard extends State {
     private Table mTable;
 
 
-    public PlaceEndCard(State parent, Table table, StateListener listener) {
+    public PlaceEndCard(State parent, Table table) {
         super(parent);
         mTable = table;
-        mStateListener = listener;
     }
 
     @Override
-    protected void FirstRun() {
+    protected void OnFirstRun() {
         Hand mHand = mTable.getHands().get(0);
         System.out.print("Player " + mHand.getID() + " Select your 3 end cards.\n");
     }
 
     @Override
-    protected boolean Run() {
+    protected boolean OnRun() {
         boolean res = true;
         for (int i=0; i<mTable.getHands().size(); ++i) {
             Hand mHand = mTable.getHands().get(i);

@@ -7,6 +7,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ryan on 12/23/2015.
@@ -27,7 +28,10 @@ public class State implements Serializer{
         DEAL_CARD,
         SELECT_END_CARDS,
         PLACE_END_CARD,
-        PLAY, PLAY_HUMAN_TURN, PLAY_CPU_TURN, TAP_DECK_START
+        PLAY,
+        PLAY_HUMAN_TURN,
+        PLAY_CPU_TURN,
+        TAP_DECK_START
     }
 
     public interface OnStateListener {
@@ -37,6 +41,7 @@ public class State implements Serializer{
     }
 
     protected boolean mPaused;
+    protected int mID;
 
 
     private Status mStatus, mPreviousStatus;
@@ -45,19 +50,35 @@ public class State implements Serializer{
 
     private State mParent;
     private ArrayList<State> mChildren;
+    protected StateFactory.StateList mChildrenStates;
 
     public State() {
         init();
         mParent = null;
+        mChildrenStates = new StateFactory.StateList();
     }
     public State(State parent) {
         init();
         mParent = parent;
+        mChildrenStates = new StateFactory.StateList();
+    }
+
+    public void setID(int id) {
+        mID = id;
+    }
+
+    public int getID() {
+        return mID;
+    }
+
+    public void setStateListener(StateListener listener) {
+        mStateListener = listener;
     }
 
     private void init() {
         mPaused = false;
         mStatus = Status.NOT_STARTED;
+        mID = 0;
     }
 
     public Status getStatus() {return mStatus;}
@@ -74,11 +95,11 @@ public class State implements Serializer{
             if (mParent != null) {
                 mParent.addChild(this);
             }
-            FirstRun();
+            OnFirstRun();
         }
-        ret = Run();
+        ret = OnRun();
         if (ret == true) {//we finished the state?
-            EndRun();
+            OnEndRun();
             mStatus = Status.DONE;
             if (mStateListener != null)
                 mStateListener.onDoneState();
@@ -88,11 +109,11 @@ public class State implements Serializer{
         }
     }
 
-    protected boolean Run() {
+    protected boolean OnRun() {
         return true;
     }
 
-    protected void EndRun() {
+    protected void OnEndRun() {
 
     }
 
@@ -111,6 +132,10 @@ public class State implements Serializer{
         if (mChildren == null)
             return;
         mChildren.remove(state);
+    }
+
+    public List<State> getChildren() {
+        return mChildren;
     }
 
 
@@ -147,7 +172,7 @@ public class State implements Serializer{
             mStatus = mPreviousStatus;
     }
 
-    protected void FirstRun() {
+    protected void OnFirstRun() {
 
     }
 
@@ -157,23 +182,29 @@ public class State implements Serializer{
 
     @Override
     public void ReadBuffer(Message msg) {
+        StateProtos.State state = (StateProtos.State) msg;
+        mStatus = Status.values()[state.getStatus()];
+        mPaused = state.getPaused();
+        mID = state.getId();
+        if (state.hasPreviousStatus())
+            mPreviousStatus = Status.values()[state.getPreviousStatus()];
+        if (state.getChildrenStatesCount() > 0) {
+            mChildrenStates = StateFactory.get().ParseStateList(state, this);
+        }
 
     }
 
     @Override
     public Message WriteBuffer() {
+        StateProtos.State stateProto;
         StateProtos.State.Builder builder = StateProtos.State.newBuilder();
         builder.setType(getStateName().ordinal());
         builder.setPaused(mPaused);
+        builder.setId(mID);
         builder.setStatus(mStatus.ordinal());
         if (mPreviousStatus != null)
             builder.setPreviousStatus(mPreviousStatus.ordinal());
-        if (mChildren != null) {
-            for (State s : mChildren) {
-                builder.addChildren(s.getStateName().ordinal());
-                builder.addChildrenStates((StateProtos.State) s.WriteBuffer());
-            }
-        }
-        return builder.build();
+        stateProto = StateFactory.get().WriteStateList(mChildrenStates, builder.build(), this);
+        return stateProto;
     }
 }

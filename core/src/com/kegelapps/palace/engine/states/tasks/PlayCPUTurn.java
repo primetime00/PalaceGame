@@ -20,17 +20,29 @@ public class PlayCPUTurn extends State {
     private long mTime;
 
 
-    public PlayCPUTurn(State parent, Table table, int id, StateListener listener) {
+    public PlayCPUTurn(State parent, Table table) {
         super(parent);
-        mStateListener = listener;
         mTable = table;
-        mHand = table.getHands().get(id);
     }
 
     @Override
-    protected boolean Run() {
+    public void setID(int id) {
+        super.setID(id);
+        mHand = null;
+        for (Hand h: mTable.getHands()) {
+            if (h.getID() == id) {
+                mHand = h;
+                break;
+            }
+        }
+    }
+
+
+    @Override
+    protected boolean OnRun() {
         boolean hasPlayed =false;
-        super.Run();
+        if (mHand == null)
+            return true;
         if (System.currentTimeMillis() - mTime < 1000)
             return false;
 
@@ -50,7 +62,7 @@ public class PlayCPUTurn extends State {
     }
 
     @Override
-    protected void FirstRun() {
+    protected void OnFirstRun() {
         mTime = System.currentTimeMillis();
     }
 

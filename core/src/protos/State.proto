@@ -12,8 +12,9 @@ message State {
 
     required bool  paused = 4;
 
-    repeated int32 children = 5;
-    repeated State childrenStates = 6;
+    repeated State childrenStates = 5;
+
+    required int32 id = 6;
 }
 
 message MainState {

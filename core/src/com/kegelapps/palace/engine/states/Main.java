@@ -26,11 +26,6 @@ public class Main extends State {
     private Table mTable;
     private Deck mDeck;
 
-    //states
-    Deal mDealState;
-    SelectEndCards mSelectEndCardsState;
-    Play mPlayState;
-
 
     public Main(Table table) {
         super();
@@ -38,25 +33,33 @@ public class Main extends State {
         mState = GameState.START;
         mDeck = mTable.getDeck();
 
-        mDealState = new Deal(this, mTable, new StateListener() {
+        createStates();
+
+    }
+
+    private void createStates() {
+        State s;
+        s = mChildrenStates.add(Names.DEAL, this);
+        s.setStateListener(new StateListener() {
             @Override
             public void onDoneState() {
                 mState = GameState.PLAY_FIRST_CARD;
             }
         });
 
-        mSelectEndCardsState = new SelectEndCards(this, mTable, new StateListener() {
+        s = mChildrenStates.add(Names.SELECT_END_CARDS, this);
+        s.setStateListener(new StateListener() {
             @Override
             public void onContinueState() {
                 mState = GameState.PLAY;
             }
         });
-        mPlayState = new Play(this, mTable, null);
 
+        s = mChildrenStates.add(Names.PLAY, this);
     }
 
     @Override
-    protected boolean Run() {
+    protected boolean OnRun() {
         if (mTable == null)
             return true;
         if (mPaused)
@@ -68,7 +71,7 @@ public class Main extends State {
                 mState = GameState.DEAL;
                 break;
             case DEAL:
-                mDealState.Execute();
+                mChildrenStates.get(Names.DEAL).Execute();
                 break;
             case PLAY_FIRST_CARD:
                 Logic.get().setFastDeal(false);
@@ -81,10 +84,10 @@ public class Main extends State {
                 }
                 break;
             case SELECT_END_CARDS:
-                mSelectEndCardsState.Execute();
+                mChildrenStates.get(Names.SELECT_END_CARDS).Execute();
                 break;
             case PLAY:
-                mPlayState.Execute();
+                mChildrenStates.get(Names.PLAY).Execute();
                 break;
         }
         return false;
@@ -97,17 +100,18 @@ public class Main extends State {
 
     @Override
     public Message WriteBuffer() {
-        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
-
+        StateProtos.State stateProto = (StateProtos.State) super.WriteBuffer();
         StateProtos.MainState.Builder builder = StateProtos.MainState.newBuilder();
         builder.setMainState(mState.ordinal());
-
-        s = s.toBuilder().setExtension(StateProtos.MainState.state, builder.build()).build();
-        return s;
+        stateProto = stateProto.toBuilder().setExtension(StateProtos.MainState.state, builder.build()).build();
+        return stateProto;
     }
 
     @Override
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
+        StateProtos.State state = (StateProtos.State) msg;
+        StateProtos.MainState mainState = ((StateProtos.State) msg).getExtension(StateProtos.MainState.state);
+        mState = GameState.values()[mainState.getMainState()];
     }
 }

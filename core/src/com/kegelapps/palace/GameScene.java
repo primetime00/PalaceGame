@@ -1,29 +1,22 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
-import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.DealCard;
-import com.kegelapps.palace.engine.states.tasks.TapToStart;
+import com.kegelapps.palace.engine.states.StateFactory;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
-import com.kegelapps.palace.protos.TableProtos;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,9 +44,11 @@ public class GameScene extends Scene {
 
     private void init() {
         logic = Logic.get();
+        checkForSave();
         //if (!checkForSave()) {
-            table = new Table(new Deck(), 4);
+        //    table = new Table(new Deck(), 4);
         //}
+        table = new Table(new Deck(), 4);
         tableView = new TableView(table);
         logic.SetTable(table);
         mMessageBand = new MessageBandView();
@@ -63,15 +58,17 @@ public class GameScene extends Scene {
     }
 
     private boolean checkForSave() {
-        StatusProtos.Table tv;
+        StatusProtos.Status st;
         try {
             FileInputStream fs = new FileInputStream("test.dat");
             CodedInputStream istream = CodedInputStream.newInstance(fs);
-            tv = StatusProtos.Table.parseFrom(istream);
+            st = StatusProtos.Status.parseFrom(istream, StateFactory.get().getRegistry());
         } catch (Exception e) {
             return false;
         }
-        table = new Table(tv);
+        table = new Table(st.getTable());
+        logic.SetTable(table);
+        StateFactory.get().ParseState(st.getMainState(), null, logic.getMainState(), table);
         return true;
     }
 

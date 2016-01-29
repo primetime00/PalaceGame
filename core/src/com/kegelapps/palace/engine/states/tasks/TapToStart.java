@@ -14,20 +14,19 @@ public class TapToStart extends State {
     private Table mTable;
     private boolean mTapped;
 
-    public TapToStart(State parent, Table table, StateListener listener) {
+    public TapToStart(State parent, Table table) {
         super(parent);
         mTable = table;
-        mStateListener = listener;
         mTapped = false;
     }
 
     @Override
-    protected void FirstRun() {
+    protected void OnFirstRun() {
         mTapped = false;
     }
 
     @Override
-    protected boolean Run() {
+    protected boolean OnRun() {
         if (mTapped) {
             if (mStateListener != null)
                 mStateListener.onContinueState();

@@ -19,17 +19,29 @@ public class PlayHumanTurn extends State {
     private Card mPlayCard;
 
 
-    public PlayHumanTurn(State parent, Table table, int id, StateListener listener) {
+    public PlayHumanTurn(State parent, Table table) {
         super(parent);
-        mStateListener = listener;
         mTable = table;
-        mHand = table.getHands().get(id);
         mPlayCard = null;
     }
 
     @Override
-    protected boolean Run() {
+    public void setID(int id) {
+        super.setID(id);
+        mHand = null;
+        for (Hand h: mTable.getHands()) {
+            if (h.getID() == id) {
+                mHand = h;
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected boolean OnRun() {
         boolean hasPlayed =false;
+        if (mHand == null)
+            return true;
         for (Card c : mHand.GetPlayCards()) { //make a runnable?
             Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
             if (mPlayCard != null && mPlayCard.getRank() != activeCard.getRank()) { //trying to add more than one card with different ranks

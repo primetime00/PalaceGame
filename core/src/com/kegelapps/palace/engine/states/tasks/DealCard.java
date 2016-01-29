@@ -18,6 +18,7 @@ public class DealCard extends State {
 
     private Hand mHand;
     private Deck mDeck;
+    private Table mTable;
     private Card mCard;
     private CardState mCardState;
 
@@ -30,22 +31,39 @@ public class DealCard extends State {
     };
 
 
-    public DealCard(State parent, Hand hand, Deck deck, boolean hidden, StateListener listener) {
+    public DealCard(State parent, Table table) {
         super(parent);
-        mHand = hand;
-        mDeck = deck;
-        mStateListener = listener;
+        mTable = table;
+        mDeck = table.getDeck();
         mCardState = CardState.DEALING;
+        mHidden = false;
+    }
+
+    public void setHidden(boolean hidden) {
         mHidden = hidden;
     }
 
     @Override
-    protected void FirstRun() {
+    public void setID(int id) {
+        super.setID(id);
+        mHand = null;
+        for (Hand h: mTable.getHands()) {
+            if (h.getID() == id) {
+                mHand = h;
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void OnFirstRun() {
         mCardState = CardState.DEALING;
     }
 
     @Override
-    protected boolean Run() {
+    protected boolean OnRun() {
+        if (mHand == null)
+            return true;
         switch (mCardState) {
             default:
             case DEALING:
