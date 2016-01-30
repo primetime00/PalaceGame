@@ -16,10 +16,6 @@ public class Deal extends State{
     private int mRound;
     private Runnable mDoneRunnable;
 
-    //state machine
-    DealCard mDealHiddenCardState[];
-    DealCard mDealActiveCardState[];
-
 
     public Deal(State parent, Table table) {
         super(parent);
@@ -43,17 +39,14 @@ public class Deal extends State{
             }
         };
 
-        mDealActiveCardState = new DealCard[mTable.getHands().size()];
-        mDealHiddenCardState = new DealCard[mTable.getHands().size()];
-
+        State s;
         for (int i=0; i<mTable.getHands().size(); ++i) {
-            mDealActiveCardState[i] = (DealCard) StateFactory.get().createState(Names.DEAL_CARD, this, i);
-            mDealActiveCardState[i].setHidden(false);
-            mDealActiveCardState[i].setStateListener(mDealCardStateListener);
+            s = mChildrenStates.addState(Names.DEAL_HIDDEN_CARD, this, i);
+            s.setStateListener(mDealCardStateListener);
 
-            mDealHiddenCardState[i] = (DealCard) StateFactory.get().createState(Names.DEAL_CARD, this, i);
-            mDealHiddenCardState[i].setHidden(true);
-            mDealHiddenCardState[i].setStateListener(mDealCardStateListener);
+            s = mChildrenStates.addState(Names.DEAL_SHOWN_CARD, this, i);
+            s.setStateListener(mDealCardStateListener);
+
         }
     }
 
@@ -65,12 +58,12 @@ public class Deal extends State{
     @Override
     protected boolean OnRun() {
         if (mRound < 3) {
-            mDealHiddenCardState[mCurrentPlayer].Execute();
+            mChildrenStates.getState(Names.DEAL_HIDDEN_CARD, mCurrentPlayer).Execute();
         }
         else if (mRound < 10) {
             if (mRound == 3 && mCurrentPlayer == 0)
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_ACTIVE_CARDS, mRound, mCurrentPlayer);
-            mDealActiveCardState[mCurrentPlayer].Execute();
+            mChildrenStates.getState(Names.DEAL_SHOWN_CARD, mCurrentPlayer).Execute();
         }
         else {
             return true;
@@ -87,6 +80,9 @@ public class Deal extends State{
     @Override
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
+        StateProtos.DealState dealState = ((StateProtos.State) msg).getExtension(StateProtos.DealState.state);
+        mCurrentPlayer = dealState.getCurrentPlayer();
+        mRound = dealState.getRound();
     }
 
     @Override

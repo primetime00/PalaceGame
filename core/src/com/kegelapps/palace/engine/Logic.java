@@ -1,11 +1,17 @@
 package com.kegelapps.palace.engine;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.CodedOutputStream;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.states.*;
-import com.kegelapps.palace.engine.states.tasks.PlaceEndCard;
-import com.kegelapps.palace.engine.states.tasks.TapToStart;
+import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.CardsProtos;
+import com.kegelapps.palace.protos.StateProtos;
+import com.kegelapps.palace.protos.StatusProtos;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created by Ryan on 12/5/2015.
@@ -13,7 +19,6 @@ import com.kegelapps.palace.engine.states.tasks.TapToStart;
 public class Logic {
 
     private static Logic mLogic;
-
 
     public enum LogicRequest {
         PLAY_START;
@@ -24,11 +29,11 @@ public class Logic {
     private boolean mFastDeal = false;
 
     //states
-    Main mMainState;
+    private Main mMainState;
 
     private Table mTable;
 
-    boolean mPaused;
+    private boolean mPaused;
 
     public Logic() {
         mPaused = false;
@@ -40,10 +45,11 @@ public class Logic {
         return mLogic;
     }
 
-    public void SetTable(Table table) {
-        mTable = table;
-        mMainState = new Main(mTable);
-        mNumberOfPlayers = table.getHands().size();
+    public void LoadStatus(StatusProtos.Status s) {
+        mTable = new Table(s.getTable());
+        StateFactory.get().SetTable(mTable);
+        mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
+        StateFactory.get().ParseState(s.getMainState(), GetMainState());
     }
 
     public void Pause(boolean pause) {
@@ -105,7 +111,61 @@ public class Logic {
         return card.compareTo(top) > -1;
     }
 
-    public State getMainState() {
+    public State GetMainState() {
         return mMainState;
     }
+
+    public Table GetTable() {
+        return mTable;
+    }
+
+    public boolean CheckForSave() {
+        StatusProtos.Status st;
+        try {
+            FileInputStream fs = new FileInputStream("test.dat");
+            CodedInputStream istream = CodedInputStream.newInstance(fs);
+            st = StatusProtos.Status.parseFrom(istream, StateFactory.get().getRegistry());
+        } catch (Exception e) {
+            return false;
+        }
+        LoadStatus(st);
+        Director.instance().getEventSystem().FireLater(EventSystem.EventType.REPARENT_ALL_VIEWS);
+        Director.instance().getEventSystem().FireLater(EventSystem.EventType.STATE_LOADED);
+        return true;
+    }
+
+    public void Initialize() {
+        CheckForSave();
+        if (mTable == null)
+            mTable = new Table(new Deck(), mNumberOfPlayers);
+        StateFactory.get().SetTable(mTable);
+        if (mMainState == null)
+            mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
+    }
+
+    public boolean SaveState() {
+        if (GetTable() == null || GetMainState() == null)
+            return false;
+        StatusProtos.Status.Builder statBuilder = StatusProtos.Status.newBuilder();
+        statBuilder.setTable((CardsProtos.Table) GetTable().WriteBuffer());
+        statBuilder.setMainState((StateProtos.State) GetMainState().WriteBuffer());
+        StatusProtos.Status st = statBuilder.build();
+        try {
+            FileOutputStream bs = new FileOutputStream("test.dat");
+            CodedOutputStream output = CodedOutputStream.newInstance(bs);
+            st.writeTo(output);
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public void SetNumberOfPlayers(int num) {
+        if (mTable == null)
+            mNumberOfPlayers = num;
+    }
+
+
 }

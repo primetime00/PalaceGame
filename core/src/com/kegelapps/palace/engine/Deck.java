@@ -1,5 +1,6 @@
 package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.*;
@@ -24,20 +25,20 @@ public class Deck implements Serializer{
             for (Card.Suit s : Card.Suit.values()) {
                 for (int rank = 0; rank < Card.Rank.values().length; ++rank) {
                     Card.Rank r = mDebugRanks.get(rank % mDebugRanks.size());
-                    mCards.add(new Card(s, r));
+                    mCards.add(Card.GetCard(s, r));
                 }
             }
         }
         else {
             for (Card.Suit s : Card.Suit.values()) {
                 for (Card.Rank r : Card.Rank.values()) {
-                    mCards.add(new Card(s, r));
+                    mCards.add(Card.GetCard(s, r));
                 }
             }
         }
     }
 
-    public Deck(StatusProtos.Deck deckProto) {
+    public Deck(CardsProtos.Deck deckProto) {
         mCards = new ArrayList<>();
         ReadBuffer(deckProto);
     }
@@ -66,20 +67,20 @@ public class Deck implements Serializer{
 
     @Override
     public Message WriteBuffer() {
-        StatusProtos.Deck.Builder builder = StatusProtos.Deck.newBuilder();
+        CardsProtos.Deck.Builder builder = CardsProtos.Deck.newBuilder();
         for (int i = GetCards().size()-1; i>=0; --i) {
             Card c = GetCards().get(i);
-            builder.addCards((StatusProtos.Card) c.WriteBuffer());
+            builder.addCards((CardsProtos.Card) c.WriteBuffer());
         }
         return builder.build();
     }
 
     @Override
     public void ReadBuffer(Message msg) {
-        StatusProtos.Deck deck = (StatusProtos.Deck) msg;
+        CardsProtos.Deck deck = (CardsProtos.Deck) msg;
         mCards.clear();
-        for (StatusProtos.Card protoCard : deck.getCardsList()) {
-             mCards.add(new Card(protoCard));
+        for (CardsProtos.Card protoCard : deck.getCardsList()) {
+            mCards.add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
     }
 }

@@ -1,0 +1,33 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "CardsProtos";
+
+message Card {
+    required int32 suit = 1;
+    required int32 rank = 2;
+}
+message PositionCard {
+    required int32 position = 1;
+    required Card card = 2;
+}
+message Deck {
+    repeated Card cards = 1;
+}
+message Played {
+    repeated Card cards = 1;
+}
+message Hand {
+    required int32 id = 1;
+    required int32 type = 2;
+    repeated Card activeCards = 3;
+    repeated PositionCard hiddenCards = 4;
+    repeated PositionCard endCards = 5;
+    repeated Card playCards = 6;
+    repeated Card discarCards = 7;
+}
+message Table {
+    optional Deck deck = 1;
+    optional Played played = 2;
+    repeated Hand hands = 3;
+}

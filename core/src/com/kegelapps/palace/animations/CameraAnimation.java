@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Logic;
+import com.kegelapps.palace.graphics.CardCamera;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.CardAccessor;
@@ -19,6 +20,8 @@ import com.kegelapps.palace.tween.CardAccessor;
 public class CameraAnimation implements TweenCallback {
 
     private boolean mPauseLogic = false;
+    private CardCamera.CameraSide mSide;
+    private CardCamera mCamera;
     public CameraAnimation(boolean pauseLogic) {
         mPauseLogic = pauseLogic;
     }
@@ -27,7 +30,9 @@ public class CameraAnimation implements TweenCallback {
         mPauseLogic = false;
     }
 
-    public BaseTween<Timeline> MoveCamera(float duration, float x, float y, float zoom, OrthographicCamera camera) {
+    public BaseTween<Timeline> MoveCamera(float duration, float x, float y, float zoom, CardCamera camera, CardCamera.CameraSide side) {
+        mCamera = camera;
+        mSide = side;
         Timeline animation = Timeline.createParallel();
         animation.setCallback(this);
         animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
@@ -46,6 +51,8 @@ public class CameraAnimation implements TweenCallback {
         if (type == TweenCallback.END) {
             if (mPauseLogic)
                 Logic.get().Pause(false);
+            if (mCamera != null)
+                mCamera.SetSide(mSide);
         }
     }
 }

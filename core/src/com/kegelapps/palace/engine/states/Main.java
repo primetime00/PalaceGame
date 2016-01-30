@@ -37,9 +37,21 @@ public class Main extends State {
 
     }
 
+    public Main(StateProtos.State s, Table table) {
+        super();
+        mTable = table;
+        createStates();
+        ReadBuffer(s);
+    }
+
+    public Main() {
+        super();
+        createStates();
+    }
+
     private void createStates() {
         State s;
-        s = mChildrenStates.add(Names.DEAL, this);
+        s = mChildrenStates.addState(Names.DEAL, this);
         s.setStateListener(new StateListener() {
             @Override
             public void onDoneState() {
@@ -47,7 +59,7 @@ public class Main extends State {
             }
         });
 
-        s = mChildrenStates.add(Names.SELECT_END_CARDS, this);
+        s = mChildrenStates.addState(Names.SELECT_END_CARDS, this);
         s.setStateListener(new StateListener() {
             @Override
             public void onContinueState() {
@@ -55,7 +67,7 @@ public class Main extends State {
             }
         });
 
-        s = mChildrenStates.add(Names.PLAY, this);
+        s = mChildrenStates.addState(Names.PLAY, this);
     }
 
     @Override
@@ -71,7 +83,7 @@ public class Main extends State {
                 mState = GameState.DEAL;
                 break;
             case DEAL:
-                mChildrenStates.get(Names.DEAL).Execute();
+                mChildrenStates.getState(Names.DEAL).Execute();
                 break;
             case PLAY_FIRST_CARD:
                 Logic.get().setFastDeal(false);
@@ -84,10 +96,10 @@ public class Main extends State {
                 }
                 break;
             case SELECT_END_CARDS:
-                mChildrenStates.get(Names.SELECT_END_CARDS).Execute();
+                mChildrenStates.getState(Names.SELECT_END_CARDS).Execute();
                 break;
             case PLAY:
-                mChildrenStates.get(Names.PLAY).Execute();
+                mChildrenStates.getState(Names.PLAY).Execute();
                 break;
         }
         return false;
@@ -110,7 +122,6 @@ public class Main extends State {
     @Override
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
-        StateProtos.State state = (StateProtos.State) msg;
         StateProtos.MainState mainState = ((StateProtos.State) msg).getExtension(StateProtos.MainState.state);
         mState = GameState.values()[mainState.getMainState()];
     }

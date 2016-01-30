@@ -7,24 +7,22 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.utils.Array;
-import com.google.protobuf.Message;
 import com.kegelapps.palace.*;
 import com.kegelapps.palace.animations.CameraAnimation;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.DeckProtos;
-import com.kegelapps.palace.protos.HandProtos;
-import com.kegelapps.palace.protos.InPlayProtos;
-import com.kegelapps.palace.protos.TableProtos;
-
-import java.util.ArrayList;
+import com.kegelapps.palace.protos.StateProtos;
+import sun.rmi.runtime.Log;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
@@ -89,7 +87,7 @@ public class TableView extends Group implements Input.BoundObject {
 
     private void createTableEvents() {
         //Triggered when a card is drawn from the deck to the play card pile
-        EventSystem.Event mDrawCardEvent = new EventSystem.Event(EventSystem.EventType.DRAW_PLAY_CARD) {
+        EventSystem.EventListener mDrawCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DRAW_PLAY_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Card) )
@@ -103,14 +101,14 @@ public class TableView extends Group implements Input.BoundObject {
                 new CardAnimation(true, "Drawing from deck to active").DrawToActive(mDeck, mPlayView, cardView);
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mDrawCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mDrawCardEventListener);
 
         //Triggered when a card is dealt from the deck
-        EventSystem.Event mDealCardEvent = new EventSystem.Event(EventSystem.EventType.DEAL_CARD) {
+        EventSystem.EventListener mDealCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DEAL_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand))
-                    throw new IllegalArgumentException("Invalid parameters for DEAL_CARD");
+                    throw new IllegalArgumentException("Invalid parameters for DEAL_HIDDEN_CARD");
                 CardView cardView = CardView.getCardView((Card) params[0]);
                 Hand hand =  (Hand) params[1];
 
@@ -129,10 +127,10 @@ public class TableView extends Group implements Input.BoundObject {
                 }
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mDealCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mDealCardEventListener);
 
         //Triggered when dealing the 7 active cards
-        EventSystem.Event mDealFirstActiveCard = new EventSystem.Event(EventSystem.EventType.DEAL_ACTIVE_CARDS) {
+        EventSystem.EventListener mDealFirstActiveCard = new EventSystem.EventListener(EventSystem.EventType.DEAL_ACTIVE_CARDS) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof Integer))
@@ -142,18 +140,15 @@ public class TableView extends Group implements Input.BoundObject {
                 if (round != 3 && player != 0)
                     return;
                 float duration = 1.5f;
-                float camX;
-                float camY;
-                OrthographicCamera camera = (OrthographicCamera) Director.instance().getScene().getCamera();
-                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
-                camY = mHands.get(0).getHiddenPosition(0).getY() + CardUtils.getCardHeight();
-                new CameraAnimation(false).MoveCamera(duration, camX, camY, 1.0f, camera);
+                Vector2 pos = MoveCamera(HandUtils.IDtoSide(player));
+                CardCamera camera = Director.instance().getScene().getCardCamera();
+                new CameraAnimation(false).MoveCamera(duration, pos.x, pos.y, 1.0f, camera, CardCamera.CameraSide.BOTTOM);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
 
         //Triggered when the state engine changes state
-        EventSystem.Event mTapDeckEvent = new EventSystem.Event(EventSystem.EventType.STATE_CHANGE) {
+        EventSystem.EventListener mTapDeckEventListener = new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
@@ -172,10 +167,10 @@ public class TableView extends Group implements Input.BoundObject {
 
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mTapDeckEvent);
+        Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
 
         //Triggered when the player tries to play an invalid card
-        EventSystem.Event mCardPlayFailed = new EventSystem.Event(EventSystem.EventType.CARD_PLAY_FAILED) {
+        EventSystem.EventListener mCardPlayFailed = new EventSystem.EventListener(EventSystem.EventType.CARD_PLAY_FAILED) {
             @Override
             public void handle(Object[] params) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
@@ -187,13 +182,13 @@ public class TableView extends Group implements Input.BoundObject {
 
                 new CardAnimation(true, "Failed card").PlayFailedCard(mPlayView, hand.getID(), cardView);
 
-                mHands.get(hand.getID()).OrganizeCards();
+                mHands.get(hand.getID()).OrganizeCards(true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlayFailed);
 
         //Triggered when the player plays a valid card
-        EventSystem.Event mCardPlaySuccess = new EventSystem.Event(EventSystem.EventType.CARD_PLAY_SUCCESS) {
+        EventSystem.EventListener mCardPlaySuccess = new EventSystem.EventListener(EventSystem.EventType.CARD_PLAY_SUCCESS) {
             @Override
             public void handle(Object[] params) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
@@ -209,10 +204,37 @@ public class TableView extends Group implements Input.BoundObject {
 
                 new CardAnimation(true, "Success card").PlaySuccessCard(mPlayView, hand.getID(), cardView);
 
-                mHands.get(hand.getID()).OrganizeCards();
+                mHands.get(hand.getID()).OrganizeCards(true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlaySuccess);
+
+        //Triggered when the reparent required
+        EventSystem.EventListener mReparentViews = new EventSystem.EventListener(EventSystem.EventType.REPARENT_ALL_VIEWS) {
+            @Override
+            public void handle(Object[] params) {
+
+                for (HandView hv : mHands) {
+                    hv.ReparentAllViews();
+                }
+                mPlayView.ReparentAllViews();
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mReparentViews);
+
+        //Triggered when the state is loaded
+        EventSystem.EventListener mLoadedState = new EventSystem.EventListener(EventSystem.EventType.STATE_LOADED) {
+            @Override
+            public void handle(Object[] params) {
+                State s = Logic.get().GetMainState();
+                if (s.containsState(State.Names.SELECT_END_CARDS)) {
+                    Vector2 pos = MoveCamera(HandUtils.HandSide.SIDE_BOTTOM);
+                    Director.instance().getScene().getCardCamera().position.set(pos.x, pos.y, 0);
+                    Director.instance().getScene().getCardCamera().SetSide(CardCamera.CameraSide.BOTTOM);
+                }
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mLoadedState);
 
     }
 
@@ -248,5 +270,33 @@ public class TableView extends Group implements Input.BoundObject {
 
     public Table getTable() {
         return mTable;
+    }
+
+    public Vector2 MoveCamera(HandUtils.HandSide side) {
+        Vector2 res = new Vector2();
+        float camX;
+        float camY;
+        CardCamera camera = Director.instance().getScene().getCardCamera();
+        switch (side) {
+            default:
+            case SIDE_BOTTOM:
+                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
+                camY = mHands.get(0).getHiddenPosition(0).getY() + CardUtils.getCardHeight();
+                break;
+            case SIDE_LEFT:
+                camX = mHands.get(1).getHiddenPosition(0).getX() - CardUtils.getCardWidth();
+                camY = mDeck.getY()+(mDeck.getHeight()/2.0f);
+                break;
+            case SIDE_TOP:
+                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
+                camY = mHands.get(2).getHiddenPosition(0).getY() - CardUtils.getCardHeight();
+                break;
+            case SIDE_RIGHT:
+                camX = mHands.get(3).getHiddenPosition(0).getX() + CardUtils.getCardWidth();
+                camY = mDeck.getY()+(mDeck.getHeight()/2.0f);
+                break;
+        }
+        res.set(camX, camY);
+        return res;
     }
 }

@@ -11,19 +11,19 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.kegelapps.palace.graphics.CardUtils;
-import com.kegelapps.palace.graphics.CardView;
-import com.kegelapps.palace.graphics.DeckView;
-import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.engine.Logic;
+import com.kegelapps.palace.graphics.*;
 
 public class Palace extends ApplicationAdapter {
-	private OrthographicCamera mCamera;
 	GameScene mGameScene;
 
 	@Override
 	public void create () {
 		CardUtils.loadCards(CardUtils.CardSize.TINY);
-		mGameScene = new GameScene(new ExtendViewport(800,480));
+
+        Logic.get().SetNumberOfPlayers(4);
+        Logic.get().Initialize();
+        mGameScene = new GameScene(new ExtendViewport(800,480));
         Director.instance().setScene(mGameScene);
 	}
 
@@ -31,13 +31,6 @@ public class Palace extends ApplicationAdapter {
 	@Override
 	public void render () {
         Director.instance().update();
-
-/*		mCamera.update();
-
-		batch.setProjectionMatrix(mCamera.combined);
-		batch.begin();
-		tableView.draw(batch);
-		batch.end();*/
 	}
 
     @Override

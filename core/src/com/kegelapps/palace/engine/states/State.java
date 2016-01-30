@@ -25,7 +25,8 @@ public class State implements Serializer{
         GENERIC,
         MAIN,
         DEAL,
-        DEAL_CARD,
+        DEAL_HIDDEN_CARD,
+        DEAL_SHOWN_CARD,
         SELECT_END_CARDS,
         PLACE_END_CARD,
         PLAY,
@@ -49,7 +50,8 @@ public class State implements Serializer{
     protected StateListener mStateListener;
 
     private State mParent;
-    private ArrayList<State> mChildren;
+    private State mChild;
+
     protected StateFactory.StateList mChildrenStates;
 
     public State() {
@@ -104,7 +106,7 @@ public class State implements Serializer{
             if (mStateListener != null)
                 mStateListener.onDoneState();
             if (mParent != null) {
-                mParent.removeChild(this);
+                mParent.removeChild();
             }
         }
     }
@@ -122,42 +124,28 @@ public class State implements Serializer{
     }
 
     public void addChild(State child) {
-        if (mChildren == null)
-            mChildren = new ArrayList<>();
-        mChildren.clear();
-        mChildren.add(child);
+        mChild = child;
     }
 
-    private void removeChild(State state) {
-        if (mChildren == null)
-            return;
-        mChildren.remove(state);
-    }
-
-    public List<State> getChildren() {
-        return mChildren;
+    private void removeChild() {
+        mChild = null;
     }
 
 
     public boolean containsState(Names name) {
         if (getStateName() == name)
             return true;
-        if (mChildren != null) {
-            for (State child : mChildren) {
-                return child.containsState(name);
-            }
-        }
+        if (mChild != null)
+            return mChild.containsState(name);
         return false;
     }
 
     public State getState(Names name) {
         if (getStateName() == name)
             return this;
-        if (mChildren != null) {
-            for (State child : mChildren) {
-                return child.getState(name);
-            }
-        }
+
+        if (mChild != null)
+            return mChild.getState(name);
         return null;
     }
 
@@ -183,9 +171,9 @@ public class State implements Serializer{
     @Override
     public void ReadBuffer(Message msg) {
         StateProtos.State state = (StateProtos.State) msg;
-        mStatus = Status.values()[state.getStatus()];
+        setStatus(Status.values()[state.getStatus()]);
         mPaused = state.getPaused();
-        mID = state.getId();
+        setID(state.getId());
         if (state.hasPreviousStatus())
             mPreviousStatus = Status.values()[state.getPreviousStatus()];
         if (state.getChildrenStatesCount() > 0) {
@@ -200,8 +188,8 @@ public class State implements Serializer{
         StateProtos.State.Builder builder = StateProtos.State.newBuilder();
         builder.setType(getStateName().ordinal());
         builder.setPaused(mPaused);
-        builder.setId(mID);
-        builder.setStatus(mStatus.ordinal());
+        builder.setId(getID());
+        builder.setStatus(getStatus().ordinal());
         if (mPreviousStatus != null)
             builder.setPreviousStatus(mPreviousStatus.ordinal());
         stateProto = StateFactory.get().WriteStateList(mChildrenStates, builder.build(), this);

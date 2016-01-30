@@ -1,5 +1,6 @@
 package com.kegelapps.palace.engine.states.tasks;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
@@ -7,13 +8,13 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by Ryan on 1/21/2016.
  */
 public class PlayCPUTurn extends State {
 
-    private StateListener mStateListener;
     private Table mTable;
     private Hand mHand;
 
@@ -69,6 +70,21 @@ public class PlayCPUTurn extends State {
     @Override
     public Names getStateName() {
         return Names.PLAY_CPU_TURN;
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+
+        StateProtos.PlayCPUTurnState.Builder builder = StateProtos.PlayCPUTurnState.newBuilder();
+        s = s.toBuilder().setExtension(StateProtos.PlayCPUTurnState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
+        StateProtos.PlayCPUTurnState selectEndCardState = ((StateProtos.State) msg).getExtension(StateProtos.PlayCPUTurnState.state);
     }
 
 }

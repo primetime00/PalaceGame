@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.*;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
@@ -111,28 +112,27 @@ public class CardAnimation implements TweenCallback {
         float varianceDelay = MathUtils.random(10)/10.0f;
         animation.delay(varianceDelay);
 
+        Vector3 pos;
+
         float duration = 0.1f;
-        float rotDiff = (cardView.getOriginY() - cardView.getOriginX())/1;
-        float sideRot = 90.0f;
         switch (id) {
             default:
             case 0: //bottom
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX(), rect.getY()));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(0.0f));
+                pos = HandUtils.LineUpHiddenCard(cardView, HandUtils.HandSide.SIDE_BOTTOM, rect);
                 break;
             case 1: //left
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()-(rotDiff*MathUtils.sinDeg(-sideRot)) , rect.getY()+(rotDiff*MathUtils.sinDeg(-sideRot))));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(-sideRot));
+                pos = HandUtils.LineUpHiddenCard(cardView, HandUtils.HandSide.SIDE_LEFT, rect);
                 break;
             case 2: //top
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX(), rect.getY()));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(180.0f));
+                pos = HandUtils.LineUpHiddenCard(cardView, HandUtils.HandSide.SIDE_TOP, rect);
                 break;
             case 3: //right
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()+(rotDiff*MathUtils.sinDeg(sideRot)) , rect.getY()-(rotDiff*MathUtils.sinDeg(sideRot))));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(sideRot));
+                pos = HandUtils.LineUpHiddenCard(cardView, HandUtils.HandSide.SIDE_RIGHT, rect);
                 break;
         }
+        animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(pos.x, pos.y));
+        animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(pos.z));
+
         animation.start(Director.instance().getTweenManager());
         return animation;
     }
@@ -225,38 +225,22 @@ public class CardAnimation implements TweenCallback {
             }
         };
 
-        Rectangle rect = handView.getActivePosition();
-        int id = handView.getHand().getID();
-
-        int cardWidth = CardUtils.getCardTextureWidth();
-
-        //find out card1 X position:
-        float width = cardWidth*index*handView.getCardOverlapPercent();
-        float posX = rect.getX()+(width);
-        float posY = rect.getY()+(width);
-
-        float duration = 0.1f;
-        float rotDiff = (cardView.getOriginY() - cardView.getOriginX())/1;
-        float sideRot = 90.0f;
-        switch (id) {
+        Vector3 pos;
+        switch (handView.getHand().getID()) {
             default:
-            case 0: //bottom
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(posX, rect.getY()));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(0.0f));
+            case 0: pos = HandUtils.LineUpActiveCard(index, cardView, HandUtils.HandSide.SIDE_BOTTOM, handView.getActivePosition(), handView.getCardOverlapPercent());
                 break;
-            case 1: //left
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()-(rotDiff*MathUtils.sinDeg(-sideRot)) , posY+(rotDiff*MathUtils.sinDeg(-sideRot))));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(-sideRot));
+            case 1: pos = HandUtils.LineUpActiveCard(index, cardView, HandUtils.HandSide.SIDE_LEFT, handView.getActivePosition(), handView.getCardOverlapPercent());
                 break;
-            case 2: //top
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(posX, rect.getY()));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(180.0f));
+            case 2: pos = HandUtils.LineUpActiveCard(index, cardView, HandUtils.HandSide.SIDE_TOP, handView.getActivePosition(), handView.getCardOverlapPercent());
                 break;
-            case 3: //right
-                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(rect.getX()+(rotDiff*MathUtils.sinDeg(sideRot)) , posY-(rotDiff*MathUtils.sinDeg(sideRot))));
-                animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(sideRot));
+            case 3: pos = HandUtils.LineUpActiveCard(index, cardView, HandUtils.HandSide.SIDE_RIGHT, handView.getActivePosition(), handView.getCardOverlapPercent());
                 break;
         }
+        float duration = 0.1f;
+        animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(pos.x, pos.y));
+        animation.push(Tween.to(cardView, CardAccessor.ROTATION, duration).target(pos.z));
+
         if (handView.getHand().getType() == Hand.HandType.HUMAN)
             animation.push(Tween.call(mFlipCallback).delay(0.2f));
 

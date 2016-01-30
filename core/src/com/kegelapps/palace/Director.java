@@ -86,6 +86,7 @@ public class Director {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mManager.update(Gdx.graphics.getDeltaTime());
+        mEventSystem.ProcessWaitingEvents();
         if (scene != null)
         {
             scene.act(Gdx.graphics.getDeltaTime());

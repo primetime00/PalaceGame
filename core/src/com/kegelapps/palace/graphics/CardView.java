@@ -29,7 +29,7 @@ public class CardView extends Actor {
 
     public CardView(Card.Suit suit, Card.Rank rank) {
         super();
-        mCard = new Card(suit, rank);
+        mCard = Card.GetCard(suit, rank);
         mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
         setSide(Side.FRONT);
         init();
@@ -77,8 +77,13 @@ public class CardView extends Actor {
     }
 
     public static CardView getCardView(Card c) {
-        if (mCardMap != null)
-            return mCardMap.get(c);
+        if (mCardMap != null) {
+            CardView cv = mCardMap.get(c);
+            if (cv == null) {//we don't have it, lets add it!
+                cv = new CardView(c);
+            }
+            return cv;
+        }
         return null;
     }
 

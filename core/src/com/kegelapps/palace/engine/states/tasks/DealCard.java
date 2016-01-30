@@ -7,7 +7,6 @@ import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.StateListener;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
@@ -88,12 +87,17 @@ public class DealCard extends State {
 
     @Override
     public Names getStateName() {
-        return Names.DEAL_CARD;
+        if (mHidden)
+            return Names.DEAL_HIDDEN_CARD;
+        return Names.DEAL_SHOWN_CARD;
     }
 
     @Override
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
+        StateProtos.DealCardState dealCardState = ((StateProtos.State) msg).getExtension(StateProtos.DealCardState.state);
+        mHidden = dealCardState.getHidden();
+        mCardState = CardState.values()[dealCardState.getCurrentState()];
     }
 
     @Override

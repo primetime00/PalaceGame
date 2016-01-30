@@ -63,7 +63,7 @@ public class DeckView extends Group implements Input.BoundObject {
                     if (getHand().getActiveCards().contains(c) && velocityY > 200.0f) {
                         Logic.get().PlayerSelectCard(getHand(), c);
                     }
-                    else if (getHand().getEndCards().contains(c) && velocityY < -200.0f) {
+                    else if (getHand().GetEndCards().contains(c) && velocityY < -200.0f) {
                         Logic.get().PlayerUnselectCard(getHand(), c);
                     }
                 }*/
@@ -73,7 +73,7 @@ public class DeckView extends Group implements Input.BoundObject {
     }
 
     private void createEvents() {
-        EventSystem.Event mTapToStartEvent = new EventSystem.Event(EventSystem.EventType.STATE_CHANGE) {
+        EventSystem.EventListener mTapToStartEventListener = new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
@@ -86,9 +86,9 @@ public class DeckView extends Group implements Input.BoundObject {
                 setHighlight(true);
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mTapToStartEvent);
+        Director.instance().getEventSystem().RegisterEvent(mTapToStartEventListener);
 
-        EventSystem.Event mDrawCardEvent = new EventSystem.Event(EventSystem.EventType.DRAW_PLAY_CARD) {
+        EventSystem.EventListener mDrawCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DRAW_PLAY_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Card) )
@@ -111,17 +111,13 @@ public class DeckView extends Group implements Input.BoundObject {
                 }
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mDrawCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mDrawCardEventListener);
 
 
     }
 
     public Deck getDeck() {
         return mDeck;
-    }
-
-    public void setmDeck(Deck mDeck) {
-        this.mDeck = mDeck;
     }
 
     @Override

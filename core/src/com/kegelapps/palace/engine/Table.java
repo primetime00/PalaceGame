@@ -26,7 +26,7 @@ public class Table  implements Serializer{
         public void onDealCard(Hand hand, Card c);
     }
 
-    public Table (StatusProtos.Table tableProto) {
+    public Table (CardsProtos.Table tableProto) {
         mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
@@ -86,22 +86,22 @@ public class Table  implements Serializer{
 
     @Override
     public void ReadBuffer(Message msg) {
-        StatusProtos.Table table = (StatusProtos.Table) msg;
+        CardsProtos.Table table = (CardsProtos.Table) msg;
         mDeck = new Deck(table.getDeck());
         mPlayCards = new InPlay(table.getPlayed());
         mHands.clear();
-        for (StatusProtos.Hand handProto : table.getHandsList()) {
+        for (CardsProtos.Hand handProto : table.getHandsList()) {
             mHands.add(new Hand(handProto));
         }
     }
 
     @Override
     public Message WriteBuffer() {
-        StatusProtos.Table.Builder tableBuilder = StatusProtos.Table.newBuilder();
-        tableBuilder.setDeck((StatusProtos.Deck) mDeck.WriteBuffer());
-        tableBuilder.setPlayed((StatusProtos.Played) mPlayCards.WriteBuffer());
+        CardsProtos.Table.Builder tableBuilder = CardsProtos.Table.newBuilder();
+        tableBuilder.setDeck((CardsProtos.Deck) mDeck.WriteBuffer());
+        tableBuilder.setPlayed((CardsProtos.Played) mPlayCards.WriteBuffer());
         for (Hand hand : mHands) {
-            tableBuilder.addHands((StatusProtos.Hand) hand.WriteBuffer());
+            tableBuilder.addHands((CardsProtos.Hand) hand.WriteBuffer());
         }
         return tableBuilder.build();
     }

@@ -14,56 +14,75 @@ public class EventSystem implements Disposable{
         DRAW_PLAY_CARD,
         LAYOUT_HIDDEN_CARD,
         LAYOUT_ACTIVE_CARD,
-        DEAL_ACTIVE_CARDS, SELECT_END_CARD, STATE_CHANGE, CARD_PLAY_FAILED, CARD_PLAY_SUCCESS,
+        DEAL_ACTIVE_CARDS, SELECT_END_CARD, STATE_CHANGE, CARD_PLAY_FAILED, CARD_PLAY_SUCCESS, REPARENT_ALL_VIEWS, STATE_LOADED,
     }
 
-    ObjectMap<EventType, Array<Event>> mListeners;
-    Object params[];
+    ObjectMap<EventType, Array<EventListener>> mListeners;
+    Array<Event> mLaterEvents;
 
     public EventSystem() {
         mListeners = new ObjectMap<>();
+        mLaterEvents = new Array<>();
     }
 
-    public void RegisterEvent(Event evt) {
+    public void RegisterEvent(EventListener evt) {
         if (mListeners.containsKey(evt.getType()) && !mListeners.get(evt.getType()).contains(evt, false)) {
             mListeners.get(evt.getType()).add(evt);
         }
         else if (!mListeners.containsKey(evt.getType())) {
-            Array<Event> items = new Array<Event>();
+            Array<EventListener> items = new Array<EventListener>();
             items.add(evt);
             mListeners.put(evt.getType(), items);
         }
     }
 
-    public void UnregisterEvent(Event evt) {
+    public void UnregisterEvent(EventListener evt) {
         if (mListeners.containsKey(evt.getType()) && mListeners.get(evt.getType()).contains(evt, false)) {
             mListeners.get(evt.getType()).removeValue(evt, false);
         }
     }
 
     public void Fire(EventType evt) {
-        processEvents(evt);
+        processEvent(new Event(evt, null));
     }
 
     public void Fire(EventType evt, Object... objs) {
-        params = objs;
-        processEvents(evt);
+        processEvent(new Event(evt, objs));
     }
 
+    public void FireLater(EventType evt, Object... objs) {
+        addLaterEvent(new Event(evt, objs));
+    }
 
-    private void processEvents(EventType evt) {
-        Array<Event> items = mListeners.get(evt);
+    public void FireLater(EventType evt) {
+        addLaterEvent(new Event(evt, null));
+    }
+
+    private void addLaterEvent(Event event) {
+        mLaterEvents.add(event);
+    }
+
+    private void processEvent(Event evt) {
+        Array<EventListener> items = mListeners.get(evt.GetType());
         if (items == null)
             return;
-        for (Event e : items) {
+        for (EventListener e : items) {
             e.updateParams();
-            e.handle(params);
+            e.handle(evt.GetParams());
         }
+    }
+
+    public void ProcessWaitingEvents() {
+        for (Event e : mLaterEvents) {
+            processEvent(e);
+        }
+        mLaterEvents.clear();
     }
 
     @Override
     public void dispose() {
         mListeners.clear();
+        mLaterEvents.clear();
     }
 
     public interface EventProcessor {
@@ -71,11 +90,29 @@ public class EventSystem implements Disposable{
         void handle(Object [] params);
     }
 
-    static public class Event implements EventProcessor {
+    static public class Event {
+        private EventType mType;
+        private Object mParams[];
+
+        public Event(EventType type, Object params[]) {
+            mType = type;
+            mParams = params;
+        }
+
+        public EventType GetType() {
+            return mType;
+        }
+
+        public Object[] GetParams() {
+            return mParams;
+        }
+    }
+
+    static public class EventListener implements EventProcessor {
         private ObjectMap<String, Object> mParamMap;
         private EventType mType;
 
-        public Event(EventType type) {
+        public EventListener(EventType type) {
             mParamMap = new ObjectMap<>();
             mType = type;
         }
@@ -84,9 +121,6 @@ public class EventSystem implements Disposable{
             return mType;
         }
 
-        public void AddParam(String name, Object item) {
-            mParamMap.put(name, item);
-        }
 
         @Override
         public void updateParams() {

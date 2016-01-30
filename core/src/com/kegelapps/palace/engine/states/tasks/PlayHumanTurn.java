@@ -1,5 +1,6 @@
 package com.kegelapps.palace.engine.states.tasks;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
@@ -7,13 +8,14 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.CardsProtos;
+import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by Ryan on 1/21/2016.
  */
 public class PlayHumanTurn extends State {
 
-    private StateListener mStateListener;
     private Table mTable;
     private Hand mHand;
     private Card mPlayCard;
@@ -64,5 +66,25 @@ public class PlayHumanTurn extends State {
     public Names getStateName() {
         return Names.PLAY_HUMAN_TURN;
     }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+
+        StateProtos.PlayHumanTurnState.Builder builder = StateProtos.PlayHumanTurnState.newBuilder();
+        if (mPlayCard != null)
+            builder.setPlayCard((CardsProtos.Card) mPlayCard.WriteBuffer());
+        s = s.toBuilder().setExtension(StateProtos.PlayHumanTurnState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
+        StateProtos.PlayHumanTurnState playHumanState = ((StateProtos.State) msg).getExtension(StateProtos.PlayHumanTurnState.state);
+        if (playHumanState.hasPlayCard())
+            mPlayCard = Card.GetCard(Card.Suit.values()[playHumanState.getPlayCard().getSuit()], Card.Rank.values()[playHumanState.getPlayCard().getRank()]);
+    }
+
 
 }

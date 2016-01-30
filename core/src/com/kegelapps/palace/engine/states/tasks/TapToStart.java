@@ -1,10 +1,11 @@
 package com.kegelapps.palace.engine.states.tasks;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.StateListener;
+import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by keg45397 on 1/15/2016.
@@ -37,7 +38,7 @@ public class TapToStart extends State {
             Hand mHand = mTable.getHands().get(i);
             if (mHand.getType() == Hand.HandType.HUMAN) {
                 for (Card c : mHand.GetDiscardCards()) { //make a runnable?
-                    Card activeCard = mHand.getEndCards().get(mHand.getEndCards().indexOf(c));
+                    Card activeCard = mHand.GetEndCards().get(mHand.GetEndCards().indexOf(c));
                     mHand.RemoveEndCard(activeCard);
                     System.out.print("HUMAN DESELECTS " + c + "\n");
                     if (mStateListener != null)
@@ -59,5 +60,23 @@ public class TapToStart extends State {
     @Override
     public Names getStateName() {
         return Names.TAP_DECK_START;
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+
+        StateProtos.TapToStartState.Builder builder = StateProtos.TapToStartState.newBuilder();
+        builder.setTapped(mTapped);
+        s = s.toBuilder().setExtension(StateProtos.TapToStartState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
+        StateProtos.TapToStartState tappedState = ((StateProtos.State) msg).getExtension(StateProtos.TapToStartState.state);
+        mTapped = tappedState.getTapped();
+
     }
 }

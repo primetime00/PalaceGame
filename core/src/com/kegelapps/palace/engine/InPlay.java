@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class InPlay implements Serializer{
     public InPlay() {
         mCards = new ArrayList<>();
     }
-    public InPlay(StatusProtos.Played played) {
+    public InPlay(CardsProtos.Played played) {
         mCards = new ArrayList<>();
         ReadBuffer(played);
     }
@@ -37,19 +38,19 @@ public class InPlay implements Serializer{
 
     @Override
     public void ReadBuffer(Message msg) {
-        StatusProtos.Played played = (StatusProtos.Played) msg;
+        CardsProtos.Played played = (CardsProtos.Played) msg;
         mCards.clear();
-        for (StatusProtos.Card protoCard : played.getCardsList()) {
-            mCards.add(new Card(protoCard));
+        for (CardsProtos.Card protoCard : played.getCardsList()) {
+            mCards.add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
     }
 
     @Override
     public Message WriteBuffer() {
-        StatusProtos.Played.Builder builder = StatusProtos.Played.newBuilder();
+        CardsProtos.Played.Builder builder = CardsProtos.Played.newBuilder();
         for (int i = GetCards().size()-1; i>=0; --i) {
             Card c = GetCards().get(i);
-            builder.addCards((StatusProtos.Card) c.WriteBuffer());
+            builder.addCards((CardsProtos.Card) c.WriteBuffer());
         }
         return builder.build();
     }

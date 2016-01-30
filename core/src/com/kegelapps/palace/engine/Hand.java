@@ -2,7 +2,7 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.StatusProtos;
+import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public class Hand implements Serializer{
         mDiscardCards = new ArrayList<>();
     }
 
-    public Hand(StatusProtos.Hand hand) {
+    public Hand(CardsProtos.Hand hand) {
         mHiddenCards = new Card[3];
         mEndCards = new Card[3];
         mActiveCards = new ArrayList<>();
@@ -85,7 +85,7 @@ public class Hand implements Serializer{
     }
 
     public void RemoveEndCard(Card card) {
-        int i = getEndCards().indexOf(card);
+        int i = GetEndCards().indexOf(card);
         mEndCards[i] = null;
         AddActiveCard(card);
     }
@@ -104,7 +104,7 @@ public class Hand implements Serializer{
     }
 
 
-    public List<Card> getEndCards() {
+    public List<Card> GetEndCards() {
         return Arrays.asList(mEndCards);
     }
 
@@ -122,6 +122,16 @@ public class Hand implements Serializer{
                 return i;
         return -1;
     }
+
+    public int GetAvailableEndCardPosition() {
+        for (int i=0; i<mEndCards.length; ++i)
+            if (mEndCards[i] == null)
+                return i;
+        return -1;
+    }
+
+
+
 
     public List<Card> GetActiveCards() { return mActiveCards; }
 
@@ -159,51 +169,51 @@ public class Hand implements Serializer{
 
     @Override
     public void ReadBuffer(Message msg) {
-        StatusProtos.Hand hand = (StatusProtos.Hand) msg;
+        CardsProtos.Hand hand = (CardsProtos.Hand) msg;
         GetActiveCards().clear();
         GetDiscardCards().clear();
         GetPlayCards().clear();
         mID = hand.getId();
         mType = HandType.values()[hand.getType()];
 
-        for (StatusProtos.Card protoCard : hand.getActiveCardsList()) {
-            GetActiveCards().add(new Card(protoCard));
+        for (CardsProtos.Card protoCard : hand.getActiveCardsList()) {
+            GetActiveCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
-        for (StatusProtos.Card protoCard : hand.getDiscarCardsList()) {
-            GetDiscardCards().add(new Card(protoCard));
+        for (CardsProtos.Card protoCard : hand.getDiscarCardsList()) {
+            GetDiscardCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
-        for (StatusProtos.Card protoCard : hand.getPlayCardsList()) {
-            GetPlayCards().add(new Card(protoCard));
+        for (CardsProtos.Card protoCard : hand.getPlayCardsList()) {
+            GetPlayCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
-        for (StatusProtos.PositionCard protoCard : hand.getHiddenCardsList()) {
-            mHiddenCards[protoCard.getPosition()] = new Card(protoCard.getCard());
+        for (CardsProtos.PositionCard protoCard : hand.getHiddenCardsList()) {
+            mHiddenCards[protoCard.getPosition()] = Card.GetCard(Card.Suit.values()[protoCard.getCard().getSuit()], Card.Rank.values()[protoCard.getCard().getRank()]);
         }
-        for (StatusProtos.PositionCard protoCard : hand.getEndCardsList()) {
-            mEndCards[protoCard.getPosition()] = new Card(protoCard.getCard());
+        for (CardsProtos.PositionCard protoCard : hand.getEndCardsList()) {
+            mEndCards[protoCard.getPosition()] = Card.GetCard(Card.Suit.values()[protoCard.getCard().getSuit()], Card.Rank.values()[protoCard.getCard().getRank()]);
         }
     }
 
     @Override
     public Message WriteBuffer() {
-        StatusProtos.Hand.Builder builder = StatusProtos.Hand.newBuilder();
+        CardsProtos.Hand.Builder builder = CardsProtos.Hand.newBuilder();
         for (Card c : GetActiveCards()) {
-            builder.addActiveCards((StatusProtos.Card) c.WriteBuffer());
+            builder.addActiveCards((CardsProtos.Card) c.WriteBuffer());
         }
         for (Card c : GetDiscardCards()) {
-            builder.addDiscarCards((StatusProtos.Card) c.WriteBuffer());
+            builder.addDiscarCards((CardsProtos.Card) c.WriteBuffer());
         }
         for (Card c : GetPlayCards()) {
-            builder.addPlayCards((StatusProtos.Card) c.WriteBuffer());
+            builder.addPlayCards((CardsProtos.Card) c.WriteBuffer());
         }
         for (int i = 0; i<mHiddenCards.length; ++i) {
             Card c = mHiddenCards[i];
             if (c != null)
-                builder.addHiddenCards(StatusProtos.PositionCard.newBuilder().setPosition(i).setCard((StatusProtos.Card)c.WriteBuffer()).build());
+                builder.addHiddenCards(CardsProtos.PositionCard.newBuilder().setPosition(i).setCard((CardsProtos.Card)c.WriteBuffer()).build());
         }
         for (int i = 0; i<mEndCards.length; ++i) {
             Card c = mEndCards[i];
             if (c != null)
-                builder.addEndCards(StatusProtos.PositionCard.newBuilder().setPosition(i).setCard((StatusProtos.Card)c.WriteBuffer()).build());
+                builder.addEndCards(CardsProtos.PositionCard.newBuilder().setPosition(i).setCard((CardsProtos.Card)c.WriteBuffer()).build());
         }
         builder.setId(getID());
         builder.setType(getType().ordinal());

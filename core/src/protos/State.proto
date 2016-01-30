@@ -3,6 +3,8 @@ package palaceProtos;
 option java_package = "com.kegelapps.palace.protos";
 option java_outer_classname = "StateProtos";
 
+import "Cards.proto";
+
 message State {
     extensions 100 to max;
     required int32 type = 1;
@@ -58,8 +60,6 @@ message PlaceEndCardState {
     extend State {
         optional PlaceEndCardState state = 105;
     }
-    required int32 currentPlayer = 1;
-    required bool firstPoll = 2;
 }
 
 message PlayCPUTurnState {
@@ -72,12 +72,14 @@ message PlayHumanTurnState {
     extend State {
         optional PlayHumanTurnState state = 107;
     }
+    optional Card playCard = 1;
 }
 
 message TapToStartState {
     extend State {
         optional TapToStartState state = 108;
     }
+    required bool tapped = 1;
 }
 
 

@@ -1,8 +1,10 @@
 package com.kegelapps.palace.engine.states;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.tasks.PlaceEndCard;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
+import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by Ryan on 1/13/2016.
@@ -13,9 +15,6 @@ public class SelectEndCards extends State {
 
     private int mState = 0;
 
-    State [] mStates;
-
-
     public SelectEndCards(State parent, Table table) {
         super(parent);
         createStates(table);
@@ -23,7 +22,10 @@ public class SelectEndCards extends State {
     }
 
     private void createStates(Table table) {
-        mStates = new State[2];
+
+        mChildrenStates.addState(Names.PLACE_END_CARD, this).setStateListener(mPlaceCardListener);
+        mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);
+
         mPlaceCardListener = new StateListener() {
             @Override
             public void onContinueState() {
@@ -43,20 +45,23 @@ public class SelectEndCards extends State {
             }
         };
 
-        mStates[0] = StateFactory.get().createState(Names.PLACE_END_CARD, this);
-        mStates[1] = StateFactory.get().createState(Names.TAP_DECK_START, this);
-        mStates[0].setStateListener(mPlaceCardListener);
-        mStates[1].setStateListener(mTapDeckListener);
+        mChildrenStates.addState(Names.PLACE_END_CARD, this).setStateListener(mPlaceCardListener);
+        mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);
     }
 
     @Override
     public boolean OnRun() {
-        if (mState < mStates.length)
-            mStates[mState].Execute();
-        if (mState > 1) {
-            if (mStateListener != null)
-                mStateListener.onContinueState();
-            return true;
+        switch (mState) {
+            case 0:
+                mChildrenStates.getState(Names.PLACE_END_CARD).Execute();
+                break;
+            case 1:
+                mChildrenStates.getState(Names.TAP_DECK_START).Execute();
+                break;
+            default:
+                if (mStateListener != null)
+                    mStateListener.onContinueState();
+                return true;
         }
         return false;
     }
@@ -64,5 +69,23 @@ public class SelectEndCards extends State {
     @Override
     public Names getStateName() {
         return Names.SELECT_END_CARDS;
+    }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+
+        StateProtos.SelectEndCardState.Builder builder = StateProtos.SelectEndCardState.newBuilder();
+        builder.setCurrentState(mState);
+        s = s.toBuilder().setExtension(StateProtos.SelectEndCardState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
+        StateProtos.SelectEndCardState selectEndCardState = ((StateProtos.State) msg).getExtension(StateProtos.SelectEndCardState.state);
+        mState = selectEndCardState.getCurrentState();
+
     }
 }

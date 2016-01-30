@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -22,7 +23,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class HandView extends Group {
+public class HandView extends Group implements ReparentViews {
 
     private Hand mHand;
     private Rectangle mHiddenPositions[];
@@ -60,7 +61,7 @@ public class HandView extends Group {
                     if (getHand().GetActiveCards().contains(c) && velocityY > 200.0f) {
                         Logic.get().PlayerSelectCard(getHand(), c);
                     }
-                    else if (getHand().getEndCards().contains(c) && velocityY < -200.0f) {
+                    else if (getHand().GetEndCards().contains(c) && velocityY < -200.0f) {
                         Logic.get().PlayerUnselectCard(getHand(), c);
                     }
                 }
@@ -164,7 +165,7 @@ public class HandView extends Group {
 
     private void createHandEvents() {
 
-        EventSystem.Event mLayoutHiddenCardEvent = new EventSystem.Event(EventSystem.EventType.LAYOUT_HIDDEN_CARD) {
+        EventSystem.EventListener mLayoutHiddenCardEventListener = new EventSystem.EventListener(EventSystem.EventType.LAYOUT_HIDDEN_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer)) {
@@ -187,9 +188,9 @@ public class HandView extends Group {
                 cardView.setZIndex(0);
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mLayoutHiddenCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mLayoutHiddenCardEventListener);
 
-        EventSystem.Event mLayoutActiveCardEvent = new EventSystem.Event(EventSystem.EventType.LAYOUT_ACTIVE_CARD) {
+        EventSystem.EventListener mLayoutActiveCardEventListener = new EventSystem.EventListener(EventSystem.EventType.LAYOUT_ACTIVE_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer)) {
@@ -204,12 +205,12 @@ public class HandView extends Group {
                 cardView.getParent().removeActor(cardView);
                 addActor(cardView);
 
-                OrganizeCards();
+                OrganizeCards(true);
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mLayoutActiveCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mLayoutActiveCardEventListener);
 
-        EventSystem.Event mSelectEndCardEvent = new EventSystem.Event(EventSystem.EventType.SELECT_END_CARD) {
+        EventSystem.EventListener mSelectEndCardEventListener = new EventSystem.EventListener(EventSystem.EventType.SELECT_END_CARD) {
             @Override
             public void handle(Object[] params) {
                 if (params == null || params.length != 3 || !(params[0] instanceof Card) || !(params[1] instanceof Integer) || !(params[2] instanceof Integer)) {
@@ -225,13 +226,17 @@ public class HandView extends Group {
                 float ov = CardUtils.getCardWidth() * getEndCardOverlapPercent();
                 new CardAnimation(false, "Selecting end cards").SelectEndCard(r.getX()+ov, r.getY()+ov, id, cardView);
 
-                OrganizeCards();
+                OrganizeCards(true, true, true, false);
             }
         };
-        Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEvent);
+        Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEventListener);
     }
 
-    public void OrganizeCards() {
+    public void OrganizeCards(boolean animation) {
+        OrganizeCards(animation, true, true, true);
+    }
+
+    public void OrganizeCards(boolean animation, boolean active, boolean hidden, boolean end) {
         int zIndex = 0;
         int size = getHand().GetActiveCards().size();
         Rectangle r = getActivePosition();
@@ -244,25 +249,64 @@ public class HandView extends Group {
             r.setHeight(width);
             r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
         }
-        for (Card c : getHand().GetHiddenCards()) {
-            if (c != null) {
-                CardView cv = CardView.getCardView(c);
-                cv.setZIndex(zIndex++);
-            }
-        }
 
-        for (Card c : getHand().getEndCards()) {
-            if (c != null) {
-                CardView cv = CardView.getCardView(c);
-                cv.setZIndex(zIndex++);
-            }
-        }
+        if (hidden)
+            zIndex = OrganizeHiddenCards(zIndex, animation);
+        if (end)
+            zIndex = OrganizeEndCards(zIndex);
+        if (active)
+            zIndex = OrganizeActiveCards(zIndex, animation);
+    }
 
+    private int OrganizeActiveCards(int position, boolean animation) {
+        int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
-            cv.setZIndex(zIndex++);
-            new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
+            cv.setZIndex(position++);
+            if (animation)
+                new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
+            else {
+                Vector3 pos = HandUtils.LineUpActiveCard(i, cv, HandUtils.IDtoSide(getHand().getID()), getActivePosition(), getCardOverlapPercent());
+                cv.setPosition(pos.x, pos.y);
+                cv.setRotation(pos.z);
+            }
         }
+        return position;
+    }
+
+    private int OrganizeEndCards(int position) {
+        Card cards[] = (Card[]) getHand().GetEndCards().toArray();
+        for (int i=0; i<cards.length; ++i) {
+            Card c = cards[i];
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(position++);
+                Vector3 pos = HandUtils.LineUpEndCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i), CardUtils.getCardWidth() * getEndCardOverlapPercent());
+                cv.setPosition(pos.x, pos.y);
+                cv.setRotation(pos.z);
+            }
+        }
+        return position;
+    }
+
+    private int OrganizeHiddenCards(int position, boolean animation) {
+        Card cards[] = (Card[]) getHand().GetHiddenCards().toArray();
+        for (int i=0; i<cards.length; ++i) {
+            Card c = cards[i];
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(position++);
+                if (animation)
+                    new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(getHiddenPosition(i), getHand().getID(), cv);
+                else {
+                    Vector3 pos = HandUtils.LineUpHiddenCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i));
+                    cv.setPosition(pos.x, pos.y);
+                    cv.setRotation(pos.z);
+                    cv.setSide(CardView.Side.BACK);
+                }
+            }
+        }
+        return position;
     }
 
     @Override
@@ -298,4 +342,33 @@ public class HandView extends Group {
         super.draw(batch, parentAlpha);
     }
 
+
+    @Override
+    public void ReparentAllViews() {
+        for (Actor c : getChildren()) {
+            c.remove();
+        }
+        Card cards[] = (Card[]) mHand.GetHiddenCards().toArray();
+        for (Card card : cards) {
+            if (card != null) {
+                CardView cv = CardView.getCardView(card);
+                addActor(cv);
+            }
+        }
+
+        cards = (Card[]) mHand.GetEndCards().toArray();
+        for (Card card : cards) {
+            if (card != null) {
+                CardView cv = CardView.getCardView(card);
+                addActor(cv);
+            }
+        }
+
+        for (Card card : mHand.GetActiveCards()) {
+            CardView cv = CardView.getCardView(card);
+            addActor(cv);
+        }
+
+        OrganizeCards(false);
+    }
 }

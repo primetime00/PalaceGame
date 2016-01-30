@@ -5,11 +5,17 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StatusProtos;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Card implements Comparable<Card>, Serializer {
 
     static private int mCardNumberTotal = 0;
+    static private Map<Suit, ArrayList<Card>> mCardMap;
     private int mCardNumber;
 
     public enum Suit {
@@ -24,8 +30,8 @@ public class Card implements Comparable<Card>, Serializer {
         EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
     }
 
-    private Suit mSuit;
-    private Rank mRank;
+    private  Suit mSuit;
+    private  Rank mRank;
 
     public Card(Suit suit, Rank rank) {
         mSuit = suit;
@@ -33,9 +39,20 @@ public class Card implements Comparable<Card>, Serializer {
         init();
     }
 
-    public Card(StatusProtos.Card cardProto) {
-        ReadBuffer(cardProto);
-        init();
+    public static Card GetCard(Suit suit, Rank rank) {
+        if (mCardMap == null)
+            mCardMap = new HashMap<>();
+        ArrayList<Card> cList = mCardMap.get(suit);
+        if (cList == null)
+            cList = new ArrayList<>();
+        for (Card c : cList) {
+            if (c.getRank() == rank)
+                return c;
+        }
+        Card c = new Card(suit, rank);
+        cList.add(c);
+        mCardMap.put(suit, cList);
+        return c;
     }
 
     private void init() {
@@ -61,6 +78,18 @@ public class Card implements Comparable<Card>, Serializer {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return (getSuit().ordinal() << 16) + getRank().ordinal();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Card)) return false;
+        if (((Card) obj).getSuit() != getSuit()) return false;
+        if (((Card) obj).getRank() != getRank()) return false;
+        return true;
+    }
 
     public String getSuitString() {
         return getSuitString(mSuit);
@@ -122,13 +151,13 @@ public class Card implements Comparable<Card>, Serializer {
 
     @Override
     public void ReadBuffer(Message msg) {
-        StatusProtos.Card cardProto = (StatusProtos.Card) msg;
+        CardsProtos.Card cardProto = (CardsProtos.Card) msg;
         mSuit = Suit.values()[cardProto.getSuit()];
         mRank = Rank.values()[cardProto.getRank()];
     }
 
     @Override
     public Message WriteBuffer() {
-        return StatusProtos.Card.newBuilder().setRank(getRank().ordinal()).setSuit(getSuit().ordinal()).build();
+        return CardsProtos.Card.newBuilder().setRank(getRank().ordinal()).setSuit(getSuit().ordinal()).build();
     }
 }
