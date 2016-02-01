@@ -66,6 +66,22 @@ public class HandView extends Group implements ReparentViews {
                     }
                 }
             }
+
+            @Override
+            public boolean longPress(Actor actor, float x, float y) {
+                boolean res = super.longPress(actor, x, y);
+                Actor cardView = null;
+                if (getActivePosition().contains(x, y)) {
+                    cardView = hit(x, y, true);
+                    if (cardView == null || !(cardView instanceof CardView))
+                        return false;
+                    Card c = ((CardView)cardView).getCard();
+                    if (getHand().GetActiveCards().contains(c)) {
+                        Logic.get().PlayerSelectAllCards(getHand(), c);
+                    }
+                }
+                return res;
+            }
         };
         if (getHand().getType() == Hand.HandType.HUMAN)
             addListener(mGestureListener);
@@ -230,6 +246,26 @@ public class HandView extends Group implements ReparentViews {
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEventListener);
+
+        EventSystem.EventListener mSelectMultipleCards = new EventSystem.EventListener(EventSystem.EventType.SELECT_MULTIPLE_CARDS) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for SELECT_MULTIPLE_CARDS");
+                }
+                int id = (int) params[0];
+                if (getHand().getID() != id)
+                    return;
+
+                for (Card c : mHand.GetPlayCards().GetAllCards()) {
+                    CardView cardView = CardView.getCardView(c);
+                    new CardAnimation(false, "Selecting multiple cards").SelectPendingCard(id, cardView);
+
+                }
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mSelectMultipleCards);
+
     }
 
     public void OrganizeCards(boolean animation) {
@@ -250,6 +286,8 @@ public class HandView extends Group implements ReparentViews {
             r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
         }
 
+        ZSortAllViews();
+
         if (hidden)
             zIndex = OrganizeHiddenCards(zIndex, animation);
         if (end)
@@ -258,11 +296,36 @@ public class HandView extends Group implements ReparentViews {
             zIndex = OrganizeActiveCards(zIndex, animation);
     }
 
-    private int OrganizeActiveCards(int position, boolean animation) {
+    private void ZSortAllViews() {
+        int position = 0;
+
+        Card cards[] = (Card[]) getHand().GetHiddenCards().toArray();
+        for (int i=0; i<cards.length; ++i) {
+            Card c = cards[i];
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(position++);
+            }
+        }
+        cards = (Card[]) getHand().GetEndCards().toArray();
+        for (int i=0; i<cards.length; ++i) {
+            Card c = cards[i];
+            if (c != null) {
+                CardView cv = CardView.getCardView(c);
+                cv.setZIndex(position++);
+            }
+        }
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             cv.setZIndex(position++);
+        }
+    }
+
+    private int OrganizeActiveCards(int position, boolean animation) {
+        int size = getHand().GetActiveCards().size();
+        for (int i =0; i<size; ++i) {
+            CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             if (animation)
                 new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
             else {
@@ -280,7 +343,6 @@ public class HandView extends Group implements ReparentViews {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                cv.setZIndex(position++);
                 Vector3 pos = HandUtils.LineUpEndCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i), CardUtils.getCardWidth() * getEndCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
                 cv.setRotation(pos.z);
@@ -295,7 +357,6 @@ public class HandView extends Group implements ReparentViews {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                cv.setZIndex(position++);
                 if (animation)
                     new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(getHiddenPosition(i), getHand().getID(), cv);
                 else {

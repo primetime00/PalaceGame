@@ -3,8 +3,6 @@ package com.kegelapps.palace;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.engine.Logic;
-import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
@@ -50,8 +48,8 @@ public class GameScene extends Scene {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
-                if ((params[0] instanceof Play)) {
-                    Logic.get().GetMainState().WriteBuffer();
+                if ((params[0] instanceof SelectEndCards)) {
+                    Logic.get().SaveState();
                 }
                 if ((params[0] instanceof SelectEndCards)) {
                     if (once == false) {

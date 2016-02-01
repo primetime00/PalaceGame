@@ -8,6 +8,8 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.protos.StateProtos;
 
+import java.util.Iterator;
+
 /**
  * Created by keg45397 on 1/15/2016.
  */
@@ -36,18 +38,21 @@ public class PlaceEndCard extends State {
                 continue;
             res = false;
             if (mHand.getType() == Hand.HandType.HUMAN) {
-                for (Card c : mHand.GetPlayCards()) { //make a runnable?
+                for (Iterator<Card> it = mHand.GetPlayCards().GetPendingCards().iterator(); it.hasNext(); ) {
+                    Card c = it.next();
+                    it.remove();
                     Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
                     mHand.AddEndCard(activeCard);
                     System.out.print("HUMAN SELECTS " + c + "\n");
                 }
-                mHand.GetPlayCards().clear();
-                for (Card c : mHand.GetDiscardCards()) { //make a runnable?
+                mHand.GetPlayCards().Reset();
+                for (Iterator<Card> it = mHand.GetPlayCards().GetPendingCards().iterator(); it.hasNext(); ) {
+                    Card c = it.next();
+                    it.remove();
                     Card activeCard = mHand.GetEndCards().get(mHand.GetEndCards().indexOf(c));
                     mHand.RemoveEndCard(activeCard);
                     System.out.print("HUMAN DESELECTS " + c + "\n");
                 }
-                mHand.GetDiscardCards().clear();
             } else {
                 Card c = mHand.GetActiveCards().get(MathUtils.random(mHand.GetActiveCards().size() - 1));
                 mHand.AddEndCard(c);

@@ -14,7 +14,7 @@ public class EventSystem implements Disposable{
         DRAW_PLAY_CARD,
         LAYOUT_HIDDEN_CARD,
         LAYOUT_ACTIVE_CARD,
-        DEAL_ACTIVE_CARDS, SELECT_END_CARD, STATE_CHANGE, CARD_PLAY_FAILED, CARD_PLAY_SUCCESS, REPARENT_ALL_VIEWS, STATE_LOADED,
+        DEAL_ACTIVE_CARDS, SELECT_END_CARD, STATE_CHANGE, CARD_PLAY_FAILED, CARD_PLAY_SUCCESS, REPARENT_ALL_VIEWS, STATE_LOADED, HIGHLIGHT_DECK, SELECT_MULTIPLE_CARDS,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;
@@ -87,7 +87,7 @@ public class EventSystem implements Disposable{
 
     public interface EventProcessor {
         void updateParams();
-        void handle(Object [] params);
+        void handle(Object[] params);
     }
 
     static public class Event {

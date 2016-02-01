@@ -21,7 +21,8 @@ public class Logic {
     private static Logic mLogic;
 
     public enum LogicRequest {
-        PLAY_START;
+        PLAY_START,
+        WAIT_TURN
     }
 
     private int mNumberOfPlayers = 0;
@@ -81,19 +82,22 @@ public class Logic {
             h.SelectPlayCard(c);
     }
 
+    public void PlayerSelectAllCards(Hand h, Card c) {
+        if (mMainState == null)
+            return;
+        else if (mMainState.containsState(State.Names.PLAY))
+            h.SelectAllPlayCard(c);
+    }
+
+
     public void PlayerUnselectCard(Hand h, Card c) {
         if (mMainState != null)
             h.DeselectEndCard(c);
     }
 
-    public void Request(LogicRequest req, State.Names stateName) {
-        switch (req) {
-            default:
-            case PLAY_START:
-                if (mMainState.containsState(stateName))
-                    mMainState.getState(stateName).UserSignal();
-                break;
-        }
+    public void Request(State.Names stateName) {
+        if (mMainState.containsState(stateName))
+            mMainState.getState(stateName).UserSignal();
     }
 
     public boolean isFastDeal() {

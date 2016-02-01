@@ -51,7 +51,8 @@ public class DeckView extends Group implements Input.BoundObject {
             public void tap(InputEvent event, float x, float y, int count, int button) {
                 super.tap(event, x, y, count, button);
                 if (count >= 2) {
-                    Logic.get().Request(Logic.LogicRequest.PLAY_START, State.Names.TAP_DECK_START);
+                    Logic.get().Request(State.Names.TAP_DECK_START);
+                    Logic.get().Request(State.Names.PLAY_HUMAN_TURN);
                 }
             }
 
@@ -73,6 +74,7 @@ public class DeckView extends Group implements Input.BoundObject {
     }
 
     private void createEvents() {
+
         EventSystem.EventListener mTapToStartEventListener = new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
@@ -112,6 +114,18 @@ public class DeckView extends Group implements Input.BoundObject {
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDrawCardEventListener);
+
+        EventSystem.EventListener mWaitForPlayerToTap = new EventSystem.EventListener(EventSystem.EventType.HIGHLIGHT_DECK) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Boolean)) {
+                    throw new IllegalArgumentException("Invalid parameters for HIGHLIGHT_DECK");
+                }
+                setHighlight((Boolean) params[0]);
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mWaitForPlayerToTap);
+
 
 
     }

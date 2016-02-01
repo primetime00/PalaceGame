@@ -26,8 +26,54 @@ public class Hand implements Serializer{
     private Card mHiddenCards[];
     private Card mEndCards[];
     private List<Card> mActiveCards;
-    private List<Card> mPlayCards;
+    private PendingCards mPendingCards;
     private List<Card> mDiscardCards;
+
+    static public class PendingCards {
+        private List<Card> mPendingCards;
+        private List<Card> mPlayCards;
+        private boolean mCommitted;
+
+        public PendingCards() {
+            mCommitted = false;
+            mPlayCards = new ArrayList<>();
+            mPendingCards = null;
+        }
+
+        public void DoPlay() {
+            mCommitted = true;
+            mPendingCards = mPlayCards;
+        }
+        public void Reset() {
+            mCommitted = false;
+            mPendingCards = null;
+        }
+
+        public List<Card> GetPendingCards() {
+            if (mPendingCards == null)
+                return Collections.<Card>emptyList();
+            return mPendingCards;
+        }
+
+        public void Clear() {
+            mPlayCards.clear();
+            Reset();
+        }
+
+        public List<Card> GetAllCards() {
+            return mPlayCards;
+        }
+
+        public boolean Committed() {
+            return mCommitted;
+        }
+
+        public void AddCard(Card c) {
+            if (mPlayCards.size() == 0)
+                mCommitted = false;
+            mPlayCards.add(c);
+        }
+    }
 
 
     public Hand(int id, HandType type, Deck deck) {
@@ -36,7 +82,8 @@ public class Hand implements Serializer{
         mHiddenCards = new Card[3];
         mEndCards = new Card[3];
         mActiveCards = new ArrayList<>();
-        mPlayCards = new ArrayList<>();
+        mPendingCards = new PendingCards();
+        mPendingCards = new PendingCards();
         mDiscardCards = new ArrayList<>();
     }
 
@@ -44,7 +91,8 @@ public class Hand implements Serializer{
         mHiddenCards = new Card[3];
         mEndCards = new Card[3];
         mActiveCards = new ArrayList<>();
-        mPlayCards = new ArrayList<>();
+        mPendingCards = new PendingCards();
+        mPendingCards = new PendingCards();
         mDiscardCards = new ArrayList<>();
         ReadBuffer(hand);
     }
@@ -130,30 +178,46 @@ public class Hand implements Serializer{
         return -1;
     }
 
-
-
-
     public List<Card> GetActiveCards() { return mActiveCards; }
 
     public void SelectEndCard(Card c) {
-        mPlayCards.add(c);
+        mPendingCards.AddCard(c);
         if (mDiscardCards.contains(c))
             mDiscardCards.remove(c);
+        mPendingCards.DoPlay();
     }
 
     public void DeselectEndCard(Card c) {
         mDiscardCards.add(c);
-        if (mPlayCards.contains(c))
-            mPlayCards.remove(c);
+        if (mPendingCards.GetPendingCards().contains(c))
+            mPendingCards.GetPendingCards().remove(c);
     }
 
     public void SelectPlayCard(Card c) {
-        SelectEndCard(c);
+        if (mPendingCards.GetAllCards().contains(c)) { //we are flinging a card that was selected!
+        }
+        else { //we are playing a single card?
+            mPendingCards.GetAllCards().clear();
+            mPendingCards.AddCard(c);
+        }
+        mPendingCards.DoPlay();
+    }
+
+    public void SelectAllPlayCard(Card c) {
+        for (Card card : GetActiveCards()) {
+            if (card.getRank() == c.getRank())
+                mPendingCards.AddCard(card);
+        }
+        if (mPendingCards.GetAllCards().size() > 0) {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_MULTIPLE_CARDS, getID());
+        }
     }
 
 
-    public List<Card> GetPlayCards() {
-        return mPlayCards;
+
+    public PendingCards GetPlayCards() {
+        return mPendingCards;
+        //return mPlayCards;
     }
     public List<Card> GetDiscardCards() {
         return mDiscardCards;
@@ -172,7 +236,7 @@ public class Hand implements Serializer{
         CardsProtos.Hand hand = (CardsProtos.Hand) msg;
         GetActiveCards().clear();
         GetDiscardCards().clear();
-        GetPlayCards().clear();
+        GetPlayCards().Clear();
         mID = hand.getId();
         mType = HandType.values()[hand.getType()];
 
@@ -183,8 +247,10 @@ public class Hand implements Serializer{
             GetDiscardCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
         for (CardsProtos.Card protoCard : hand.getPlayCardsList()) {
-            GetPlayCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            GetPlayCards().GetAllCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
         }
+        if (hand.hasPlayCardsCommitted() && hand.getPlayCardsCommitted())
+            GetPlayCards().DoPlay();
         for (CardsProtos.PositionCard protoCard : hand.getHiddenCardsList()) {
             mHiddenCards[protoCard.getPosition()] = Card.GetCard(Card.Suit.values()[protoCard.getCard().getSuit()], Card.Rank.values()[protoCard.getCard().getRank()]);
         }
@@ -202,9 +268,10 @@ public class Hand implements Serializer{
         for (Card c : GetDiscardCards()) {
             builder.addDiscarCards((CardsProtos.Card) c.WriteBuffer());
         }
-        for (Card c : GetPlayCards()) {
+        for (Card c : GetPlayCards().GetAllCards()) {
             builder.addPlayCards((CardsProtos.Card) c.WriteBuffer());
         }
+        builder.setPlayCardsCommitted(GetPlayCards().Committed());
         for (int i = 0; i<mHiddenCards.length; ++i) {
             Card c = mHiddenCards[i];
             if (c != null)

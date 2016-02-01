@@ -25,6 +25,7 @@ message Hand {
     repeated PositionCard endCards = 5;
     repeated Card playCards = 6;
     repeated Card discarCards = 7;
+    optional bool playCardsCommitted = 8;
 }
 message Table {
     optional Deck deck = 1;

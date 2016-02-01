@@ -2,7 +2,6 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -17,12 +16,9 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.StateProtos;
-import sun.rmi.runtime.Log;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
@@ -180,6 +176,7 @@ public class TableView extends Group implements Input.BoundObject {
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
 
+                Director.instance().getTweenManager().killTarget(cardView);
                 new CardAnimation(true, "Failed card").PlayFailedCard(mPlayView, hand.getID(), cardView);
 
                 mHands.get(hand.getID()).OrganizeCards(true);
@@ -192,7 +189,7 @@ public class TableView extends Group implements Input.BoundObject {
             @Override
             public void handle(Object[] params) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
-                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_FAILED");
+                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_SUCCESS");
                 }
                 Hand hand =  (Hand) params[1];
 
@@ -202,6 +199,7 @@ public class TableView extends Group implements Input.BoundObject {
                 if (mPlayView.findActor(cardView.getName()) == null)
                     mPlayView.addActor(cardView);
 
+                Director.instance().getTweenManager().killTarget(cardView);
                 new CardAnimation(true, "Success card").PlaySuccessCard(mPlayView, hand.getID(), cardView);
 
                 mHands.get(hand.getID()).OrganizeCards(true);
@@ -227,7 +225,7 @@ public class TableView extends Group implements Input.BoundObject {
             @Override
             public void handle(Object[] params) {
                 State s = Logic.get().GetMainState();
-                if (s.containsState(State.Names.SELECT_END_CARDS)) {
+                if (s.containsState(State.Names.SELECT_END_CARDS) || s.containsState(State.Names.PLAY)) {
                     Vector2 pos = MoveCamera(HandUtils.HandSide.SIDE_BOTTOM);
                     Director.instance().getScene().getCardCamera().position.set(pos.x, pos.y, 0);
                     Director.instance().getScene().getCardCamera().SetSide(CardCamera.CameraSide.BOTTOM);

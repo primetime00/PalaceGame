@@ -21,6 +21,15 @@ public class CardAnimation implements TweenCallback {
 
     private boolean mPauseLogic = false;
     private String mDescription;
+    private CardView mCard;
+    private int mHandID;
+    private AnimationType mType;
+
+    public enum AnimationType {
+        SELECT_CARDS,
+        BOUNCE_CARDS,
+        UNKNOWN
+    }
 
     public CardAnimation(boolean pauseLogic) {
         init(pauseLogic, "");
@@ -31,6 +40,9 @@ public class CardAnimation implements TweenCallback {
     }
 
     private void init(boolean pauseLogic, String desc) {
+        mCard = null;
+        mHandID = -1;
+        mType = AnimationType.UNKNOWN;
         mPauseLogic = pauseLogic;
         if (Logic.get().isFastDeal())
             mPauseLogic = false;
@@ -40,6 +52,10 @@ public class CardAnimation implements TweenCallback {
 
     public CardAnimation() {
         mPauseLogic = false;
+    }
+
+    public AnimationType getType() {
+        return mType;
     }
 
     public BaseTween<Timeline> DrawToActive(DeckView deck, InPlayView play, final CardView card) {
@@ -210,6 +226,13 @@ public class CardAnimation implements TweenCallback {
                 Logic.get().Pause(false);
                 System.out.print("UnPause\n");
             }
+            switch (mType) {
+                case SELECT_CARDS:
+                    new CardAnimation(false).BounceCard(mHandID, mCard);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -328,6 +351,75 @@ public class CardAnimation implements TweenCallback {
                 cardView.setSide(CardView.Side.FRONT);
             }
         }).delay(duration/3.0f)).end();
+        animation.start(Director.instance().getTweenManager());
+        return animation;
+    }
+
+    public BaseTween<Timeline> SelectPendingCard(int id, CardView cardView) {
+        float x = cardView.getX();
+        float y = cardView.getY();
+        Timeline animation = Timeline.createSequence(); //first we lift the cards up a tad
+        float raise = CardUtils.getCardTextureHeight() * 0.15f;
+        float duration = 0.5f;
+        mType = AnimationType.SELECT_CARDS;
+        mCard = cardView;
+        mHandID = id;
+        animation.setCallback(this);
+        animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
+        TweenEquation eq = TweenEquations.easeInOutQuart;
+        float rotDiff = (cardView.getOriginY() - cardView.getOriginX())/1;
+        float sideRot = 90.0f;
+        animation.push(Tween.set(cardView, CardAccessor.POSITION_XY).target(x, y));
+
+        switch (id) {
+            default:
+            case 0: //bottom
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x, y+raise).ease(eq)); //move it up!
+                break;
+            case 1: //left
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target( (x-(rotDiff*MathUtils.sinDeg(-sideRot)))+raise , y+(rotDiff*MathUtils.sinDeg(-sideRot))).ease(eq));
+                break;
+            case 2: //top
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x,y-raise).ease(eq));
+                break;
+            case 3: //right
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target((x+(rotDiff*MathUtils.sinDeg(sideRot))-raise) , y-(rotDiff*MathUtils.sinDeg(sideRot))).ease(eq));
+                break;
+        }
+        animation.start(Director.instance().getTweenManager());
+        return animation;
+    }
+
+    public BaseTween<Timeline> BounceCard(int id, CardView cardView) {
+        float x = cardView.getX();
+        float y = cardView.getY();
+        Timeline animation = Timeline.createSequence(); //first we lift the cards up a tad
+        float fall = CardUtils.getCardTextureHeight() * 0.10f;
+        float duration = 0.5f;
+        mType = AnimationType.BOUNCE_CARDS;
+        mCard = cardView;
+        mHandID = id;
+        TweenEquation eq = TweenEquations.easeInCubic;
+        animation.setCallback(this);
+        animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
+        animation.push(Tween.set(cardView, CardAccessor.POSITION_XY).target(x, y));
+
+        switch (id) {
+            default:
+            case 0: //bottom
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).target(x, y-fall).ease(eq));
+                break;
+            case 1: //left
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).targetRelative( 0-fall , 0).ease(eq));
+                break;
+            case 2: //top
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).targetRelative(0,0+fall).ease(eq));
+                break;
+            case 3: //right
+                animation.push(Tween.to(cardView, CardAccessor.POSITION_XY, duration).targetRelative(0+fall , 0).ease(eq));
+                break;
+        }
+        animation.repeatYoyo(Tween.INFINITY, 0);
         animation.start(Director.instance().getTweenManager());
         return animation;
     }
