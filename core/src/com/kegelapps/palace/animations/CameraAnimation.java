@@ -1,58 +1,96 @@
 package com.kegelapps.palace.animations;
 
-import aurelienribon.tweenengine.BaseTween;
-import aurelienribon.tweenengine.Timeline;
-import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenCallback;
+import aurelienribon.tweenengine.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardCamera;
 import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.HandUtils;
+import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.CardAccessor;
 
 /**
  * Created by Ryan on 12/24/2015.
  */
-public class CameraAnimation implements TweenCallback {
+public class CameraAnimation extends Animation {
 
     private boolean mPauseLogic = false;
     private CardCamera.CameraSide mSide;
     private CardCamera mCamera;
-    public CameraAnimation(boolean pauseLogic) {
-        mPauseLogic = pauseLogic;
+    private TableView mTable;
+
+    public CameraAnimation(boolean pauseLogic, AnimationStatus listener, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killPrevious, CardCamera mCamera, CardCamera.CameraSide mSide, TableView table) {
+        super(pauseLogic, listener, timeLineAnimation, child, description, type, killPrevious);
+        this.mCamera = mCamera;
+        this.mSide = mSide;
+        this.mTable = table;
     }
 
-    public CameraAnimation() {
-        mPauseLogic = false;
+    static public class MoveCamera implements AnimationBuilder.TweenCalculator {
+
+        float mX, mY, mZoom;
+        float mDuration;
+
+        public MoveCamera(float x, float y, float zoom, float duration) {
+            mX =x;
+            mY = y;
+            mZoom = zoom;
+            mDuration = duration;
+        }
+
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            CardCamera mCamera = builder.getCamera();
+            CardCamera.CameraSide mSide = builder.getCameraSide();
+            Timeline animation = Timeline.createParallel();
+            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
+            animation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(mX,mY));
+            animation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
+            return animation;
+        }
     }
 
-    public BaseTween<Timeline> MoveCamera(float duration, float x, float y, float zoom, CardCamera camera, CardCamera.CameraSide side) {
-        mCamera = camera;
-        mSide = side;
-        Timeline animation = Timeline.createParallel();
-        animation.setCallback(this);
-        animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
-        animation.push(Tween.to(camera, CameraAccessor.POSITION_XY, duration).target(x,y));
-        animation.push(Tween.to(camera, CameraAccessor.ZOOM, duration).target(zoom));
-        animation.start(Director.instance().getTweenManager());
-        return animation;
+    static public class MoveToSide implements AnimationBuilder.TweenCalculator {
+
+        float mZoom;
+        float mDuration;
+
+        public MoveToSide(float zoom, float duration) {
+            mZoom = zoom;
+            mDuration = duration;
+        }
+
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            if (builder.getTable() == null)
+                throw new RuntimeException("MoveToSide animation requires a TableView!");
+            TweenEquation eq = TweenEquations.easeInOutQuart;
+            CardCamera mCamera = builder.getCamera();
+            CardCamera.CameraSide mSide = builder.getCameraSide();
+            Vector2 pos = HandUtils.GetHandPosition(builder.getTable(), HandUtils.CameraSideToHand(mSide));
+            Timeline animation = Timeline.createParallel();
+            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
+            animation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
+            animation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
+            return animation;
+        }
     }
 
     @Override
-    public void onEvent(int type, BaseTween<?> source) {
-        if (type == TweenCallback.BEGIN) {
-            if (mPauseLogic)
-                Logic.get().Pause(true);
-        }
-        if (type == TweenCallback.END) {
-            if (mPauseLogic)
-                Logic.get().Pause(false);
-            if (mCamera != null)
-                mCamera.SetSide(mSide);
-        }
+    public AnimationBuilder toBuilder() {
+        return super.toBuilder().setCamera(mCamera).setCameraSide(mSide).setTable(mTable);
     }
+
+
+
+    @Override
+    public void onEnd() {
+        mCamera.SetSide(mSide);
+    }
+
 }

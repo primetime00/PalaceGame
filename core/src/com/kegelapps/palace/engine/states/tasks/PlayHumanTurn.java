@@ -16,35 +16,21 @@ import java.util.Iterator;
 /**
  * Created by Ryan on 1/21/2016.
  */
-public class PlayHumanTurn extends State {
+public class PlayHumanTurn extends PlayTurn {
 
-    private Table mTable;
-    private Hand mHand;
     private Card mPlayCard;
     private boolean mTapped;
 
 
     public PlayHumanTurn(State parent, Table table) {
-        super(parent);
-        mTable = table;
+        super(parent, table);
         mPlayCard = null;
         mTapped = false;
     }
 
     @Override
-    public void setID(int id) {
-        super.setID(id);
-        mHand = null;
-        for (Hand h: mTable.getHands()) {
-            if (h.getID() == id) {
-                mHand = h;
-                break;
-            }
-        }
-    }
-
-    @Override
     protected void OnFirstRun() {
+        super.OnFirstRun();
         mPlayCard = null;
         mTapped = false;
     }

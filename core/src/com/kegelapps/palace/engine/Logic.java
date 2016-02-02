@@ -56,17 +56,20 @@ public class Logic {
     public void Pause(boolean pause) {
         //System.out.print("Logic system is " + (pause ? "Paused" : "UnPaused") + "\n");
         if (mMainState != null) {
-            if (pause)
+            if (pause) {
                 mMainState.pause();
-            else
+
+            }
+            else {
                 mMainState.resume();
+            }
         }
         mPaused = pause;
     }
 
     public void Poll() {
         if (mMainState == null)
-            return;
+            throw new RuntimeException("Logic need a MainState to continue.");
         if (mMainState.getStatus() == State.Status.PAUSED)
             return;
         mMainState.Execute();
@@ -75,7 +78,7 @@ public class Logic {
 
     public void PlayerSelectCard(Hand h, Card c) {
         if (mMainState == null)
-            return;
+            throw new RuntimeException("Logic need a MainState to continue.");
         if (mMainState.containsState(State.Names.PLACE_END_CARD))
             h.SelectEndCard(c);
         else if (mMainState.containsState(State.Names.PLAY))
@@ -84,15 +87,24 @@ public class Logic {
 
     public void PlayerSelectAllCards(Hand h, Card c) {
         if (mMainState == null)
-            return;
+            throw new RuntimeException("Logic need a MainState to continue.");
         else if (mMainState.containsState(State.Names.PLAY))
             h.SelectAllPlayCard(c);
     }
 
+    public void PlayerUnSelectAllCards(Hand h) {
+        if (mMainState == null)
+            throw new RuntimeException("Logic need a MainState to continue.");
+        else if (mMainState.containsState(State.Names.PLAY))
+            h.UnSelectAllPlayCard();
+    }
+
+
 
     public void PlayerUnselectCard(Hand h, Card c) {
-        if (mMainState != null)
-            h.DeselectEndCard(c);
+        if (mMainState == null)
+            throw new RuntimeException("Logic need a MainState to continue.");
+        h.DeselectEndCard(c);
     }
 
     public void Request(State.Names stateName) {

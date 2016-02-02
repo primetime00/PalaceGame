@@ -151,7 +151,8 @@ public class State implements Serializer{
 
 
     public void pause() {
-        mPreviousStatus = mStatus;
+        if (mStatus != Status.PAUSED)
+            mPreviousStatus = mStatus;
         mStatus = Status.PAUSED;
     }
 

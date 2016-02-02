@@ -70,6 +70,17 @@ public class HandView extends Group implements ReparentViews {
             }
 
             @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                super.touchUp(event, x, y, pointer, button);
+                if ( !(event.getTarget() instanceof CardView) )
+                    return;
+                CardView cv = (CardView) event.getTarget();
+                if (!getHand().GetPlayCards().GetAllCards().contains(cv.getCard())) {
+                    Logic.get().PlayerUnSelectAllCards(getHand());
+                }
+            }
+
+            @Override
             public boolean longPress(Actor actor, float x, float y) {
                 boolean res = super.longPress(actor, x, y);
                 Actor cardView = null;
@@ -88,12 +99,6 @@ public class HandView extends Group implements ReparentViews {
         if (getHand().getType() == Hand.HandType.HUMAN)
             addListener(mGestureListener);
     }
-
-    public void setCardOverLapPercent(float val) {
-        mCardOverlapPercent = val;
-    }
-    public void setEndCardOverlapPercent(float val) { mEndCardOverlapPercent  = val;}
-
 
     public float getCardOverlapPercent() {
         return mCardOverlapPercent;
@@ -357,32 +362,38 @@ public class HandView extends Group implements ReparentViews {
     }
 
     private int OrganizeActiveCards(int position, boolean animation) {
+        if ( !(getParent() instanceof TableView) )
+            throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
+        TableView table = (TableView) getParent();
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             if (animation) {
-                if (getParent() instanceof TableView) {
-                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Lining up active cards").setTable((TableView) getParent()).setCard(cv).setHandID(getHand().getID())
-                            .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).build().Start();
-                }
-            }
-            else {
-                Vector3 pos = HandUtils.LineUpActiveCard(i, cv, HandUtils.IDtoSide(getHand().getID()), getActivePosition(), getCardOverlapPercent());
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(false).setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
+                        .killPreviousAnimation(cv)
+                        .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).build().Start();
+            } else {
+                Vector3 pos = HandUtils.LineUpActiveCard(i, cv, table, mHand.getID(), getActivePosition(), getCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
                 cv.setRotation(pos.z);
+                if (mHand.getType() == Hand.HandType.CPU)
+                    cv.setSide(CardView.Side.BACK);
             }
         }
         return position;
     }
 
     private int OrganizeEndCards(int position) {
+        if ( !(getParent() instanceof TableView) )
+            throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
         Card cards[] = (Card[]) getHand().GetEndCards().toArray();
+        TableView table = (TableView) getParent();
         for (int i=0; i<cards.length; ++i) {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                Vector3 pos = HandUtils.LineUpEndCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i), CardUtils.getCardWidth() * getEndCardOverlapPercent());
+                Vector3 pos = HandUtils.LineUpEndCard(cv, table, getHand().getID(), getHiddenPosition(i), CardUtils.getCardWidth() * getEndCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
                 cv.setRotation(pos.z);
             }
@@ -391,20 +402,21 @@ public class HandView extends Group implements ReparentViews {
     }
 
     private int OrganizeHiddenCards(int position, boolean animation) {
+        if ( !(getParent() instanceof TableView) )
+            throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
         Card cards[] = (Card[]) getHand().GetHiddenCards().toArray();
+        TableView table = (TableView) getParent();
         for (int i=0; i<cards.length; ++i) {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
                 if (animation) {
-                    if (getParent() instanceof TableView) {
-                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                        builder.setPause(false).setDescription("Lining up active cards").setTable((TableView) getParent()).setCard(cv).setHandID(getHand().getID())
-                                .setTweenCalculator(new CardAnimation.LineUpHiddenCards(i)).build().Start();
-                    }
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
+                            .setTweenCalculator(new CardAnimation.LineUpHiddenCards(i)).build().Start();
                 }
                 else {
-                    Vector3 pos = HandUtils.LineUpHiddenCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i));
+                    Vector3 pos = HandUtils.LineUpHiddenCard(cv, table, getHand().getID(), getHiddenPosition(i));
                     cv.setPosition(pos.x, pos.y);
                     cv.setRotation(pos.z);
                     cv.setSide(CardView.Side.BACK);

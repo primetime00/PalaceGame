@@ -46,7 +46,7 @@ public class PlaceEndCard extends State {
                     System.out.print("HUMAN SELECTS " + c + "\n");
                 }
                 mHand.GetPlayCards().Reset();
-                for (Iterator<Card> it = mHand.GetPlayCards().GetPendingCards().iterator(); it.hasNext(); ) {
+                for (Iterator<Card> it = mHand.GetDiscardCards().iterator(); it.hasNext(); ) {
                     Card c = it.next();
                     it.remove();
                     Card activeCard = mHand.GetEndCards().get(mHand.GetEndCards().indexOf(c));

@@ -31,7 +31,7 @@ public class GameScene extends Scene {
 
     private void init() {
         logic = Logic.get();
-        tableView = new TableView(logic.GetTable());
+        tableView = new TableView(logic.GetTable(), getCardCamera());
         mMessageBand = new MessageBandView();
         addActor(tableView);
 

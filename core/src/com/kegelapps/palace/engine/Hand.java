@@ -206,10 +206,7 @@ public class Hand implements Serializer{
     public void SelectAllPlayCard(Card c) {
         if (mPendingCards.GetAllCards().contains(c))
             return;
-        if (mPendingCards.GetAllCards().size() > 0) {
-            Director.instance().getEventSystem().Fire(EventSystem.EventType.UNSELECT_MULTIPLE_CARDS, getID());
-            mPendingCards.GetAllCards().clear();
-        }
+        UnSelectAllPlayCard();
         for (Card card : GetActiveCards()) {
             if (card.getRank() == c.getRank())
                 mPendingCards.AddCard(card);
@@ -218,6 +215,14 @@ public class Hand implements Serializer{
             Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_MULTIPLE_CARDS, getID());
         }
     }
+
+    public void UnSelectAllPlayCard() {
+        if (mPendingCards.GetAllCards().size() > 0) {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.UNSELECT_MULTIPLE_CARDS, getID());
+            mPendingCards.GetAllCards().clear();
+        }
+    }
+
 
 
 

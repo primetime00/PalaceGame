@@ -2,7 +2,7 @@ package com.kegelapps.palace.animations;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
-import aurelienribon.tweenengine.Tween;
+import com.kegelapps.palace.graphics.CardCamera;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.TableView;
 
@@ -18,12 +18,18 @@ public class AnimationBuilder {
     private Animation mChild;
     private String mDescription;
     private Object mKillPreviousAnimation;
+    private TweenCalculator mCalc;
 
+    //Card specific animation
     private CardView mCard;
     private int mHandID;
     private TableView mTable;
 
-    private TweenCalculator mCalc;
+    //Camera specific animation
+    private CardCamera.CameraSide mCameraSide;
+    private CardCamera mCamera;
+
+
 
     public CardView getCard() {
         return mCard;
@@ -100,17 +106,40 @@ public class AnimationBuilder {
         return this;
     }
 
+    public AnimationBuilder setCamera(CardCamera mCamera) {
+        this.mCamera = mCamera;
+        return this;
+    }
+
+    public AnimationBuilder setCameraSide(CardCamera.CameraSide mSide) {
+        this.mCameraSide = mSide;
+        return this;
+    }
+
+    public CardCamera getCamera() {
+        return mCamera;
+    }
+
+    public CardCamera.CameraSide getCameraSide() {
+        return mCameraSide;
+    }
+
     public Animation build() {
+        Animation ani = null;
         switch (mAnimationType) {
             case CARD:
-                CardAnimation ani = new CardAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
-                onBuild(ani);
-                return ani;
-                //return new CardAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
+                ani = new CardAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
+                break;
+            case CAMERA:
+                ani = new CameraAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
+                break;
             default:
                 break;
         }
-        return null;
+        if (ani != null) {
+            onBuild(ani);
+        }
+        return ani;
     }
 
     public AnimationBuilder fromBuilder(AnimationBuilder builder) {
@@ -122,6 +151,9 @@ public class AnimationBuilder {
         mCard = builder.mCard;
         mHandID = builder.mHandID;
         mTable = builder.mTable;
+
+        mCamera = builder.mCamera;
+        mCameraSide = builder.mCameraSide;
         return this;
     }
 

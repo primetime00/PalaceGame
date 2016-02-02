@@ -18,9 +18,14 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
+import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
@@ -33,6 +38,9 @@ public class TableView extends Group implements Input.BoundObject {
     private DeckView mDeck;
     private InPlayView mPlayView;
     private Array<HandView> mHands;
+    private Map<HandUtils.HandSide, HandView> mHandSide;
+    private CardCamera mCamera;
+
     private Array<CardView> mCards;
 
     private Pixmap mPixmap;
@@ -42,12 +50,13 @@ public class TableView extends Group implements Input.BoundObject {
 
     private TextView mHelperText;
 
-    public TableView(Table table) {
+    public TableView(Table table, CardCamera cam) {
         mTable = table;
         mDeck = new DeckView(table.getDeck());
         mPlayView = new InPlayView(table.getInPlay());
         mCards = new Array<>();
         mHands = new Array<>();
+        mCamera = cam;
 
         for (Hand h : mTable.getHands()) {
             mHands.add(new HandView(h));
@@ -76,6 +85,22 @@ public class TableView extends Group implements Input.BoundObject {
 
 
         createTableEvents();
+
+        mHandSide = new HashMap<>();
+        for (HandView h : mHands) {
+            if (h.getHand().getType() == Hand.HandType.HUMAN)
+                mHandSide.put(HandUtils.HandSide.SIDE_BOTTOM, h);
+            else {
+                if (mHandSide.get(HandUtils.HandSide.SIDE_LEFT) == null)
+                    mHandSide.put(HandUtils.HandSide.SIDE_LEFT, h);
+                else if (mHandSide.get(HandUtils.HandSide.SIDE_TOP) == null)
+                    mHandSide.put(HandUtils.HandSide.SIDE_TOP, h);
+                else if (mHandSide.get(HandUtils.HandSide.SIDE_RIGHT) == null)
+                    mHandSide.put(HandUtils.HandSide.SIDE_RIGHT, h);
+                else if (mHandSide.get(HandUtils.HandSide.SIDE_BOTTOM) == null)
+                    mHandSide.put(HandUtils.HandSide.SIDE_BOTTOM, h);
+            }
+        }
 
         float w = (Director.instance().getScreenWidth() - CardUtils.getCardTextureWidth())/2.0f;
         float h = (Director.instance().getScreenHeight() - CardUtils.getCardTextureHeight())/2.0f;
@@ -143,9 +168,10 @@ public class TableView extends Group implements Input.BoundObject {
                 if (round != 3 && player != 0)
                     return;
                 float duration = 1.5f;
-                Vector2 pos = MoveCamera(HandUtils.IDtoSide(player));
-                CardCamera camera = Director.instance().getScene().getCardCamera();
-                new CameraAnimation(false).MoveCamera(duration, pos.x, pos.y, 1.0f, camera, CardCamera.CameraSide.BOTTOM);
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                builder.setPause(false).setDescription("Move camera to bottom").setTable(TableView.this).
+                        setCameraSide(CardCamera.CameraSide.BOTTOM).setCamera(mCamera).
+                        setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, duration)).build().Start();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDealFirstActiveCard);
@@ -187,7 +213,7 @@ public class TableView extends Group implements Input.BoundObject {
                 builder.setPause(true).setDescription("Failed card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
                         killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlayFailedCard()).build().Start();
 
-                mHands.get(hand.getID()).OrganizeCards(true);
+                //mHands.get(hand.getID()).OrganizeCards(true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlayFailed);
@@ -235,13 +261,36 @@ public class TableView extends Group implements Input.BoundObject {
             public void handle(Object[] params) {
                 State s = Logic.get().GetMainState();
                 if (s.containsState(State.Names.SELECT_END_CARDS) || s.containsState(State.Names.PLAY)) {
-                    Vector2 pos = MoveCamera(HandUtils.HandSide.SIDE_BOTTOM);
-                    Director.instance().getScene().getCardCamera().position.set(pos.x, pos.y, 0);
-                    Director.instance().getScene().getCardCamera().SetSide(CardCamera.CameraSide.BOTTOM);
+                    HandUtils.HandSide side = HandUtils.HandSide.SIDE_UNKNOWN;
+                    if (s.getState(State.Names.SELECT_END_CARDS) != null)
+                        side = HandUtils.HandSide.SIDE_BOTTOM;
+                    else if (s.getState(State.Names.PLAY) != null) {
+                        int id = ((Play)(s.getState(State.Names.PLAY))).getCurrentPlayer();
+                        side = getSideFromHand(id);
+                    }
+                    Vector2 pos = HandUtils.GetHandPosition(TableView.this, side);
+                    mCamera.SetPosition(pos, 1.0f, HandUtils.HandSideToCamera(side));
                 }
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLoadedState);
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.CHANGE_TURN) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for CHANGE_TURN");
+                }
+
+                int id = (int) params[0];
+                float duration = 0.7f;
+                HandUtils.HandSide side = HandUtils.IDtoSide(id, TableView.this);
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                builder.setPause(true).setDescription("Move camera to current turn").setTable(TableView.this).
+                        setCameraSide(HandUtils.HandSideToCamera(side)).setCamera(mCamera).
+                        setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, duration)).build().Start();
+            }
+        });
 
     }
 
@@ -310,6 +359,22 @@ public class TableView extends Group implements Input.BoundObject {
         res.set(camX, camY);
         return res;
     }
+
+    public HandView getHandFromSide(HandUtils.HandSide side) {
+        return mHandSide.get(side);
+    }
+    public HandUtils.HandSide getSideFromHand(int id) {
+        for (Map.Entry s :mHandSide.entrySet()) {
+            if ( ((HandView)s.getValue()).getHand().getID() == id)
+                return (HandUtils.HandSide) s.getKey();
+        }
+        throw new RuntimeException("Hand side is unknown!");
+    }
+
+    CardCamera getCamera() {
+        return mCamera;
+    }
+
 
     public InPlayView getPlayView() {
         return mPlayView;

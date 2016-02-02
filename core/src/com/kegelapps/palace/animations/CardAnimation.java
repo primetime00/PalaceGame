@@ -40,45 +40,6 @@ public class CardAnimation extends Animation {
         mHandID = ani.mHandID;
     }
 
-    public CardAnimation killPreviousAnimation() {
-        if (mCard != null)
-            Director.instance().getTweenManager().killTarget(mCard);
-        return this;
-    }
-
-/*
-    public void Start() {
-        if (mTimeLineAnimation != null) {
-            mTimeLineAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
-            mTimeLineAnimation.start(Director.instance().getTweenManager());
-        }
-        else if (mTweenAnimation != null) {
-            mTweenAnimation.setCallback(this);
-            mTweenAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
-            mTweenAnimation.start(Director.instance().getTweenManager());
-        }
-    }*/
-/*
-    @Override
-    public void onEvent(int type, BaseTween<?> source) {
-        if (type == TweenCallback.BEGIN) {
-            if (mPauseLogic) {
-                Logic.get().Pause(true);
-                System.out.print("Pause\n");
-            }
-        }
-        if (type == TweenCallback.END) {
-            if (mPauseLogic) {
-                Logic.get().Pause(false);
-                System.out.print("UnPause\n");
-            }
-            if (mChild != null) {
-                mChild.Start();
-            }
-        }
-    }*/
-
-
     static public class DrawToActive implements AnimationBuilder.TweenCalculator {
 
         @Override
@@ -181,21 +142,7 @@ public class CardAnimation extends Animation {
                 return null;
             }
             Rectangle rect = mTable.getHands().get(mHandID).getHiddenPosition(handPos);
-            switch (mHandID) {
-                default:
-                case 0: //bottom
-                    pos = HandUtils.LineUpHiddenCard(mCard, HandUtils.HandSide.SIDE_BOTTOM, rect);
-                    break;
-                case 1: //left
-                    pos = HandUtils.LineUpHiddenCard(mCard, HandUtils.HandSide.SIDE_LEFT, rect);
-                    break;
-                case 2: //top
-                    pos = HandUtils.LineUpHiddenCard(mCard, HandUtils.HandSide.SIDE_TOP, rect);
-                    break;
-                case 3: //right
-                    pos = HandUtils.LineUpHiddenCard(mCard, HandUtils.HandSide.SIDE_RIGHT, rect);
-                    break;
-            }
+            pos = HandUtils.LineUpHiddenCard(mCard, mTable, mHandID, rect);
             animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(pos.x, pos.y));
             animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(pos.z));
             return animation;
@@ -274,21 +221,9 @@ public class CardAnimation extends Animation {
                 }
             };
             Vector3 pos;
-            switch (mHandID) {
-                default:
-                case 0:
-                    pos = HandUtils.LineUpActiveCard(mIndex, mCard, HandUtils.HandSide.SIDE_BOTTOM, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
-                    break;
-                case 1:
-                    pos = HandUtils.LineUpActiveCard(mIndex, mCard, HandUtils.HandSide.SIDE_LEFT, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
-                    break;
-                case 2:
-                    pos = HandUtils.LineUpActiveCard(mIndex, mCard, HandUtils.HandSide.SIDE_TOP, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
-                    break;
-                case 3:
-                    pos = HandUtils.LineUpActiveCard(mIndex, mCard, HandUtils.HandSide.SIDE_RIGHT, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
-                    break;
-            }
+
+            pos = HandUtils.LineUpActiveCard(mIndex, mCard, mTable, mHandID, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
+
             float duration = 0.1f;
             animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(pos.x, pos.y));
             animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(pos.z));

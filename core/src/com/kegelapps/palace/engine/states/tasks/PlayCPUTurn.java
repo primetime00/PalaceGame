@@ -13,31 +13,14 @@ import com.kegelapps.palace.protos.StateProtos;
 /**
  * Created by Ryan on 1/21/2016.
  */
-public class PlayCPUTurn extends State {
-
-    private Table mTable;
-    private Hand mHand;
+public class PlayCPUTurn extends PlayTurn {
 
     private long mTime;
 
 
     public PlayCPUTurn(State parent, Table table) {
-        super(parent);
-        mTable = table;
+        super(parent, table);
     }
-
-    @Override
-    public void setID(int id) {
-        super.setID(id);
-        mHand = null;
-        for (Hand h: mTable.getHands()) {
-            if (h.getID() == id) {
-                mHand = h;
-                break;
-            }
-        }
-    }
-
 
     @Override
     protected boolean OnRun() {
@@ -64,6 +47,7 @@ public class PlayCPUTurn extends State {
 
     @Override
     protected void OnFirstRun() {
+        super.OnFirstRun();
         mTime = System.currentTimeMillis();
     }
 

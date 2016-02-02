@@ -50,6 +50,10 @@ public class Play extends State {
         return false;
     }
 
+    public int getCurrentPlayer() {
+        return mCurrentPlayer;
+    }
+
     @Override
     public Names getStateName() {
         return Names.PLAY;
