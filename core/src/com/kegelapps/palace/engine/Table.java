@@ -73,7 +73,8 @@ public class Table  implements Serializer{
     public boolean AddPlayCard(Hand hand, Card activeCard) {
         Card top = GetTopPlayCard();
         if (activeCard.compareTo(top) > -1) {
-            GetPlayCards().add(GetPlayCards().size(), activeCard);
+            //GetPlayCards().add(GetPlayCards().size(), activeCard);
+            mPlayCards.AddCard(activeCard);
             hand.GetActiveCards().remove(activeCard);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
             return true;

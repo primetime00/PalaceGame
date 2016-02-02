@@ -5,8 +5,10 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
+import com.kegelapps.palace.events.EventSystem;
 
 /**
  * Created by Ryan on 1/25/2016.
@@ -18,7 +20,6 @@ public class InPlayView extends Group implements ReparentViews {
     final private int cardsHorizontal = 5;
     final private float overlapPercentX = 0.1f;
     final private float overlapPercentY = 0.15f;
-    private int mOldSize = -1;
     Vector2 mNextCardPosition;
 
     public InPlayView(InPlay play) {
@@ -28,9 +29,18 @@ public class InPlayView extends Group implements ReparentViews {
     }
 
     private void init() {
-        mOldSize = -1;
         mNextCardPosition = new Vector2();
         mPlayRectangle = new Rectangle(0, 0, CardUtils.getCardWidth(), CardUtils.getCardHeight());
+        createEvents();
+    }
+
+    private void createEvents() {
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.INPLAY_CARDS_CHANGED) {
+            @Override
+            public void handle(Object[] params) {
+                CalculatePositionAndSize();
+            }
+        });
     }
 
 
@@ -69,10 +79,6 @@ public class InPlayView extends Group implements ReparentViews {
     public void act(float delta) {
         super.act(delta);
         mPlayRectangle.setPosition(getX(), getY());
-        if (mOldSize != mInPlayCards.GetCards().size()) {
-            mOldSize = mInPlayCards.GetCards().size();
-            CalculatePositionAndSize();
-        }
     }
 
     @Override

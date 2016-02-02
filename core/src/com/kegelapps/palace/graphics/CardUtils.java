@@ -44,10 +44,10 @@ public class CardUtils {
 
     }
 
-    static int getCardWidth() {
+    static public int getCardWidth() {
         return getCardBackRegion().originalWidth;
     }
-    static int getCardHeight() {
+    static public int getCardHeight() {
         return getCardBackRegion().originalHeight;
     }
 

@@ -62,10 +62,11 @@ public class PlayHumanTurn extends State {
             Card c = it.next();
             it.remove();
             Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
-            if (mPlayCard != null && mPlayCard.getRank() != activeCard.getRank()) { //trying to add more than one card with different ranks
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, mHand);
-                continue;
+            if (mPlayCard != null) {
+                if (!SameAsLastCard(activeCard)) //we are playing a card that is different
+                    break;
             }
+
             if (mTable.AddPlayCard(mHand, activeCard)) {
                 mPlayCard = activeCard;
                 if (!mHand.ContainsRank(activeCard.getRank())) { //this turn is over!
@@ -78,6 +79,14 @@ public class PlayHumanTurn extends State {
             }
         }
         return hasPlayed;
+    }
+
+    private boolean SameAsLastCard(Card card) {
+        if (mPlayCard.getRank() != card.getRank()) { //trying to add more than one card with different ranks
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, card, mHand);
+            return false;
+        }
+        return true;
     }
 
     @Override

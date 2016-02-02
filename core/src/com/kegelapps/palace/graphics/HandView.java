@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.kegelapps.palace.animations.AnimationBuilder;
+import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
@@ -197,10 +199,11 @@ public class HandView extends Group implements ReparentViews {
                 cardView.getParent().removeActor(cardView);
                 addActor(cardView);
 
-                int pos = getHand().GetAvailableHiddenCardPosition();
-                Rectangle r = getHiddenPosition(pos);
-
-                new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(r, getHand().getID(), cardView);
+                if (getParent() instanceof TableView) {
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Lining up hidden cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
+                            .setTweenCalculator(new CardAnimation.LineUpHiddenCards()).build().Start();
+                }
                 cardView.setZIndex(0);
             }
         };
@@ -236,11 +239,19 @@ public class HandView extends Group implements ReparentViews {
                 if (getHand().getID() != id)
                     return;
 
-                CardView cardView = CardView.getCardView((Card) params[0]);
-                Rectangle r = getHiddenPosition((int)params[2]);
+                int pos = (int) params[2];
 
-                float ov = CardUtils.getCardWidth() * getEndCardOverlapPercent();
-                new CardAnimation(false, "Selecting end cards").SelectEndCard(r.getX()+ov, r.getY()+ov, id, cardView);
+                CardView cardView = CardView.getCardView((Card) params[0]);
+
+                if (getParent() instanceof TableView) {
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Selecting end cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
+                            .setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
+
+                    CardAnimation ca = (CardAnimation) builder.build();
+                    int i = 5;
+                    i++;
+                }
 
                 OrganizeCards(true, true, true, false);
             }
@@ -248,6 +259,28 @@ public class HandView extends Group implements ReparentViews {
         Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEventListener);
 
         EventSystem.EventListener mSelectMultipleCards = new EventSystem.EventListener(EventSystem.EventType.SELECT_MULTIPLE_CARDS) {
+                @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for SELECT_MULTIPLE_CARDS");
+                }
+                int id = (int) params[0];
+                if (getHand().getID() != id)
+                    return;
+
+                if (getParent() instanceof TableView) {
+                    for (Card c : mHand.GetPlayCards().GetAllCards()) {
+                        CardView cardView = CardView.getCardView(c);
+                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                        builder.setPause(false).setDescription("Selecting multiple cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
+                                .setTweenCalculator(new CardAnimation.SelectPendingCard()).build().Start();
+                    }
+                }
+            }
+        };
+        Director.instance().getEventSystem().RegisterEvent(mSelectMultipleCards);
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.UNSELECT_MULTIPLE_CARDS) {
             @Override
             public void handle(Object[] params) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
@@ -257,15 +290,15 @@ public class HandView extends Group implements ReparentViews {
                 if (getHand().getID() != id)
                     return;
 
-                for (Card c : mHand.GetPlayCards().GetAllCards()) {
-                    CardView cardView = CardView.getCardView(c);
-                    new CardAnimation(false, "Selecting multiple cards").SelectPendingCard(id, cardView);
-
+                if (getParent() instanceof TableView) {
+                    for (Card c : mHand.GetPlayCards().GetAllCards()) {
+                        CardView cardView = CardView.getCardView(c);
+                        Director.instance().getTweenManager().killTarget(cardView);
+                    }
                 }
+                OrganizeCards(true, true, true, true);
             }
-        };
-        Director.instance().getEventSystem().RegisterEvent(mSelectMultipleCards);
-
+        });
     }
 
     public void OrganizeCards(boolean animation) {
@@ -326,8 +359,13 @@ public class HandView extends Group implements ReparentViews {
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
-            if (animation)
-                new CardAnimation(false, "Lining up active cards").LineUpActiveCard(HandView.this, cv, i);
+            if (animation) {
+                if (getParent() instanceof TableView) {
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Lining up active cards").setTable((TableView) getParent()).setCard(cv).setHandID(getHand().getID())
+                            .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).build().Start();
+                }
+            }
             else {
                 Vector3 pos = HandUtils.LineUpActiveCard(i, cv, HandUtils.IDtoSide(getHand().getID()), getActivePosition(), getCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
@@ -357,8 +395,13 @@ public class HandView extends Group implements ReparentViews {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                if (animation)
-                    new CardAnimation(false, "Lining up hidden cards").LineUpHiddenCards(getHiddenPosition(i), getHand().getID(), cv);
+                if (animation) {
+                    if (getParent() instanceof TableView) {
+                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                        builder.setPause(false).setDescription("Lining up active cards").setTable((TableView) getParent()).setCard(cv).setHandID(getHand().getID())
+                                .setTweenCalculator(new CardAnimation.LineUpHiddenCards()).build().Start();
+                    }
+                }
                 else {
                     Vector3 pos = HandUtils.LineUpHiddenCard(cv, HandUtils.IDtoSide(getHand().getID()), getHiddenPosition(i));
                     cv.setPosition(pos.x, pos.y);

@@ -1,6 +1,8 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
@@ -34,6 +36,7 @@ public class InPlay implements Serializer{
 
     public void AddCard(Card c) {
         mCards.add(c);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.INPLAY_CARDS_CHANGED);
     }
 
     @Override

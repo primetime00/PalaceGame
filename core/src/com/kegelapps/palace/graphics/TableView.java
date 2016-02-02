@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.*;
+import com.kegelapps.palace.animations.AnimationBuilder;
+import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.animations.CameraAnimation;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
@@ -94,7 +96,10 @@ public class TableView extends Group implements Input.BoundObject {
                     mPlayView.addActor(cardView);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
 
-                new CardAnimation(true, "Drawing from deck to active").DrawToActive(mDeck, mPlayView, cardView);
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription("Drawing from deck to active").setTable((TableView) getParent()).setCard(cardView)
+                        .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
+
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDrawCardEventListener);
@@ -117,7 +122,9 @@ public class TableView extends Group implements Input.BoundObject {
                 for (int index =0; index<mHands.size; ++index)
                 {
                     if (mHands.get(index).getHand() == hand) {
-                        new CardAnimation(true, "Dealing to a hand").DealToHand(mDeck, mHands.get(index), cardView, duration);
+                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                        builder.setPause(true).setDescription("Dealing to a hand").setTable(TableView.this).setCard(cardView).setHandID(index)
+                                .setTweenCalculator(new CardAnimation.DealToHand()).build().Start();
                         break;
                     }
                 }
@@ -176,8 +183,9 @@ public class TableView extends Group implements Input.BoundObject {
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
 
-                Director.instance().getTweenManager().killTarget(cardView);
-                new CardAnimation(true, "Failed card").PlayFailedCard(mPlayView, hand.getID(), cardView);
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription("Failed card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
+                        killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlayFailedCard()).build().Start();
 
                 mHands.get(hand.getID()).OrganizeCards(true);
             }
@@ -199,8 +207,9 @@ public class TableView extends Group implements Input.BoundObject {
                 if (mPlayView.findActor(cardView.getName()) == null)
                     mPlayView.addActor(cardView);
 
-                Director.instance().getTweenManager().killTarget(cardView);
-                new CardAnimation(true, "Success card").PlaySuccessCard(mPlayView, hand.getID(), cardView);
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
+                killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlaySuccessCard()).build().Start();
 
                 mHands.get(hand.getID()).OrganizeCards(true);
             }
@@ -266,6 +275,10 @@ public class TableView extends Group implements Input.BoundObject {
         return mHands;
     }
 
+    public DeckView getDeck() {
+        return mDeck;
+    }
+
     public Table getTable() {
         return mTable;
     }
@@ -296,5 +309,9 @@ public class TableView extends Group implements Input.BoundObject {
         }
         res.set(camX, camY);
         return res;
+    }
+
+    public InPlayView getPlayView() {
+        return mPlayView;
     }
 }
