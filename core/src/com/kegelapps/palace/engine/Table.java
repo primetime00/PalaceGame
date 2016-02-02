@@ -23,7 +23,7 @@ public class Table  implements Serializer{
     List<Hand> mHands;
 
     public interface TableListener {
-        public void onDealCard(Hand hand, Card c);
+        void onDealCard(Hand hand, Card c);
     }
 
     public Table (CardsProtos.Table tableProto) {

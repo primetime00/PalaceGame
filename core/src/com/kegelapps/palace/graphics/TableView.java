@@ -97,7 +97,7 @@ public class TableView extends Group implements Input.BoundObject {
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
 
                 AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                builder.setPause(true).setDescription("Drawing from deck to active").setTable((TableView) getParent()).setCard(cardView)
+                builder.setPause(true).setDescription("Drawing from deck to active").setTable(TableView.this).setCard(cardView)
                         .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
 
             }

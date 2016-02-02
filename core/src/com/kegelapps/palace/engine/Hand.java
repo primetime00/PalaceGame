@@ -107,7 +107,7 @@ public class Hand implements Serializer{
             }
         }
         if (pos > -1) {
-            Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID());
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID(), pos);
         }
     }
 

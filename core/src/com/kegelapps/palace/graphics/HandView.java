@@ -186,13 +186,14 @@ public class HandView extends Group implements ReparentViews {
         EventSystem.EventListener mLayoutHiddenCardEventListener = new EventSystem.EventListener(EventSystem.EventType.LAYOUT_HIDDEN_CARD) {
             @Override
             public void handle(Object params[]) {
-                if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer)) {
+                if (params == null || params.length != 3 || !(params[0] instanceof Card) || !(params[1] instanceof Integer) || !(params[2] instanceof Integer)) {
                     throw new IllegalArgumentException("Invalid parameters for LAYOUT_HIDDEN_CARD");
                 }
 
                 int id = (int) params[1];
                 if (getHand().getID() != id)
                     return;
+                int pos = (int) params[2];
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
 
@@ -202,7 +203,7 @@ public class HandView extends Group implements ReparentViews {
                 if (getParent() instanceof TableView) {
                     AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     builder.setPause(false).setDescription("Lining up hidden cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
-                            .setTweenCalculator(new CardAnimation.LineUpHiddenCards()).build().Start();
+                            .setTweenCalculator(new CardAnimation.LineUpHiddenCards(pos)).build().Start();
                 }
                 cardView.setZIndex(0);
             }
@@ -399,7 +400,7 @@ public class HandView extends Group implements ReparentViews {
                     if (getParent() instanceof TableView) {
                         AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                         builder.setPause(false).setDescription("Lining up active cards").setTable((TableView) getParent()).setCard(cv).setHandID(getHand().getID())
-                                .setTweenCalculator(new CardAnimation.LineUpHiddenCards()).build().Start();
+                                .setTweenCalculator(new CardAnimation.LineUpHiddenCards(i)).build().Start();
                     }
                 }
                 else {

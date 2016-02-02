@@ -157,6 +157,12 @@ public class CardAnimation extends Animation {
 
     static public class LineUpHiddenCards implements AnimationBuilder.TweenCalculator {
 
+        private int mPosition;
+
+        public LineUpHiddenCards(int pos) {
+            mPosition = pos;
+        }
+
         @Override
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             final CardView mCard = builder.getCard();
@@ -170,8 +176,7 @@ public class CardAnimation extends Animation {
             Vector3 pos;
 
             float duration = 0.1f;
-            //todo this is bad here!
-            int handPos = mTable.getHands().get(mHandID).getHand().GetAvailableHiddenCardPosition();
+            int handPos = mPosition;
             if (handPos < 0) {
                 return null;
             }
