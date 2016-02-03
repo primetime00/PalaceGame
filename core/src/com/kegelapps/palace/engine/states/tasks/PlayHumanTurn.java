@@ -3,15 +3,13 @@ package com.kegelapps.palace.engine.states.tasks;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StateProtos;
-
-import java.util.Iterator;
 
 /**
  * Created by Ryan on 1/21/2016.
@@ -20,23 +18,39 @@ public class PlayHumanTurn extends PlayTurn {
 
     private Card mPlayCard;
     private boolean mTapped;
+    private int mBurnState;
 
 
     public PlayHumanTurn(State parent, Table table) {
         super(parent, table);
         mPlayCard = null;
         mTapped = false;
+        mBurnState = 0;
+
+        State s = mChildrenStates.addState(Names.BURN_CARDS, this);
+        s.setStateListener(new StateListener() {
+            @Override
+            public void onDoneState() {
+                mBurnState = 0;
+            }
+        });
+
     }
 
     @Override
     protected void OnFirstRun() {
-        super.OnFirstRun();
+        mBurnState = 0;
         mPlayCard = null;
         mTapped = false;
     }
 
     @Override
     protected boolean OnRun() {
+        if (mBurnState == 1) {//burn state
+            mChildrenStates.getState(Names.BURN_CARDS).Execute();
+            return false;
+        }
+        //normal play state
         boolean hasPlayed =false;
         if (mHand == null)
             return true;
@@ -44,27 +58,47 @@ public class PlayHumanTurn extends PlayTurn {
             mHand.GetPlayCards().Clear();
             return true;
         }
-        for (Iterator<Card> it = mHand.GetPlayCards().GetPendingCards().iterator(); it.hasNext(); ) {
-            Card c = it.next();
-            it.remove();
+        int pendingSize = mHand.GetPlayCards().GetPendingCards().size();
+        if (pendingSize == 0)
+            return false;
+        while (mHand.GetPlayCards().GetPendingCards().size() > 0) {
+            Card c = mHand.GetPlayCards().PopCard();
             Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
-            if (mPlayCard != null) {
+            if (mPlayCard == null)
+                hasPlayed = PlayCard(activeCard);
+            else {
                 if (!SameAsLastCard(activeCard)) //we are playing a card that is different
-                    break;
-            }
-
-            if (mTable.AddPlayCard(mHand, activeCard)) {
-                mPlayCard = activeCard;
-                if (!mHand.ContainsRank(activeCard.getRank())) { //this turn is over!
-                    hasPlayed = true;
-                    break;
-                }
-                else { //we can either play another card or tap the deck to end turn
-                    Director.instance().getEventSystem().Fire(EventSystem.EventType.HIGHLIGHT_DECK, true);
-                }
+                    hasPlayed = false;
+                else
+                    hasPlayed = PlayCard(activeCard);
             }
         }
         return hasPlayed;
+    }
+
+    private boolean PlayCard(Card activeCard) {
+        Logic.ChallengeResult res = mTable.AddPlayCard(mHand, activeCard);
+        switch (res) {
+            case SUCCESS:
+                mPlayCard = activeCard;
+                if (!mHand.ContainsRank(activeCard.getRank())) { //this turn is over!
+                    return true;
+                }
+                //we can possibly play another card so the turn isn't over!
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.HIGHLIGHT_DECK, true);
+                break;
+            case SUCCESS_AGAIN: //we played a 2, so we get to go again!
+                mPlayCard = null;
+                return false;
+            case SUCCESS_BURN: //we've burned the deck, we go again!
+                if (mHand.GetPlayCards().GetPendingCards().isEmpty()) //make sure we aren't playing multiple burns!
+                    mBurnState = 1; //trigger burn state!
+                mPlayCard = null;
+                return false;
+            default: //we failed, we shouldn't reach this state
+                break;
+        }
+        return false;
     }
 
     private boolean SameAsLastCard(Card card) {
@@ -100,6 +134,7 @@ public class PlayHumanTurn extends PlayTurn {
         if (mPlayCard != null)
             builder.setPlayCard((CardsProtos.Card) mPlayCard.WriteBuffer());
         builder.setTapped(mTapped);
+        builder.setBurnState(mBurnState);
         s = s.toBuilder().setExtension(StateProtos.PlayHumanTurnState.state, builder.build()).build();
         return s;
     }
@@ -112,6 +147,8 @@ public class PlayHumanTurn extends PlayTurn {
             mPlayCard = Card.GetCard(Card.Suit.values()[playHumanState.getPlayCard().getSuit()], Card.Rank.values()[playHumanState.getPlayCard().getRank()]);
         if (playHumanState.hasTapped())
             mTapped = playHumanState.getTapped();
+        if (playHumanState.hasBurnState())
+            mBurnState = playHumanState.getBurnState();
     }
 
 

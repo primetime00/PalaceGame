@@ -67,6 +67,14 @@ public class Main extends State {
             }
         });
 
+        s = mChildrenStates.addState(Names.DRAW_PLAY_CARD, this);
+        s.setStateListener(new StateListener() {
+            @Override
+            public void onDoneState() {
+                mState = GameState.SELECT_END_CARDS;
+            }
+        });
+
         s = mChildrenStates.addState(Names.PLAY, this);
     }
 
@@ -78,7 +86,6 @@ public class Main extends State {
             return false;
         switch (mState) {
             case START:
-                Logic.get().setFastDeal(true);
                 mDeck.Shuffle();
                 mState = GameState.DEAL;
                 break;
@@ -86,14 +93,7 @@ public class Main extends State {
                 mChildrenStates.getState(Names.DEAL).Execute();
                 break;
             case PLAY_FIRST_CARD:
-                Logic.get().setFastDeal(false);
-                mTable.DrawCard();
-                if (mTable.GetTopPlayCard().getRank() == Card.Rank.TWO && mTable.getDeck().GetCards().size() > 0) {//we need to draw again!
-                    mState = GameState.PLAY_FIRST_CARD;
-                }
-                else {
-                    mState = GameState.SELECT_END_CARDS;
-                }
+                mChildrenStates.getState(Names.DRAW_PLAY_CARD).Execute();
                 break;
             case SELECT_END_CARDS:
                 mChildrenStates.getState(Names.SELECT_END_CARDS).Execute();

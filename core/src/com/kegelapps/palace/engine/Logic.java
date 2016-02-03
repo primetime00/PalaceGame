@@ -25,6 +25,13 @@ public class Logic {
         WAIT_TURN
     }
 
+    public enum ChallengeResult {
+        FAIL,
+        SUCCESS,
+        SUCCESS_AGAIN,
+        SUCCESS_BURN
+    }
+
     private int mNumberOfPlayers = 0;
 
     private boolean mFastDeal = false;
@@ -120,11 +127,13 @@ public class Logic {
         this.mFastDeal = mFastDeal;
     }
 
-    public boolean TestCard(Card card) {
+    public ChallengeResult ChallengeCard(Card card) {
         Card top = mTable.GetTopPlayCard();
-        if (top == null)
-            return false;
-        return card.compareTo(top) > -1;
+        switch (card.getRank()) {
+            case TWO: return ChallengeResult.SUCCESS_AGAIN; //this card wins all the time and you get to go again!
+            case TEN: return ChallengeResult.SUCCESS_BURN; //you burn the pile and get to go again!
+            default:  return (top == null || top.getRank() == Card.Rank.TWO || card.compareTo(top) > -1) ? ChallengeResult.SUCCESS : ChallengeResult.FAIL;
+        }
     }
 
     public State GetMainState() {

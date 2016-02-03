@@ -32,7 +32,9 @@ public class State implements Serializer{
         PLAY,
         PLAY_HUMAN_TURN,
         PLAY_CPU_TURN,
-        TAP_DECK_START
+        DRAW_PLAY_CARD,
+        TAP_DECK_START,
+        BURN_CARDS
     }
 
     public interface OnStateListener {

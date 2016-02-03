@@ -260,9 +260,12 @@ public class TableView extends Group implements Input.BoundObject {
             @Override
             public void handle(Object[] params) {
                 State s = Logic.get().GetMainState();
-                if (s.containsState(State.Names.SELECT_END_CARDS) || s.containsState(State.Names.PLAY)) {
+                if (s.containsState(State.Names.SELECT_END_CARDS) ||
+                        s.containsState(State.Names.PLAY) ||
+                        s.containsState(State.Names.DRAW_PLAY_CARD)) {
+
                     HandUtils.HandSide side = HandUtils.HandSide.SIDE_UNKNOWN;
-                    if (s.getState(State.Names.SELECT_END_CARDS) != null)
+                    if (s.getState(State.Names.SELECT_END_CARDS) != null || s.getState(State.Names.DRAW_PLAY_CARD) != null)
                         side = HandUtils.HandSide.SIDE_BOTTOM;
                     else if (s.getState(State.Names.PLAY) != null) {
                         int id = ((Play)(s.getState(State.Names.PLAY))).getCurrentPlayer();

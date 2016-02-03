@@ -4,6 +4,7 @@ import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
@@ -24,25 +25,48 @@ public class PlayCPUTurn extends PlayTurn {
 
     @Override
     protected boolean OnRun() {
-        boolean hasPlayed =false;
+        Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
         if (mHand == null)
             return true;
         if (System.currentTimeMillis() - mTime < 1000)
             return false;
 
+        //find a card to play
         for (Card c : mHand.GetActiveCards()) {
-            Card current = mTable.GetTopPlayCard();
-            if (c.compareTo(current) > -1) {
-                mTable.AddPlayCard(mHand, c);
-                hasPlayed = true;
-                setStatus(Status.NOT_STARTED);
+            Card topCard = mTable.GetTopPlayCard();
+            playResult = Logic.get().ChallengeCard(c);
+            if (playResult != Logic.ChallengeResult.FAIL) {
+                PlayCard(c);
                 break;
             }
         }
-        if (!hasPlayed) {
-            System.out.print("CPU NEED TO PICK UP!");
+        switch (playResult) {
+            case FAIL:
+                System.out.print("CPU NEED TO PICK UP!");
+                return false;
+            case SUCCESS:
+                return true;
+            case SUCCESS_AGAIN:
+                return false;
+            case SUCCESS_BURN:
+                return false;
         }
-        return hasPlayed;
+        return false;
+    }
+
+    private boolean PlayCard(Card card) {
+        Card current = mTable.GetTopPlayCard();
+        Logic.ChallengeResult res = mTable.AddPlayCard(mHand, card);
+        switch (res) {
+            case SUCCESS:
+                return true;
+            case SUCCESS_AGAIN:
+                return false;
+            case SUCCESS_BURN:
+                return false;
+            default:
+                return false;
+        }
     }
 
     @Override

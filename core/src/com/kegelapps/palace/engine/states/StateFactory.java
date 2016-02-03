@@ -72,6 +72,9 @@ public class StateFactory {
                 s = new DealCard(parent, mTable);
                 ((DealCard)s).setHidden(false);
                 break;
+            case DRAW_PLAY_CARD:
+                s = new DrawPlayCard(parent, mTable);
+                break;
             case SELECT_END_CARDS:
                 s = new SelectEndCards(parent, mTable);
                 break;
@@ -89,6 +92,9 @@ public class StateFactory {
                 break;
             case TAP_DECK_START:
                 s = new TapToStart(parent, mTable);
+                break;
+            case BURN_CARDS:
+                s = new Burn(parent, mTable);
                 break;
             default: break;
         }

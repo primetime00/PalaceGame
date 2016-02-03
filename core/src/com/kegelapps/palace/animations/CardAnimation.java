@@ -401,6 +401,29 @@ public class CardAnimation extends Animation {
         }
     }
 
+    static public class BurnCard implements AnimationBuilder.TweenCalculator {
+
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            final CardView mCard = builder.getCard();
+            if (builder.getCamera() == null)
+                throw new RuntimeException("This animation needs the camera!");
+            TableView mTable = builder.getTable();
+            //todo uniform number from 0-359
+            float angle = (float)(22.5 * (int)((Math.random() * 15.0f)));
+            float h = builder.getCamera().viewportHeight;
+            float w = builder.getCamera().viewportWidth;
+            float length = (float)Math.hypot(w, h);
+            float x = (float) (length * Math.cos(Math.toRadians(angle)));
+            float y = (float) (length * Math.sin(Math.toRadians(angle)));
+            Timeline animation = Timeline.createSequence();
+            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
+
+            animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, 1.5f).target(x, y).ease(TweenEquations.easeInOutQuad));
+            return animation;
+        }
+    }
+
     @Override
     public AnimationBuilder toBuilder() {
         return super.toBuilder().setCard(mCard).setTable(mTable).setHandID(mHandID);

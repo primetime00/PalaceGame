@@ -38,14 +38,12 @@ public class PlaceEndCard extends State {
                 continue;
             res = false;
             if (mHand.getType() == Hand.HandType.HUMAN) {
-                for (Iterator<Card> it = mHand.GetPlayCards().GetPendingCards().iterator(); it.hasNext(); ) {
-                    Card c = it.next();
-                    it.remove();
+                while (mHand.GetPlayCards().GetPendingCards().size() > 0) {
+                    Card c = mHand.GetPlayCards().PopCard();
                     Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
                     mHand.AddEndCard(activeCard);
                     System.out.print("HUMAN SELECTS " + c + "\n");
                 }
-                mHand.GetPlayCards().Reset();
                 for (Iterator<Card> it = mHand.GetDiscardCards().iterator(); it.hasNext(); ) {
                     Card c = it.next();
                     it.remove();

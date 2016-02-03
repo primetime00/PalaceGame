@@ -6,6 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.animations.AnimationBuilder;
+import com.kegelapps.palace.animations.AnimationFactory;
+import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.events.EventSystem;
@@ -41,6 +44,21 @@ public class InPlayView extends Group implements ReparentViews {
                 CalculatePositionAndSize();
             }
         });
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.BURN_CARDS) {
+            @Override
+            public void handle(Object[] params) {
+                if ( !(getParent() instanceof TableView) )
+                    throw new RuntimeException("Cannot burn cards without a TableView parent");
+                TableView table = (TableView) getParent();
+                for (Card c : mInPlayCards.GetCards()) {
+                    CardView cv = CardView.getCardView(c);
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Burning cards").setTable(table).setCard(cv).setCamera(table.getCamera())
+                            .setTweenCalculator(new CardAnimation.BurnCard()).build().Start();
+                }
+            }
+        });
+
     }
 
 

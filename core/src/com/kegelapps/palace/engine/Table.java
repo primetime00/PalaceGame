@@ -70,20 +70,24 @@ public class Table  implements Serializer{
         return mDeck;
     }
 
-    public boolean AddPlayCard(Hand hand, Card activeCard) {
+    public Logic.ChallengeResult AddPlayCard(Hand hand, Card activeCard) {
         Card top = GetTopPlayCard();
-        if (activeCard.compareTo(top) > -1) {
-            //GetPlayCards().add(GetPlayCards().size(), activeCard);
+        Logic.ChallengeResult res = Logic.get().ChallengeCard(activeCard);
+        if (res == Logic.ChallengeResult.FAIL) {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, hand);
+        }
+        else {
             mPlayCards.AddCard(activeCard);
             hand.GetActiveCards().remove(activeCard);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
-            return true;
         }
-        else {
-            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, hand);
-            return false;
-        }
+        return res;
     }
+
+    public void Burn() {
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS);
+    }
+
 
     @Override
     public void ReadBuffer(Message msg) {

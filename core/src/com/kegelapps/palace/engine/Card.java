@@ -5,11 +5,13 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Card implements Comparable<Card>, Serializer {
@@ -53,6 +55,12 @@ public class Card implements Comparable<Card>, Serializer {
         cList.add(c);
         mCardMap.put(suit, cList);
         return c;
+    }
+
+    public static Card GetCard(Message c) {
+        Card card = new Card(null, null);
+        card.ReadBuffer(c);
+        return GetCard(card.getSuit(), card.getRank());
     }
 
     private void init() {
@@ -154,6 +162,11 @@ public class Card implements Comparable<Card>, Serializer {
         CardsProtos.Card cardProto = (CardsProtos.Card) msg;
         mSuit = Suit.values()[cardProto.getSuit()];
         mRank = Rank.values()[cardProto.getRank()];
+        /* debuggin only
+        if (mSuit == Suit.DIAMOND && mRank == Rank.TEN)
+            mRank = Rank.THREE;
+        else if (mSuit == Suit.DIAMOND && mRank == Rank.THREE)
+            mRank = Rank.TEN;*/
     }
 
     @Override

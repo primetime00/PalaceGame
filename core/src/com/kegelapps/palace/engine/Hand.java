@@ -30,38 +30,48 @@ public class Hand implements Serializer{
     private List<Card> mDiscardCards;
 
     static public class PendingCards {
-        private List<Card> mPendingCards;
-        private List<Card> mPlayCards;
+        private List<Card> mReadyCards;
+        private List<Card> mQueuedCards;
         private boolean mCommitted;
 
         public PendingCards() {
             mCommitted = false;
-            mPlayCards = new ArrayList<>();
-            mPendingCards = null;
+            mQueuedCards = new ArrayList<>();
+            mReadyCards = null;
         }
 
-        public void DoPlay() {
-            mCommitted = true;
-            mPendingCards = mPlayCards;
+        public Card PopCard() {
+            if (mReadyCards == null || mReadyCards.isEmpty())
+                return null;
+            Card c = mReadyCards.get(0);
+            mReadyCards.remove(0);
+            if (mReadyCards.isEmpty())
+                ResetQueue();
+            return c;
         }
-        public void Reset() {
+
+        public void TransferQueueToPlay() {
+            mCommitted = true;
+            mReadyCards = mQueuedCards;
+        }
+        public void ResetQueue() {
             mCommitted = false;
-            mPendingCards = null;
+            mReadyCards = null;
         }
 
         public List<Card> GetPendingCards() {
-            if (mPendingCards == null)
+            if (mReadyCards == null)
                 return Collections.<Card>emptyList();
-            return mPendingCards;
+            return mReadyCards;
         }
 
         public void Clear() {
-            mPlayCards.clear();
-            Reset();
+            mQueuedCards.clear();
+            ResetQueue();
         }
 
         public List<Card> GetAllCards() {
-            return mPlayCards;
+            return mQueuedCards;
         }
 
         public boolean Committed() {
@@ -69,9 +79,14 @@ public class Hand implements Serializer{
         }
 
         public void AddCard(Card c) {
-            if (mPlayCards.size() == 0)
-                mCommitted = false;
-            mPlayCards.add(c);
+            if (mQueuedCards.size() == 0)
+                ResetQueue();
+            mQueuedCards.add(c);
+        }
+
+        public void AddCardAndTransfer(Card card) {
+            mQueuedCards.add(card);
+            TransferQueueToPlay();
         }
     }
 
@@ -181,26 +196,27 @@ public class Hand implements Serializer{
     public List<Card> GetActiveCards() { return mActiveCards; }
 
     public void SelectEndCard(Card c) {
-        mPendingCards.AddCard(c);
+        mPendingCards.AddCardAndTransfer(c);
         if (mDiscardCards.contains(c))
             mDiscardCards.remove(c);
-        mPendingCards.DoPlay();
     }
 
     public void DeselectEndCard(Card c) {
         mDiscardCards.add(c);
-        if (mPendingCards.GetPendingCards().contains(c))
-            mPendingCards.GetPendingCards().remove(c);
+        mPendingCards.Clear();
+        //if (mPendingCards.GetPendingCards().contains(c))
+        //    mPendingCards.GetPendingCards().remove(c);
     }
 
     public void SelectPlayCard(Card c) {
-        if (mPendingCards.GetAllCards().contains(c)) { //we are flinging a card that was selected!
+        if (!mPendingCards.GetAllCards().contains(c)) { //we selected a single card that was not in the selection
+            if (!mPendingCards.GetAllCards().isEmpty()) //we have pending cards that need to be unselected
+                mPendingCards.Clear();
+            mPendingCards.AddCardAndTransfer(c);
         }
-        else { //we are playing a single card?
-            mPendingCards.GetAllCards().clear();
-            mPendingCards.AddCard(c);
+        else { //we selected a card from the current selection
+            mPendingCards.TransferQueueToPlay();
         }
-        mPendingCards.DoPlay();
     }
 
     public void SelectAllPlayCard(Card c) {
@@ -211,15 +227,15 @@ public class Hand implements Serializer{
             if (card.getRank() == c.getRank())
                 mPendingCards.AddCard(card);
         }
-        if (mPendingCards.GetAllCards().size() > 0) {
+        if (!mPendingCards.GetAllCards().isEmpty()) {
             Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_MULTIPLE_CARDS, getID());
         }
     }
 
     public void UnSelectAllPlayCard() {
-        if (mPendingCards.GetAllCards().size() > 0) {
+        if (!mPendingCards.GetAllCards().isEmpty()) {
             Director.instance().getEventSystem().Fire(EventSystem.EventType.UNSELECT_MULTIPLE_CARDS, getID());
-            mPendingCards.GetAllCards().clear();
+            mPendingCards.Clear();
         }
     }
 
@@ -228,7 +244,6 @@ public class Hand implements Serializer{
 
     public PendingCards GetPlayCards() {
         return mPendingCards;
-        //return mPlayCards;
     }
     public List<Card> GetDiscardCards() {
         return mDiscardCards;
@@ -250,24 +265,25 @@ public class Hand implements Serializer{
         GetPlayCards().Clear();
         mID = hand.getId();
         mType = HandType.values()[hand.getType()];
-
         for (CardsProtos.Card protoCard : hand.getActiveCardsList()) {
-            GetActiveCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            GetActiveCards().add(Card.GetCard(protoCard));
         }
         for (CardsProtos.Card protoCard : hand.getDiscarCardsList()) {
-            GetDiscardCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            GetDiscardCards().add(Card.GetCard(protoCard));
         }
         for (CardsProtos.Card protoCard : hand.getPlayCardsList()) {
-            GetPlayCards().GetAllCards().add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            GetPlayCards().AddCard(Card.GetCard(protoCard));
         }
         if (hand.hasPlayCardsCommitted() && hand.getPlayCardsCommitted())
-            GetPlayCards().DoPlay();
+            GetPlayCards().TransferQueueToPlay();
         for (CardsProtos.PositionCard protoCard : hand.getHiddenCardsList()) {
-            mHiddenCards[protoCard.getPosition()] = Card.GetCard(Card.Suit.values()[protoCard.getCard().getSuit()], Card.Rank.values()[protoCard.getCard().getRank()]);
+            mHiddenCards[protoCard.getPosition()] = Card.GetCard(protoCard.getCard());
         }
         for (CardsProtos.PositionCard protoCard : hand.getEndCardsList()) {
-            mEndCards[protoCard.getPosition()] = Card.GetCard(Card.Suit.values()[protoCard.getCard().getSuit()], Card.Rank.values()[protoCard.getCard().getRank()]);
+            mEndCards[protoCard.getPosition()] = Card.GetCard(protoCard.getCard());
         }
+        if (hand.hasPlayCardsCommitted() && hand.getPlayCardsCommitted())
+            GetPlayCards().TransferQueueToPlay();
     }
 
     @Override

@@ -44,7 +44,7 @@ public class InPlay implements Serializer{
         CardsProtos.Played played = (CardsProtos.Played) msg;
         mCards.clear();
         for (CardsProtos.Card protoCard : played.getCardsList()) {
-            mCards.add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            mCards.add(Card.GetCard(protoCard));
         }
     }
 

@@ -80,7 +80,7 @@ public class Deck implements Serializer{
         CardsProtos.Deck deck = (CardsProtos.Deck) msg;
         mCards.clear();
         for (CardsProtos.Card protoCard : deck.getCardsList()) {
-            mCards.add(Card.GetCard(Card.Suit.values()[protoCard.getSuit()], Card.Rank.values()[protoCard.getRank()]));
+            mCards.add(Card.GetCard(protoCard));
         }
     }
 }
