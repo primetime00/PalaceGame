@@ -4,7 +4,6 @@ import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
-import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.ArrayList;
 import java.util.List;

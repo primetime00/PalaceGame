@@ -2,8 +2,6 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.tasks.PlaceEndCard;
-import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**

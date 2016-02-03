@@ -27,7 +27,7 @@ public class DealCard extends State {
         DEALING,
         ACCEPTING,
         DONE
-    };
+    }
 
 
     public DealCard(State parent, Table table) {

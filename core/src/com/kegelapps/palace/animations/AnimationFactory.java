@@ -1,7 +1,5 @@
 package com.kegelapps.palace.animations;
 
-import aurelienribon.tweenengine.BaseTween;
-import aurelienribon.tweenengine.TweenCallback;
 import com.kegelapps.palace.engine.Logic;
 
 /**

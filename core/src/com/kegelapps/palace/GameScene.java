@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.DrawPlayCard;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.TableView;

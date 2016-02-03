@@ -1,18 +1,11 @@
 package com.kegelapps.palace.animations;
 
 import aurelienribon.tweenengine.*;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardCamera;
-import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.HandUtils;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.tween.CameraAccessor;
-import com.kegelapps.palace.tween.CardAccessor;
 
 /**
  * Created by Ryan on 12/24/2015.

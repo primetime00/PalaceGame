@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
-import com.kegelapps.palace.*;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.AnimationBuilder;
 import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.animations.CameraAnimation;
@@ -25,9 +26,6 @@ import com.kegelapps.palace.events.EventSystem;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.addAction;
 
 /**
  * Created by keg45397 on 12/9/2015.

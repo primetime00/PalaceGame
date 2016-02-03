@@ -1,10 +1,9 @@
 package com.kegelapps.palace.engine;
+
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.states.tasks.DealCard;
-import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.*;
+import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
 import java.util.List;

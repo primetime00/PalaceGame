@@ -9,8 +9,9 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.DeckView;
 
+import static com.badlogic.gdx.math.Interpolation.exp5Out;
+import static com.badlogic.gdx.math.Interpolation.swingIn;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
-import static com.badlogic.gdx.math.Interpolation.*;
 
 
 /**

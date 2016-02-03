@@ -5,13 +5,10 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.CardsProtos;
-import com.kegelapps.palace.protos.StatusProtos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Card implements Comparable<Card>, Serializer {
@@ -95,8 +92,7 @@ public class Card implements Comparable<Card>, Serializer {
     public boolean equals(Object obj) {
         if (!(obj instanceof Card)) return false;
         if (((Card) obj).getSuit() != getSuit()) return false;
-        if (((Card) obj).getRank() != getRank()) return false;
-        return true;
+        return ((Card) obj).getRank() == getRank();
     }
 
     public String getSuitString() {

@@ -61,7 +61,7 @@ public class Hand implements Serializer{
 
         public List<Card> GetPendingCards() {
             if (mReadyCards == null)
-                return Collections.<Card>emptyList();
+                return Collections.emptyList();
             return mReadyCards;
         }
 

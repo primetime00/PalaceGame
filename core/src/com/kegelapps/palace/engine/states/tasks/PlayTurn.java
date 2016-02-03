@@ -2,13 +2,10 @@ package com.kegelapps.palace.engine.states.tasks;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.protos.CardsProtos;
-import com.kegelapps.palace.protos.StateProtos;
 
 /**
  * Created by keg45397 on 2/2/2016.

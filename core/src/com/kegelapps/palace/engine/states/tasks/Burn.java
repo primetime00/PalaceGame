@@ -3,8 +3,6 @@ package com.kegelapps.palace.engine.states.tasks;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.graphics.TableView;
-import com.kegelapps.palace.protos.TableProtos;
 
 /**
  * Created by keg45397 on 2/3/2016.

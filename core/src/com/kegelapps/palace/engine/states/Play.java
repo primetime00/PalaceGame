@@ -3,8 +3,6 @@ package com.kegelapps.palace.engine.states;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.tasks.PlayCPUTurn;
-import com.kegelapps.palace.engine.states.tasks.PlayHumanTurn;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**

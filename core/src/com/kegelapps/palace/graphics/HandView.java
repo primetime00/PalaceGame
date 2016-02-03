@@ -9,18 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.animations.AnimationBuilder;
 import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
-
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.parallel;
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateTo;
 
 /**
  * Created by keg45397 on 12/9/2015.

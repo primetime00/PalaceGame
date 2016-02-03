@@ -1,7 +1,6 @@
 package com.kegelapps.palace.tween;
 
 import aurelienribon.tweenengine.TweenAccessor;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.kegelapps.palace.graphics.CardCamera;
 
 /**

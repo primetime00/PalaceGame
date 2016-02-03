@@ -1,11 +1,8 @@
 package com.kegelapps.palace;
 
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ArrayMap;
-
-import java.util.Iterator;
 
 /**
  * Created by keg45397 on 12/8/2015.

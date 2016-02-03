@@ -6,9 +6,6 @@ import com.kegelapps.palace.engine.Serializer;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Ryan on 12/23/2015.
  */

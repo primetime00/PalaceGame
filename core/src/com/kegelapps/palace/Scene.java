@@ -1,7 +1,6 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.graphics.CardCamera;

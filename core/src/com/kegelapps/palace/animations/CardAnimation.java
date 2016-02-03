@@ -5,15 +5,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
-import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.*;
 import com.kegelapps.palace.tween.CardAccessor;
-
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.removeAction;
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 /**
  * Created by Ryan on 12/21/2015.
