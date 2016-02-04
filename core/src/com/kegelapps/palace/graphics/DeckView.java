@@ -14,6 +14,7 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.graphics.utils.CardUtils;
 
 /**
  * Created by keg45397 on 12/9/2015.

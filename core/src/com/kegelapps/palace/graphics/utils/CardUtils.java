@@ -1,4 +1,4 @@
-package com.kegelapps.palace.graphics;
+package com.kegelapps.palace.graphics.utils;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;

@@ -39,6 +39,7 @@ public class PlayHumanTurn extends PlayTurn {
 
     @Override
     protected void OnFirstRun() {
+        super.OnFirstRun();
         mBurnState = 0;
         mPlayCard = null;
         mTapped = false;

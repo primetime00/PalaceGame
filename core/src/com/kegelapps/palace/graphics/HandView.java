@@ -17,6 +17,8 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.graphics.utils.HandUtils;
 
 /**
  * Created by keg45397 on 12/9/2015.

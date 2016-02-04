@@ -1,14 +1,12 @@
 package com.kegelapps.palace.graphics;
 
 import aurelienribon.tweenengine.*;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.tween.MessageBandAccessor;
 
 /**
@@ -75,9 +73,10 @@ public class MessageBandView extends Actor implements TweenCallback{
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        OrthographicCamera cam = (OrthographicCamera) Director.instance().getScene().getCamera();
+        Camera cam = this.getStage().getCamera();
+        //OrthographicCamera cam = (OrthographicCamera) Director.instance().getScene().getCamera();
         if (cam == null)
-            return;
+            throw new RuntimeException("MessageBandView has a null camera!");
         if (mChanged) {
             mChanged = false;
             mCenter.set(mWindowX, mWindowY, 0);

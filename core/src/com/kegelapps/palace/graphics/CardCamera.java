@@ -42,5 +42,10 @@ public class CardCamera extends OrthographicCamera {
         SetSide(side);
     }
 
+    public CameraSide GetSide() {
+        return mCurrentSide;
+    }
+
+
 
 }

@@ -38,6 +38,11 @@ public class InPlay implements Serializer{
         Director.instance().getEventSystem().Fire(EventSystem.EventType.INPLAY_CARDS_CHANGED);
     }
 
+    public void Burn() {
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS);
+        mCards.clear();
+    }
+
     @Override
     public void ReadBuffer(Message msg) {
         CardsProtos.Played played = (CardsProtos.Played) msg;

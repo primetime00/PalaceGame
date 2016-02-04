@@ -3,7 +3,7 @@ package com.kegelapps.palace;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.kegelapps.palace.engine.Logic;
-import com.kegelapps.palace.graphics.CardUtils;
+import com.kegelapps.palace.graphics.utils.CardUtils;
 
 public class Palace extends ApplicationAdapter {
 	GameScene mGameScene;

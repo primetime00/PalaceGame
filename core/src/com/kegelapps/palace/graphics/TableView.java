@@ -11,10 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Input;
-import com.kegelapps.palace.animations.AnimationBuilder;
-import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.animations.CameraAnimation;
-import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
@@ -23,6 +20,8 @@ import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.graphics.utils.HandUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,11 +74,12 @@ public class TableView extends Group implements Input.BoundObject {
         mPixmap.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
         mBackground = new Texture(mPixmap);
         onScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        addActor(mDeck);
-        addActor(mPlayView);
         for (HandView hView : mHands){
             addActor(hView);
         }
+        addActor(mDeck);
+        addActor(mPlayView);
+
 
 
         createTableEvents();
@@ -225,16 +225,34 @@ public class TableView extends Group implements Input.BoundObject {
                 }
                 Hand hand =  (Hand) params[1];
 
-                CardView cardView = CardView.getCardView((Card) params[0]);
+                Card c = (Card) params[0];
+                CardView cardView = CardView.getCardView(c);
 
                 cardView.remove();
                 if (mPlayView.findActor(cardView.getName()) == null)
                     mPlayView.addActor(cardView);
 
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
-                killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlaySuccessCard()).build().Start();
+                //are we playing a burn?
+                boolean isBurnPlay = c.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
 
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
+                builder.killPreviousAnimation(cardView);
+                Animation cardAnimation = null, cameraZoomAnimation = null;
+                if (!isBurnPlay) {
+                    cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessCard()).build();
+                    cardAnimation.Start();
+                }
+                else {
+                    cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessBurnCard()).build();
+
+                    cameraZoomAnimation = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
+                            setPause(true).setDescription("Zoom to play cards").setTable(TableView.this).setCamera(mCamera).
+                            setCameraSide(CardCamera.CameraSide.UNKNOWN).setTweenCalculator(new CameraAnimation.ZoomToPlayCards(0.75f, 1.0f)).build();
+
+                    cameraZoomAnimation.Start();
+                    cardAnimation.Start();
+                }
                 mHands.get(hand.getID()).OrganizeCards(true);
             }
         };
@@ -372,7 +390,7 @@ public class TableView extends Group implements Input.BoundObject {
         throw new RuntimeException("Hand side is unknown!");
     }
 
-    CardCamera getCamera() {
+    public CardCamera getCamera() {
         return mCamera;
     }
 

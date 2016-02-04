@@ -8,10 +8,16 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.animations.AnimationBuilder;
 import com.kegelapps.palace.animations.AnimationFactory;
+import com.kegelapps.palace.animations.CameraAnimation;
 import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
+import com.kegelapps.palace.engine.Logic;
+import com.kegelapps.palace.engine.states.Play;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.graphics.utils.HandUtils;
 
 /**
  * Created by Ryan on 1/25/2016.
@@ -50,11 +56,26 @@ public class InPlayView extends Group implements ReparentViews {
                 if ( !(getParent() instanceof TableView) )
                     throw new RuntimeException("Cannot burn cards without a TableView parent");
                 TableView table = (TableView) getParent();
-                for (Card c : mInPlayCards.GetCards()) {
+                Play pState = (Play) Logic.get().GetMainState().getState(State.Names.PLAY);
+                if (pState == null)
+                    throw new RuntimeException("Burn Animation requires Play state to be active!");
+                CardCamera.CameraSide side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(pState.getCurrentPlayer(), table));
+                int cardSize = mInPlayCards.GetCards().size();
+                for (int i=0; i<cardSize; ++i) {
+                    Card c = mInPlayCards.GetCards().get(i);
                     CardView cv = CardView.getCardView(c);
-                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Burning cards").setTable(table).setCard(cv).setCamera(table.getCamera())
-                            .setTweenCalculator(new CardAnimation.BurnCard()).build().Start();
+                    AnimationBuilder burnBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    burnBuilder.setPause(true).setDescription("Burning cards").setTable(table).setCard(cv).setCamera(table.getCamera())
+                            .setTweenCalculator(new CardAnimation.BurnCard());
+
+                    if (i == cardSize-1) { //this is the last card
+                        AnimationBuilder cameraBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                        cameraBuilder.setPause(true).setDescription("Move Back to hand").setTable(table).setCamera(table.getCamera()).
+                                setCameraSide(side).setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 0.5f));
+
+                        burnBuilder.setNextAnimation(cameraBuilder.build());
+                    }
+                    burnBuilder.build().Start();
                 }
             }
         });

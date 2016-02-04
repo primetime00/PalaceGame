@@ -1,12 +1,18 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Logic;
+import com.kegelapps.palace.engine.states.Deal;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.tasks.Burn;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageBandView;
+import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 
 /**
@@ -17,7 +23,7 @@ public class GameScene extends Scene {
     private Logic logic;
     private TableView tableView;
 
-    private MessageBandView mMessageBand;
+    private MessageStage mMessageStage;
 
     public GameScene() {
         super();
@@ -32,7 +38,7 @@ public class GameScene extends Scene {
     private void init() {
         logic = Logic.get();
         tableView = new TableView(logic.GetTable(), getCardCamera());
-        mMessageBand = new MessageBandView();
+        mMessageStage = new MessageStage(new ScreenViewport());
         addActor(tableView);
 
         createEvents();
@@ -49,16 +55,20 @@ public class GameScene extends Scene {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
                 if ((params[0] instanceof SelectEndCards)) {
-                    Logic.get().SaveState();
+                    //Logic.get().SaveState();
                 }
                 if ((params[0] instanceof SelectEndCards)) {
                     if (once == false) {
-                        mMessageBand.showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE);
+                        mMessageStage.getMessageBand().showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE);
                         once = true;
                         state = true;
                     }
                 }
+                if ((params[0] instanceof Burn)) {
+                    mMessageStage.getMessageBand().showMessage("BURN!!", 1.0f, Color.FIREBRICK);
+                }
             }
+
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
     }
@@ -75,12 +85,10 @@ public class GameScene extends Scene {
 
     @Override
     public void draw() {
+        getCardCamera().update();
         super.draw();
-        if (mMessageBand.getText().length() > 0) {
-            getBatch().begin();
-            mMessageBand.draw(getBatch(), 1.0f);
-            getBatch().end();
-        }
+        //lets draw the messageband hud
+        mMessageStage.draw();
     }
 
     public Logic getLogic() {

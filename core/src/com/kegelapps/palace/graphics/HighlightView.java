@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.tween.HighlightAccessor;
 
 /**

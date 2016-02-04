@@ -84,7 +84,7 @@ public class Table  implements Serializer{
     }
 
     public void Burn() {
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS);
+        mPlayCards.Burn();
     }
 
 

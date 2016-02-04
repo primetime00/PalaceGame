@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.graphics.*;
+import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.tween.CardAccessor;
 
 /**
@@ -273,6 +275,13 @@ public class CardAnimation extends Animation {
 
     static public class PlaySuccessCard implements AnimationBuilder.TweenCalculator {
 
+        protected float mDuration, mFlipDuration;
+
+        public PlaySuccessCard() {
+            mDuration = 0.3f;
+            mFlipDuration = mDuration / 3.0f;
+        }
+
         @Override
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             final CardView mCard = builder.getCard();
@@ -288,7 +297,7 @@ public class CardAnimation extends Animation {
             animation.beginParallel();
             animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
             TweenEquation eq = TweenEquations.easeInOutQuart;
-            float duration = 0.3f;
+            float duration = mDuration;
             animation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(pos_x, pos_y));
             switch (mHandID) {
                 default:
@@ -315,8 +324,16 @@ public class CardAnimation extends Animation {
                 public void onEvent(int type, BaseTween<?> source) {
                     mCard.setSide(CardView.Side.FRONT);
                 }
-            }).delay(duration / 3.0f)).end();
+            }).delay(mFlipDuration)).end();
             return animation;
+        }
+    }
+
+    static public class PlaySuccessBurnCard extends PlaySuccessCard {
+
+        public PlaySuccessBurnCard() {
+            mDuration = 1.0f;
+            mFlipDuration = 0.3f / 3.0f;
         }
     }
 
@@ -412,8 +429,15 @@ public class CardAnimation extends Animation {
             float y = (float) (length * Math.sin(Math.toRadians(angle)));
             Timeline animation = Timeline.createSequence();
             animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
-
+            animation.delay(0.5f);
             animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, 1.5f).target(x, y).ease(TweenEquations.easeInOutQuad));
+            animation.push(Tween.call(new TweenCallback() { //after the animation, we will remove the card!
+                @Override
+                public void onEvent(int type, BaseTween<?> source) {
+                    mCard.remove();
+                }
+            }));
+
             return animation;
         }
     }

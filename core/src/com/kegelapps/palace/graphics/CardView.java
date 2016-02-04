@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.graphics.utils.CardUtils;
 
 /**
  * Created by keg45397 on 12/8/2015.
