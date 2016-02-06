@@ -47,6 +47,8 @@ public class AnimationBuilder {
         return mHandID;
     }
 
+    public float getStartDelay() { return mStartDelay;}
+
     public void setStartDelay(float delay) {
         mStartDelay = delay;
     }

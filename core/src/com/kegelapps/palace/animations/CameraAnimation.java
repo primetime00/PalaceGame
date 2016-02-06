@@ -27,7 +27,7 @@ public class CameraAnimation extends Animation {
         this.mTable = table;
     }
 
-    static public class MoveCamera implements AnimationBuilder.TweenCalculator {
+    static public class MoveCamera extends TweenProcessor {
 
         float mX, mY, mZoom;
         float mDuration;
@@ -43,11 +43,11 @@ public class CameraAnimation extends Animation {
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             CardCamera mCamera = builder.getCamera();
             CardCamera.CameraSide mSide = builder.getCameraSide();
-            Timeline animation = Timeline.createParallel();
-            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
-            animation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(mX,mY));
-            animation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
-            return animation;
+            mAnimation.beginParallel();
+            mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(mX,mY));
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
+            return mAnimation.end();
         }
     }
 
