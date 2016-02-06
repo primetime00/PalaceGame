@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
@@ -91,7 +92,7 @@ public class Hand implements Serializer{
     }
 
 
-    public Hand(int id, HandType type, Deck deck) {
+    public Hand(int id, HandType type) {
         mID = id;
         mType = type;
         mHiddenCards = new Card[3];
@@ -256,6 +257,34 @@ public class Hand implements Serializer{
         }
         return false;
     }
+
+    public Card FindRank(Card.Rank rank) {
+        for (Card c : GetActiveCards()) {
+            if (c.getRank() == rank)
+                return c;
+        }
+        return null;
+    }
+
+
+    public void DrawEndTurnCards(Deck deck) {
+        if (deck.GetCards().isEmpty())
+            return;
+        int size = 3 - GetActiveCards().size();
+        if (size <= 0) //we don't need cards right now
+            return;
+        List<Card> cards = new ArrayList<>();
+        for (int i=0; i<size; ++i) {
+            Card c = deck.Draw();
+            if (c == null) //out of cards
+                return;
+            cards.add(c);
+        }
+        GetActiveCards().addAll(cards);
+        Collections.sort(GetActiveCards());
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_TURN_END_CARDS, getID(), cards);
+    }
+
 
     @Override
     public void ReadBuffer(Message msg) {

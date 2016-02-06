@@ -66,18 +66,17 @@ public class DealCard extends State {
         switch (mCardState) {
             default:
             case DEALING:
-                System.out.print("Dealing " + (mHidden ? "hidden" : "shown") + " card to player " + mHand.getID() + "\n");
                 mCard = mDeck.Draw();
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_CARD, mCard, mHand);
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_CARD, mCard, mHand); //triggers a deal animation
                 mCardState = CardState.ACCEPTING;
                 return false;
             case ACCEPTING:
                 if (mCard == null)
                     throw new NullPointerException("Card is null!");
                 if (mHidden)
-                    mHand.AddHiddenCard(mCard);
+                    mHand.AddHiddenCard(mCard); //triggers lining up the hidden card
                 else
-                    mHand.AddActiveCard(mCard);
+                    mHand.AddActiveCard(mCard); //triggers lining up the active
                 mCardState = CardState.DONE;
                 return false;
             case DONE:

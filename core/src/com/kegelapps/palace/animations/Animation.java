@@ -6,13 +6,15 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import com.kegelapps.palace.Director;
 
+import java.util.List;
+
 /**
  * Created by Ryan on 2/1/2016.
  */
 public class Animation implements TweenCallback, AnimationBuilder.AnimationBuilderHelpers {
     protected AnimationFactory.AnimationType mType;
     protected boolean mPauseLogic = false;
-    private AnimationStatus mStatusListener;
+    private List<AnimationStatus> mStatusListeners;
     protected BaseTween<Timeline> mTimeLineAnimation;
     protected BaseTween<Tween> mTweenAnimation;
     protected Animation mChild;
@@ -23,9 +25,9 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         return mPauseLogic;
     }
 
-    public Animation(boolean pauseLogic, AnimationStatus listener, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killPrevious) {
+    public Animation(boolean pauseLogic, List<AnimationStatus> listeners, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killPrevious) {
         mPauseLogic = pauseLogic;
-        mStatusListener = listener;
+        mStatusListeners = listeners;
         mTimeLineAnimation = timeLineAnimation;
         mChild = child;
         mDescription = description;
@@ -37,39 +39,36 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
 
     public Animation(Animation ani) {
         mPauseLogic = ani.mPauseLogic;
-        mStatusListener = ani.mStatusListener;
+        mStatusListeners = ani.mStatusListeners;
         mTimeLineAnimation = ani.mTimeLineAnimation;
         mChild = ani.mChild;
         mType = ani.mType;
         mKillPreviousAnimation = ani.mKillPreviousAnimation;
     }
 
+    public BaseTween<Timeline> getTimeLineAnimation() { return mTimeLineAnimation;}
 
-    public Animation setPause(boolean pause) {
-        mPauseLogic = pause;
-        return this;
+    public static class AnimationStatusListener implements AnimationStatus {
+
+        @Override
+        public void onBegin(Animation animation) {
+
+        }
+
+        @Override
+        public void onEnd(Animation animation) {
+
+        }
     }
 
-    public Animation setDescription(String desc) {
-        mDescription = desc;
-        return this;
+
+    public List<AnimationStatus> getStatusListeners() {
+        return mStatusListeners;
     }
 
-    public String getDescription() {
-        return mDescription;
-    }
-
-
-    public AnimationStatus getStatusListener() {
-        return mStatusListener;
-    }
-
-    public void setStatusListener(AnimationStatus mStatus) {
-        this.mStatusListener = mStatus;
-    }
-
-    public void setNextAnimation(Animation ani) {
-        mChild = ani;
+    public void addStatusListener(AnimationStatus mStatus) {
+        if (!mStatusListeners.contains(mStatus))
+            mStatusListeners.add(mStatus);
     }
 
     public void Start() {
@@ -86,14 +85,21 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
     @Override
     public void onEvent(int type, BaseTween<?> source) {
         if (type == TweenCallback.BEGIN) {
-            if (mStatusListener != null)
-                mStatusListener.onBegin(this);
+            if (mStatusListeners != null && !mStatusListeners.isEmpty()) {
+                for (AnimationStatus s : mStatusListeners) {
+                    s.onBegin(this);
+                }
+            }
             onBegin();
         }
         if (type == TweenCallback.END) {
             onEnd();
-            if (mStatusListener != null)
-                mStatusListener.onEnd(this);
+            if (mStatusListeners != null && !mStatusListeners.isEmpty()) {
+                for (AnimationStatus s : mStatusListeners) {
+                    s.onEnd(this);
+                }
+                mStatusListeners.clear();
+            }
             if (mChild != null)
                 mChild.Start();
         }
@@ -113,7 +119,7 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         builder.setDescription(mDescription);
         builder.setPause(mPauseLogic);
         builder.setNextAnimation(mChild);
-        builder.setStatusListener(mStatusListener);
+        builder.getStatusListeners().addAll(mStatusListeners);
         return builder;
     }
 }

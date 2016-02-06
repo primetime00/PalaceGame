@@ -8,6 +8,8 @@ import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.utils.InPlayUtils;
 import com.kegelapps.palace.tween.CameraAccessor;
 
+import java.util.List;
+
 /**
  * Created by Ryan on 12/24/2015.
  */
@@ -18,8 +20,8 @@ public class CameraAnimation extends Animation {
     private CardCamera mCamera;
     private TableView mTable;
 
-    public CameraAnimation(boolean pauseLogic, AnimationStatus listener, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killPrevious, CardCamera mCamera, CardCamera.CameraSide mSide, TableView table) {
-        super(pauseLogic, listener, timeLineAnimation, child, description, type, killPrevious);
+    public CameraAnimation(boolean pauseLogic, List<AnimationStatus> listeners, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killPrevious, CardCamera mCamera, CardCamera.CameraSide mSide, TableView table) {
+        super(pauseLogic, listeners, timeLineAnimation, child, description, type, killPrevious);
         this.mCamera = mCamera;
         this.mSide = mSide;
         this.mTable = table;

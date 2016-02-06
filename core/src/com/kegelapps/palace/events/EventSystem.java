@@ -25,7 +25,7 @@ public class EventSystem implements Disposable{
         SELECT_MULTIPLE_CARDS,
         INPLAY_CARDS_CHANGED,
         UNSELECT_MULTIPLE_CARDS,
-        CHANGE_TURN, BURN_CARDS,
+        CHANGE_TURN, BURN_CARDS, DRAW_TURN_END_CARDS,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;

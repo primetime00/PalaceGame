@@ -62,10 +62,11 @@ message PlaceEndCardState {
     }
 }
 
-message PlayCPUTurnState {
+message PlayTurnState {
     extend State {
-        optional PlayCPUTurnState state = 106;
+        optional PlayTurnState state = 106;
     }
+    required int32 turnState = 1;
 }
 
 message PlayHumanTurnState {
@@ -74,7 +75,6 @@ message PlayHumanTurnState {
     }
     optional Card playCard = 1;
     optional bool tapped = 2;
-    optional int32 burnState = 3;
 }
 
 message TapToStartState {

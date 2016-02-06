@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.animations.Animation;
 import com.kegelapps.palace.animations.AnimationBuilder;
 import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.animations.CardAnimation;
@@ -19,6 +20,9 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -301,6 +305,43 @@ public class HandView extends Group implements ReparentViews {
                     }
                 }
                 OrganizeCards(true, true, true, true);
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.DRAW_TURN_END_CARDS) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof ArrayList)) {
+                    throw new IllegalArgumentException("Invalid parameters for DRAW_TURN_END_CARDS");
+                }
+                int id = (int) params[0];
+                if (getHand().getID() != id)
+                    return;
+                if (!(getParent() instanceof TableView)) {
+                    throw new RuntimeException("Hand must be in a TableView!");
+                }
+                TableView table = (TableView) getParent();
+                List<Card> cards = (List<Card>) params[1];
+                for (int i = 0; i< cards.size(); ++i) {
+                    Card c = cards.get(i);
+                    CardView cardView = CardView.getCardView(c);
+                    cardView.remove();
+                    addActor(cardView);
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(true).setDescription("Drawing and End card").setTable(table).setCard(cardView).setHandID(id);
+                    builder.setStartDelay(0.4f);
+                    if (i == cards.size()-1) { //last card
+                        builder.addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                OrganizeCards(true, true, false, false);
+                            }
+                        });
+                    }
+                    builder.setTweenCalculator(new CardAnimation.DrawEndTurnCard());
+                    builder.build().Start();
+
+                }
             }
         });
     }

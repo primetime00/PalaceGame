@@ -39,7 +39,7 @@ public class Table  implements Serializer{
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
         for (int i=0; i<numberOfPlayers; ++i) {
-            mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU, mDeck));
+            mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU));
         }
     }
 
@@ -87,6 +87,14 @@ public class Table  implements Serializer{
         mPlayCards.Burn();
     }
 
+    public void DrawEndTurnCards(int player) {
+        Hand h = mHands.get(player);
+        if (h == null)
+            throw new RuntimeException(String.format("Could not find the hand %d", player));
+        h.DrawEndTurnCards(mDeck);
+    }
+
+
 
     @Override
     public void ReadBuffer(Message msg) {
@@ -109,4 +117,6 @@ public class Table  implements Serializer{
         }
         return tableBuilder.build();
     }
+
+
 }

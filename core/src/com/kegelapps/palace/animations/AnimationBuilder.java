@@ -6,6 +6,9 @@ import com.kegelapps.palace.graphics.CardCamera;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.TableView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Ryan on 2/1/2016.
  */
@@ -14,10 +17,11 @@ public class AnimationBuilder {
     private AnimationFactory.AnimationType mAnimationType;
 
     private boolean mPauseLogic = false;
-    private AnimationStatus mStatusListener;
+    private List<AnimationStatus> mStatusListeners;
     private Animation mChild;
     private String mDescription;
     private Object mKillPreviousAnimation;
+    private float mStartDelay;
     private TweenCalculator mCalc;
 
     //Card specific animation
@@ -43,6 +47,10 @@ public class AnimationBuilder {
         return mHandID;
     }
 
+    public void setStartDelay(float delay) {
+        mStartDelay = delay;
+    }
+
     public interface AnimationBuilderHelpers {
         AnimationBuilder toBuilder();
     }
@@ -61,7 +69,9 @@ public class AnimationBuilder {
 
     public AnimationBuilder(AnimationFactory.AnimationType type) {
         mAnimationType = type;
+        mStatusListeners = new ArrayList<>();
         mKillPreviousAnimation = false;
+        mStartDelay = 0.0f;
     }
 
 
@@ -75,9 +85,14 @@ public class AnimationBuilder {
         return this;
     }
 
-    public AnimationBuilder setStatusListener(AnimationStatus mStatus) {
-        this.mStatusListener = mStatus;
+    public AnimationBuilder addStatusListener(AnimationStatus mStatus) {
+        if (!mStatusListeners.contains(mStatus))
+            mStatusListeners.add(mStatus);
         return this;
+    }
+
+    public List<AnimationStatus> getStatusListeners() {
+        return mStatusListeners;
     }
 
     public AnimationBuilder setCard(CardView card) {
@@ -128,10 +143,10 @@ public class AnimationBuilder {
         Animation ani = null;
         switch (mAnimationType) {
             case CARD:
-                ani = new CardAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
+                ani = new CardAnimation(mPauseLogic, mStatusListeners, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
                 break;
             case CAMERA:
-                ani = new CameraAnimation(mPauseLogic, mStatusListener, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
+                ani = new CameraAnimation(mPauseLogic, mStatusListeners, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
                 break;
             default:
                 break;
@@ -144,7 +159,7 @@ public class AnimationBuilder {
 
     public AnimationBuilder fromBuilder(AnimationBuilder builder) {
         mPauseLogic = false;
-        mStatusListener = builder.mStatusListener;
+        mStatusListeners = builder.mStatusListeners;
         mCalc = builder.mCalc;
         mChild = builder.mChild;
         mDescription = builder.mDescription;

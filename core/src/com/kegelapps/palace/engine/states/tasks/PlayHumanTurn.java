@@ -18,43 +18,26 @@ public class PlayHumanTurn extends PlayTurn {
 
     private Card mPlayCard;
     private boolean mTapped;
-    private int mBurnState;
-
 
     public PlayHumanTurn(State parent, Table table) {
         super(parent, table);
         mPlayCard = null;
         mTapped = false;
-        mBurnState = 0;
-
-        State s = mChildrenStates.addState(Names.BURN_CARDS, this);
-        s.setStateListener(new StateListener() {
-            @Override
-            public void onDoneState() {
-                mBurnState = 0;
-            }
-        });
-
     }
 
     @Override
     protected void OnFirstRun() {
         super.OnFirstRun();
-        mBurnState = 0;
         mPlayCard = null;
         mTapped = false;
     }
 
     @Override
-    protected boolean OnRun() {
-        if (mBurnState == 1) {//burn state
-            mChildrenStates.getState(Names.BURN_CARDS).Execute();
-            return false;
-        }
+    protected boolean DoPlayCard() {
         //normal play state
         boolean hasPlayed =false;
         if (mHand == null)
-            return true;
+            throw new RuntimeException("Hand is null.  It should not be");
         if (mTapped) {
             mHand.GetPlayCards().Clear();
             return true;
@@ -77,7 +60,8 @@ public class PlayHumanTurn extends PlayTurn {
         return hasPlayed;
     }
 
-    private boolean PlayCard(Card activeCard) {
+    @Override
+    protected boolean PlayCard(Card activeCard) {
         Logic.ChallengeResult res = mTable.AddPlayCard(mHand, activeCard);
         switch (res) {
             case SUCCESS:
@@ -93,7 +77,7 @@ public class PlayHumanTurn extends PlayTurn {
                 return false;
             case SUCCESS_BURN: //we've burned the deck, we go again!
                 if (mHand.GetPlayCards().GetPendingCards().isEmpty()) //make sure we aren't playing multiple burns!
-                    mBurnState = 1; //trigger burn state!
+                    mTurnState = TurnState.BURN;
                 mPlayCard = null;
                 return false;
             default: //we failed, we shouldn't reach this state
@@ -135,7 +119,6 @@ public class PlayHumanTurn extends PlayTurn {
         if (mPlayCard != null)
             builder.setPlayCard((CardsProtos.Card) mPlayCard.WriteBuffer());
         builder.setTapped(mTapped);
-        builder.setBurnState(mBurnState);
         s = s.toBuilder().setExtension(StateProtos.PlayHumanTurnState.state, builder.build()).build();
         return s;
     }
@@ -148,8 +131,6 @@ public class PlayHumanTurn extends PlayTurn {
             mPlayCard = Card.GetCard(Card.Suit.values()[playHumanState.getPlayCard().getSuit()], Card.Rank.values()[playHumanState.getPlayCard().getRank()]);
         if (playHumanState.hasTapped())
             mTapped = playHumanState.getTapped();
-        if (playHumanState.hasBurnState())
-            mBurnState = playHumanState.getBurnState();
     }
 
 

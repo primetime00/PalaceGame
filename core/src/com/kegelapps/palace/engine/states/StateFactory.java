@@ -30,7 +30,7 @@ public class StateFactory {
         mRegistry.add(StateProtos.PlayState.state);
         mRegistry.add(StateProtos.DealCardState.state);
         mRegistry.add(StateProtos.PlaceEndCardState.state);
-        mRegistry.add(StateProtos.PlayCPUTurnState.state);
+        mRegistry.add(StateProtos.PlayTurnState.state);
         mRegistry.add(StateProtos.PlayHumanTurnState.state);
         mRegistry.add(StateProtos.TapToStartState.state);
         mStateMap = new HashMap<>();
@@ -96,7 +96,11 @@ public class StateFactory {
             case BURN_CARDS:
                 s = new Burn(parent, mTable);
                 break;
-            default: break;
+            case SELECT_CARDS_FROM_DECK:
+                s = new EndTurnDrawCards(parent, mTable);
+                break;
+            default:
+                throw new RuntimeException("StateFactory cannot find the state! " + stateName);
         }
         if (s == null)
             return null;

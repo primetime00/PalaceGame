@@ -11,6 +11,8 @@ import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.tween.CardAccessor;
 
+import java.util.List;
+
 /**
  * Created by Ryan on 12/21/2015.
  */
@@ -21,8 +23,8 @@ public class CardAnimation extends Animation {
     private int mHandID;
     private TableView mTable;
 
-    public CardAnimation(boolean pauseLogic, AnimationStatus listener, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killObj, CardView mCard, int mHandID, TableView mTable) {
-        super(pauseLogic, listener, timeLineAnimation, child, description, type, killObj);
+    public CardAnimation(boolean pauseLogic, List<AnimationStatus> listeners, BaseTween<Timeline> timeLineAnimation, Animation child, String description, AnimationFactory.AnimationType type, Object killObj, CardView mCard, int mHandID, TableView mTable) {
+        super(pauseLogic, listeners, timeLineAnimation, child, description, type, killObj);
         this.mCard = mCard;
         this.mHandID = mHandID;
         this.mTable = mTable;
@@ -30,7 +32,7 @@ public class CardAnimation extends Animation {
     }
 
     public CardAnimation(CardAnimation ani) {
-        super(ani.mPauseLogic, ani.getStatusListener(), ani.mTimeLineAnimation, ani.mChild, ani.mDescription, ani.mType, ani.mKillPreviousAnimation);
+        super(ani.mPauseLogic, ani.getStatusListeners(), ani.mTimeLineAnimation, ani.mChild, ani.mDescription, ani.mType, ani.mKillPreviousAnimation);
         mCard = ani.mCard;
         mTable = ani.mTable;
         mHandID = ani.mHandID;
@@ -64,13 +66,14 @@ public class CardAnimation extends Animation {
 
     static public class DealToHand implements AnimationBuilder.TweenCalculator {
 
+        protected boolean mRotation = true;
+
         @Override
-        public BaseTween<Timeline> calculate(AnimationBuilder ani) {
-            final CardView mCard = ani.getCard();
-            TableView mTable = ani.getTable();
-            int mHandID = ani.getHandID();
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            final CardView mCard = builder.getCard();
+            TableView mTable = builder.getTable();
+            int mHandID = builder.getHandID();
             Timeline animation = Timeline.createSequence();
-            //animation.setCallback(this);
             animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
 
             animation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
@@ -81,31 +84,33 @@ public class CardAnimation extends Animation {
             float cardSize = mCard.getMaxCardSize();
             int roundSize = MathUtils.round(cardSize) / 10;
             int angleVariation = (MathUtils.random(roundSize) - (roundSize/2))*10;
-            float powerVariation = MathUtils.random(activeRect.getHeight()) - activeRect.getHeight();
-            powerVariation = 0;
-            float rotation = (MathUtils.random(36) - 18)*10;
+            float powerVariation = (hiddenRect.getHeight() - MathUtils.random(hiddenRect.getHeight()))/2.0f;
+            float rotation;
             float duration = 0.5f;
 
+
             animation.beginParallel();
-            switch (hand.getHand().getID()) {
-                default:
-                case 0: //bottom
-                    animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(mTable.getDeck().getX()+angleVariation, hiddenRect.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
-                    animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
-                    break;
-                case 1: //left
-                    animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(hiddenRect.getX() + powerVariation, mTable.getDeck().getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
-                    animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
-                    break;
-                case 2: //top
-                    animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(mTable.getDeck().getX()+angleVariation, hiddenRect.getY() + powerVariation).ease(TweenEquations.easeInOutExpo));
-                    animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
-                    break;
-                case 3: //right
-                    animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(hiddenRect.getX() + powerVariation, mTable.getDeck().getY()+angleVariation).ease(TweenEquations.easeInOutExpo));
-                    animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
-                    break;
+
+            HandUtils.HandSide side = HandUtils.IDtoSide(hand.getHand().getID(), mTable);
+
+            if (mRotation) {
+                rotation = (MathUtils.random(36) - 18)*10;
+            } else {
+                rotation = (side == HandUtils.HandSide.SIDE_TOP || side == HandUtils.HandSide.SIDE_BOTTOM) ? 0.0f : 90.0f;
             }
+
+            float x = 0;
+            float y = 0;
+            if (side == HandUtils.HandSide.SIDE_BOTTOM || side == HandUtils.HandSide.SIDE_TOP) {
+                x = mTable.getDeck().getX() + angleVariation;
+                y = hiddenRect.getY() + (powerVariation * (side == HandUtils.HandSide.SIDE_TOP ? 1 : -1));
+            } else {
+                x = hiddenRect.getX() + (powerVariation * (side == HandUtils.HandSide.SIDE_RIGHT ? 1 : -1));
+                y = mTable.getDeck().getY()+angleVariation;
+            }
+            animation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(x, y).ease(TweenEquations.easeInOutExpo));
+            animation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
+
             animation.end();
             animation.setUserData(hand);
             return animation;
@@ -439,6 +444,12 @@ public class CardAnimation extends Animation {
             }));
 
             return animation;
+        }
+    }
+
+    static public class DrawEndTurnCard extends DealToHand {
+        public DrawEndTurnCard() {
+            mRotation = false;
         }
     }
 

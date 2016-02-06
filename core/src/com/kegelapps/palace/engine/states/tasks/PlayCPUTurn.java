@@ -20,41 +20,32 @@ public class PlayCPUTurn extends PlayTurn {
     }
 
     @Override
-    protected boolean OnRun() {
-        Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
-        if (mHand == null)
-            return true;
+    protected boolean DoPlayCard() {
         if (System.currentTimeMillis() - mTime < 1000)
             return false;
-
+        Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
         //find a card to play
         for (Card c : mHand.GetActiveCards()) {
             Card topCard = mTable.GetTopPlayCard();
             playResult = Logic.get().ChallengeCard(c);
             if (playResult != Logic.ChallengeResult.FAIL) {
-                PlayCard(c);
-                break;
+                return PlayCard(c);
             }
         }
-        switch (playResult) {
-            case FAIL:
-                System.out.print("CPU NEED TO PICK UP!");
-                return false;
-            case SUCCESS:
-                return true;
-            case SUCCESS_AGAIN:
-                return false;
-            case SUCCESS_BURN:
-                return false;
-        }
-        return false;
+        return false; //probably need to pick up!
     }
 
-    private boolean PlayCard(Card card) {
+    @Override
+    protected boolean PlayCard(Card card) {
         Card current = mTable.GetTopPlayCard();
         Logic.ChallengeResult res = mTable.AddPlayCard(mHand, card);
         switch (res) {
             case SUCCESS:
+                if (mHand.ContainsRank(card.getRank())) { //we could play another one...
+                    if (Math.random() > 0.4f)
+                        return PlayCard(mHand.FindRank(card.getRank()));
+                    return true;
+                }
                 return true;
             case SUCCESS_AGAIN:
                 return false;
@@ -76,19 +67,5 @@ public class PlayCPUTurn extends PlayTurn {
         return Names.PLAY_CPU_TURN;
     }
 
-    @Override
-    public Message WriteBuffer() {
-        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
-
-        StateProtos.PlayCPUTurnState.Builder builder = StateProtos.PlayCPUTurnState.newBuilder();
-        s = s.toBuilder().setExtension(StateProtos.PlayCPUTurnState.state, builder.build()).build();
-        return s;
-    }
-
-    @Override
-    public void ReadBuffer(Message msg) {
-        super.ReadBuffer(msg);
-        StateProtos.PlayCPUTurnState selectEndCardState = ((StateProtos.State) msg).getExtension(StateProtos.PlayCPUTurnState.state);
-    }
 
 }

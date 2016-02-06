@@ -31,7 +31,7 @@ public class AnimationFactory implements AnimationStatus {
         AnimationBuilder builder = new AnimationBuilder(type) {
             @Override
             public void onBuild(Animation ani) {
-                ani.setStatusListener(AnimationFactory.get());
+                ani.addStatusListener(AnimationFactory.get());
             }
         };
         return builder;
@@ -60,6 +60,5 @@ public class AnimationFactory implements AnimationStatus {
     public void onEnd(Animation animation) {
         if (animation.isPauseLogic())
             pauseDecrement();
-        animation.setStatusListener(null);
     }
 }
