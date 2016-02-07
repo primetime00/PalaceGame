@@ -5,9 +5,14 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Input;
+import com.kegelapps.palace.animations.Animation;
+import com.kegelapps.palace.animations.AnimationBuilder;
+import com.kegelapps.palace.animations.AnimationFactory;
+import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
@@ -15,6 +20,9 @@ import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -83,7 +91,7 @@ public class DeckView extends Group implements Input.BoundObject {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
-                if ( !(params[0] instanceof TapToStart) ) {
+                if (!(params[0] instanceof TapToStart)) {
                     setHighlight(false);
                     return;
                 }
@@ -95,12 +103,12 @@ public class DeckView extends Group implements Input.BoundObject {
         EventSystem.EventListener mDrawCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DRAW_PLAY_CARD) {
             @Override
             public void handle(Object params[]) {
-                if (params == null || params.length != 1 || !(params[0] instanceof Card) )
+                if (params == null || params.length != 1 || !(params[0] instanceof Card))
                     throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
                 if (mDeck.GetCards().size() <= 4 && mDeckLow == false) { //we just hit 4 cards
                     mDeckLow = true;
                     int cascade = 0;
-                    for (int i = mDeck.GetCards().size()-1; i >=0; --i) {
+                    for (int i = mDeck.GetCards().size() - 1; i >= 0; --i) {
                         Card c = mDeck.GetCards().get(i);
                         CardView cardView = CardView.getCardView(c);
                         cardView.setSide(CardView.Side.BACK);
@@ -128,8 +136,6 @@ public class DeckView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mWaitForPlayerToTap);
 
-
-
     }
 
     public Deck getDeck() {
@@ -140,8 +146,9 @@ public class DeckView extends Group implements Input.BoundObject {
     public void draw(Batch batch, float parentAlpha) {
         if (mDeckLow)
             super.draw(batch, parentAlpha);
-        else
+        else {
             batch.draw(mDeckBack, getX(), getY());
+        }
         if (mHighlightView.isVisible())
             mHighlightView.draw(batch, this);
     }

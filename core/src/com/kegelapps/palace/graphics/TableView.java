@@ -23,7 +23,9 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -310,6 +312,58 @@ public class TableView extends Group implements Input.BoundObject {
                         setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, duration)).build().Start();
             }
         });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.DRAW_TURN_END_CARDS) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof ArrayList)) {
+                    throw new IllegalArgumentException("Invalid parameters for DRAW_TURN_END_CARDS");
+                }
+                int id = (int) params[0];
+                HandView hand = null;
+                for (HandView h : getHands()) {
+                    if (h.getHand().getID() == id)
+                        hand = h;
+                }
+                if (hand == null)
+                    return;
+                final HandView handView = hand;
+                float delay = 0.1f;
+
+                List<Card> cards = (List<Card>) params[1];
+                for (int i = 0; i< cards.size(); ++i) {
+                    Card c = cards.get(i);
+                    final CardView cardView = CardView.getCardView(c);
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(true).setDescription("Drawing and End card").setTable(TableView.this).setCard(cardView).setHandID(id);
+                    builder.setStartDelay(delay, new Runnable() {
+                        @Override
+                        public void run() {
+                            cardView.remove();
+                            cardView.setSide(CardView.Side.BACK);
+                            addActor(cardView);
+                        }
+                    });
+                    delay+=0.4f; //add a delay of 0.4 seconds before the next card is dealt
+                    if (i == cards.size()-1) { //last card
+                        builder.addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                cardView.remove();
+                                if (handView.getHand().getType() == Hand.HandType.HUMAN)
+                                    cardView.setSide(CardView.Side.FRONT);
+                                handView.addActor(cardView);
+                                handView.OrganizeCards(true, true, false, false);
+                            }
+                        });
+                    }
+                    builder.setTweenCalculator(new CardAnimation.DrawEndTurnCard());
+                    builder.build().Start();
+
+                }
+            }
+        });
+
 
     }
 

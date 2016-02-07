@@ -2,24 +2,34 @@ package com.kegelapps.palace.animations;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 
 /**
  * Created by ryan on 2/5/16.
  */
-public class TweenProcessor implements AnimationBuilder.TweenCalculator {
+abstract public class TweenProcessor implements AnimationBuilder.TweenCalculator {
 
     protected Timeline mAnimation;
+    protected float mStartDelay;
+    protected Runnable mStartDelayCallback;
 
-    private BaseTween<Timeline> process(AnimationBuilder builder) {
+    public BaseTween<Timeline> process(final AnimationBuilder builder) {
         mAnimation = Timeline.createSequence();
-        if (builder.getStartDelay() > 0.0f) {
-            mAnimation.pushPause(builder.getStartDelay());
+        mStartDelay = builder.getStartDelay();
+        mStartDelayCallback = builder.getStartDelayCallback();
+        if (mStartDelay > 0.0f) {
+            mAnimation.pushPause(mStartDelay);
         }
+        if (mStartDelayCallback != null) {
+            mAnimation.push(Tween.call(new TweenCallback() {
+                @Override
+                public void onEvent(int type, BaseTween<?> source) {
+                    mStartDelayCallback.run();
+                }
+            }));
+        }
+        mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
         return calculate(builder);
-    }
-
-    @Override
-    public BaseTween<Timeline> calculate(AnimationBuilder builder) {
-        return null;
     }
 }

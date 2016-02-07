@@ -6,10 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.animations.AnimationBuilder;
-import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.animations.CameraAnimation;
-import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
@@ -63,10 +60,16 @@ public class InPlayView extends Group implements ReparentViews {
                 int cardSize = mInPlayCards.GetCards().size();
                 for (int i=0; i<cardSize; ++i) {
                     Card c = mInPlayCards.GetCards().get(i);
-                    CardView cv = CardView.getCardView(c);
+                    final CardView cv = CardView.getCardView(c);
                     AnimationBuilder burnBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     burnBuilder.setPause(true).setDescription("Burning cards").setTable(table).setCard(cv).setCamera(table.getCamera())
-                            .setTweenCalculator(new CardAnimation.BurnCard());
+                            .setTweenCalculator(new CardAnimation.BurnCard())
+                            .addStatusListener(new Animation.AnimationStatusListener() {
+                                @Override
+                                public void onEnd(Animation animation) {
+                                    cv.remove(); //lets remove the card from the table!
+                                }
+                            });
 
                     if (i == cardSize-1) { //this is the last card
                         AnimationBuilder cameraBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);

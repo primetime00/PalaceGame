@@ -106,7 +106,8 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
     }
 
     public void onBegin() {
-
+        if (!mDescription.contains("Lining"))
+            System.out.print("Yay " + mDescription + "\n");
     }
 
     public void onEnd() {

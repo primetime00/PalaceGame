@@ -82,10 +82,10 @@ public class PlayTurn extends State {
                     mTurnState = TurnState.SELECT_CARDS;
                 return false;
             case BURN:
-                mChildrenStates.getState(Names.BURN_CARDS).Execute();
+                mChildrenStates.getState(Names.BURN_CARDS, getID()).Execute();
                 return false;
             case SELECT_CARDS:
-                mChildrenStates.getState(Names.SELECT_CARDS_FROM_DECK).Execute();
+                mChildrenStates.getState(Names.SELECT_CARDS_FROM_DECK, getID()).Execute();
                 return false;
             case DONE:
                 return true;

@@ -70,7 +70,6 @@ public class Table  implements Serializer{
     }
 
     public Logic.ChallengeResult AddPlayCard(Hand hand, Card activeCard) {
-        Card top = GetTopPlayCard();
         Logic.ChallengeResult res = Logic.get().ChallengeCard(activeCard);
         if (res == Logic.ChallengeResult.FAIL) {
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, hand);

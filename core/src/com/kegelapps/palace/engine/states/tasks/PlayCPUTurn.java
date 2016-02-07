@@ -26,18 +26,17 @@ public class PlayCPUTurn extends PlayTurn {
         Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
         //find a card to play
         for (Card c : mHand.GetActiveCards()) {
-            Card topCard = mTable.GetTopPlayCard();
             playResult = Logic.get().ChallengeCard(c);
             if (playResult != Logic.ChallengeResult.FAIL) {
                 return PlayCard(c);
             }
         }
+        System.out.print("I need to pick up a card!\n");
         return false; //probably need to pick up!
     }
 
     @Override
     protected boolean PlayCard(Card card) {
-        Card current = mTable.GetTopPlayCard();
         Logic.ChallengeResult res = mTable.AddPlayCard(mHand, card);
         switch (res) {
             case SUCCESS:
@@ -60,6 +59,11 @@ public class PlayCPUTurn extends PlayTurn {
     protected void OnFirstRun() {
         super.OnFirstRun();
         mTime = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void OnEndRun() {
+        System.out.print("CPU TURN END\n");
     }
 
     @Override

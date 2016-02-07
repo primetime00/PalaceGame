@@ -44,14 +44,13 @@ public class CameraAnimation extends Animation {
             CardCamera mCamera = builder.getCamera();
             CardCamera.CameraSide mSide = builder.getCameraSide();
             mAnimation.beginParallel();
-            mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
             mAnimation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(mX,mY));
             mAnimation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
             return mAnimation.end();
         }
     }
 
-    static public class MoveToSide implements AnimationBuilder.TweenCalculator {
+    static public class MoveToSide extends TweenProcessor {
 
         float mZoom;
         float mDuration;
@@ -69,15 +68,14 @@ public class CameraAnimation extends Animation {
             CardCamera mCamera = builder.getCamera();
             CardCamera.CameraSide mSide = builder.getCameraSide();
             Vector2 pos = HandUtils.GetHandPosition(builder.getTable(), HandUtils.CameraSideToHand(mSide));
-            Timeline animation = Timeline.createParallel();
-            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
-            animation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
-            animation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
-            return animation;
+            mAnimation.beginParallel();
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
+            return mAnimation.end();
         }
     }
 
-    static public class ZoomToPlayCards implements AnimationBuilder.TweenCalculator {
+    static public class ZoomToPlayCards extends TweenProcessor {
 
         float mZoom;
         float mDuration;
@@ -95,11 +93,10 @@ public class CameraAnimation extends Animation {
             CardCamera mCamera = builder.getCamera();
             CardCamera.CameraSide mSide = builder.getCameraSide();
             Vector2 pos = InPlayUtils.getCenterCameraPoint(builder.getTable().getPlayView());
-            Timeline animation = Timeline.createParallel();
-            animation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
-            animation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
-            animation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
-            return animation;
+            mAnimation.beginParallel();
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
+            mAnimation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));
+            return mAnimation.end();
         }
     }
 

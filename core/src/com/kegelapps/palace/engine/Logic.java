@@ -22,10 +22,6 @@ public class Logic {
 
     private static Logic mLogic;
 
-    public enum LogicRequest {
-        PLAY_START,
-        WAIT_TURN
-    }
 
     public enum ChallengeResult {
         FAIL,

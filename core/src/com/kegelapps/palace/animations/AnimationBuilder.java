@@ -18,11 +18,12 @@ public class AnimationBuilder {
 
     private boolean mPauseLogic = false;
     private List<AnimationStatus> mStatusListeners;
+    private Runnable mAnimationAfterDelay;
     private Animation mChild;
     private String mDescription;
     private Object mKillPreviousAnimation;
     private float mStartDelay;
-    private TweenCalculator mCalc;
+    private TweenProcessor mCalc;
 
     //Card specific animation
     private CardView mCard;
@@ -49,9 +50,20 @@ public class AnimationBuilder {
 
     public float getStartDelay() { return mStartDelay;}
 
+    public void setStartDelay(float delay, Runnable callback) {
+        mStartDelay = delay;
+        mAnimationAfterDelay = callback;
+    }
+
     public void setStartDelay(float delay) {
         mStartDelay = delay;
+        mAnimationAfterDelay = null;
     }
+
+    public Runnable getStartDelayCallback() {
+        return mAnimationAfterDelay;
+    }
+
 
     public interface AnimationBuilderHelpers {
         AnimationBuilder toBuilder();
@@ -118,7 +130,7 @@ public class AnimationBuilder {
         return this;
     }
 
-    public AnimationBuilder setTweenCalculator(TweenCalculator calc) {
+    public AnimationBuilder setTweenCalculator(TweenProcessor calc) {
         mCalc = calc;
         return this;
     }
@@ -145,10 +157,10 @@ public class AnimationBuilder {
         Animation ani = null;
         switch (mAnimationType) {
             case CARD:
-                ani = new CardAnimation(mPauseLogic, mStatusListeners, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
+                ani = new CardAnimation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCard, mHandID, mTable);
                 break;
             case CAMERA:
-                ani = new CameraAnimation(mPauseLogic, mStatusListeners, mCalc.calculate(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
+                ani = new CameraAnimation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
                 break;
             default:
                 break;
@@ -156,6 +168,18 @@ public class AnimationBuilder {
         if (ani != null) {
             onBuild(ani);
         }
+
+/*        mStatusListeners.clear();
+        mAnimationAfterDelay = null;
+        mChild = null;
+        mKillPreviousAnimation = null;
+        mCalc = null;
+
+        mCard = null;
+        mTable = null;
+
+        mCamera = null;*/
+
         return ani;
     }
 

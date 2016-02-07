@@ -98,6 +98,7 @@ public class PlayHumanTurn extends PlayTurn {
     protected void OnEndRun() {
         Director.instance().getEventSystem().Fire(EventSystem.EventType.HIGHLIGHT_DECK, false);
         mPlayCard = null;
+        System.out.print("HUMAN TURN END\n");
     }
 
     @Override
