@@ -173,7 +173,7 @@ public class StateFactory {
                 }
             }
             if (!found)
-                list.add(StateFactory.get().createState(stateName, parent, id));
+                list.add(s);
             put(stateName, list);
             return s;
         }

@@ -61,8 +61,12 @@ public class DeckView extends Group implements Input.BoundObject {
             public void tap(InputEvent event, float x, float y, int count, int button) {
                 super.tap(event, x, y, count, button);
                 if (count >= 2) {
-                    Logic.get().Request(State.Names.TAP_DECK_START);
-                    Logic.get().Request(State.Names.PLAY_HUMAN_TURN);
+                    if (button == 0) {
+                        Logic.get().Request(State.Names.TAP_DECK_START);
+                        Logic.get().Request(State.Names.PLAY_HUMAN_TURN);
+                    }
+                    else if (button == 1)
+                        Logic.get().SaveState();
                 }
             }
 
