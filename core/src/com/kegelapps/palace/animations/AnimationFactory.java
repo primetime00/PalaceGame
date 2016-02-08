@@ -52,13 +52,15 @@ public class AnimationFactory implements AnimationStatus {
 
     @Override
     public void onBegin(Animation animation) {
-        if (animation.isPauseLogic())
+        if (animation.isPauseLogic()) {
             pauseIncrement();
+        }
     }
 
     @Override
     public void onEnd(Animation animation) {
-        if (animation.isPauseLogic())
+        if (animation.isPauseLogic()) {
             pauseDecrement();
+        }
     }
 }

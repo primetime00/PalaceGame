@@ -62,10 +62,12 @@ public class Logic {
         //System.out.print("Logic system is " + (pause ? "Paused" : "UnPaused") + "\n");
         if (mMainState != null) {
             if (pause) {
+                System.out.print("-- PAUSED\n");
                 mMainState.pause();
 
             }
             else {
+                System.out.print("-- UNPAUSED\n");
                 mMainState.resume();
             }
         }

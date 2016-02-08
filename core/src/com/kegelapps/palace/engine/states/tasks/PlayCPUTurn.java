@@ -49,6 +49,7 @@ public class PlayCPUTurn extends PlayTurn {
             case SUCCESS_AGAIN:
                 return false;
             case SUCCESS_BURN:
+                mTurnState = TurnState.BURN;
                 return false;
             default:
                 return false;

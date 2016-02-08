@@ -50,14 +50,14 @@ public class AnimationBuilder {
 
     public float getStartDelay() { return mStartDelay;}
 
-    public void setStartDelay(float delay, Runnable callback) {
+    public AnimationBuilder setStartDelay(float delay, Runnable callback) {
         mStartDelay = delay;
         mAnimationAfterDelay = callback;
+        return this;
     }
 
-    public void setStartDelay(float delay) {
-        mStartDelay = delay;
-        mAnimationAfterDelay = null;
+    public AnimationBuilder setStartDelay(float delay) {
+        return setStartDelay(delay, null);
     }
 
     public Runnable getStartDelayCallback() {

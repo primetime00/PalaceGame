@@ -77,6 +77,8 @@ public class InPlayView extends Group implements ReparentViews {
                                 setCameraSide(side).setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 0.5f));
 
                         burnBuilder.setNextAnimation(cameraBuilder.build());
+                        burnBuilder.setStartDelay(5.0f);
+
                     }
                     burnBuilder.build().Start();
                 }
