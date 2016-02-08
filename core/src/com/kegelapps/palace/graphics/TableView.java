@@ -45,7 +45,7 @@ public class TableView extends Group implements Input.BoundObject {
     private Pixmap mPixmap;
     private Texture mBackground;
 
-    final private float mDeckToActiveGap = 0.10f;
+    final private float mDeckToActiveGap = 0.15f;
 
     private TextView mHelperText;
 
@@ -60,7 +60,8 @@ public class TableView extends Group implements Input.BoundObject {
         for (Hand h : mTable.getHands()) {
             mHands.add(new HandView(h));
         }
-        for (Card c : mTable.getDeck().GetCards()) {
+        //create all card views
+        for (Card c : Card.GetAllCards()) {
             mCards.add(new CardView(c));
         }
 
@@ -333,15 +334,16 @@ public class TableView extends Group implements Input.BoundObject {
                 List<Card> cards = (List<Card>) params[1];
                 for (int i = 0; i< cards.size(); ++i) {
                     Card c = cards.get(i);
-                    final CardView cardView = CardView.getCardView(c);
-                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    CardView cardView = CardView.getCardView(c);
+                    final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     builder.setPause(true).setDescription("Drawing and End card").setTable(TableView.this).setCard(cardView).setHandID(id);
                     builder.setStartDelay(delay, new Runnable() {
                         @Override
                         public void run() {
-                            cardView.remove();
-                            cardView.setSide(CardView.Side.BACK);
-                            addActor(cardView);
+                            CardView cv = builder.getCard();
+                            cv.remove();
+                            cv.setSide(CardView.Side.BACK);
+                            addActor(cv);
                         }
                     });
                     delay+=0.4f; //add a delay of 0.4 seconds before the next card is dealt
@@ -349,11 +351,23 @@ public class TableView extends Group implements Input.BoundObject {
                         builder.addStatusListener(new Animation.AnimationStatusListener() {
                             @Override
                             public void onEnd(Animation animation) {
-                                cardView.remove();
+                                CardView cv = builder.getCard();
+                                cv.remove();
                                 if (handView.getHand().getType() == Hand.HandType.HUMAN)
-                                    cardView.setSide(CardView.Side.FRONT);
-                                handView.addActor(cardView);
+                                    cv.setSide(CardView.Side.FRONT);
+                                handView.addActor(cv);
                                 handView.OrganizeCards(true, true, false, false);
+                            }
+                        });
+                    } else {
+                        builder.addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                CardView cv = builder.getCard();
+                                cv.remove();
+                                if (handView.getHand().getType() == Hand.HandType.HUMAN)
+                                    cv.setSide(CardView.Side.FRONT);
+                                handView.addActor(cv);
                             }
                         });
                     }

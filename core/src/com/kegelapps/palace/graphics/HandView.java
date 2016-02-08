@@ -231,7 +231,6 @@ public class HandView extends Group implements ReparentViews {
                 CardView cardView = CardView.getCardView((Card) params[0]);
                 cardView.getParent().removeActor(cardView);
                 addActor(cardView);
-
                 OrganizeCards(true);
             }
         };

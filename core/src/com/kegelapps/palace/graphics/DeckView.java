@@ -109,22 +109,7 @@ public class DeckView extends Group implements Input.BoundObject {
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Card))
                     throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
-                if (mDeck.GetCards().size() <= 4 && mDeckLow == false) { //we just hit 4 cards
-                    mDeckLow = true;
-                    int cascade = 0;
-                    for (int i = mDeck.GetCards().size() - 1; i >= 0; --i) {
-                        Card c = mDeck.GetCards().get(i);
-                        CardView cardView = CardView.getCardView(c);
-                        cardView.setSide(CardView.Side.BACK);
-                        cardView.setX(cascade);
-                        cardView.setY(0);
-                        cascade += (cardView.getWidth() * 0.04f);
-                        if (cardView.getParent() != null)
-                            cardView.getParent().removeActor(cardView);
-                        if (findActor(cardView.getName()) == null)
-                            addActor(cardView);
-                    }
-                }
+                CheckLowDeck();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDrawCardEventListener);
@@ -140,6 +125,39 @@ public class DeckView extends Group implements Input.BoundObject {
         };
         Director.instance().getEventSystem().RegisterEvent(mWaitForPlayerToTap);
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_LOADED) {
+            @Override
+            public void handle(Object[] params) {
+                CheckLowDeck();
+            }
+        });
+
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.DRAW_TURN_END_CARDS) {
+            @Override
+            public void handle(Object[] params) {
+                CheckLowDeck();
+            }
+        });
+    }
+
+    private void CheckLowDeck() {
+        if (mDeck.GetCards().size() <= 4 && mDeckLow == false) { //we just hit 4 cards
+            mDeckLow = true;
+            int cascade = 0;
+            for (int i = mDeck.GetCards().size() - 1; i >= 0; --i) {
+                Card c = mDeck.GetCards().get(i);
+                CardView cardView = CardView.getCardView(c);
+                cardView.setSide(CardView.Side.BACK);
+                cardView.setX(cascade);
+                cardView.setY(0);
+                cascade += (cardView.getWidth() * 0.04f);
+                if (cardView.getParent() != null)
+                    cardView.getParent().removeActor(cardView);
+                if (findActor(cardView.getName()) == null)
+                    addActor(cardView);
+            }
+        }
     }
 
     public Deck getDeck() {

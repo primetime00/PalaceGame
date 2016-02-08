@@ -9,6 +9,7 @@ import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Card implements Comparable<Card>, Serializer {
@@ -53,6 +54,17 @@ public class Card implements Comparable<Card>, Serializer {
         mCardMap.put(suit, cList);
         return c;
     }
+
+    public static List<Card> GetAllCards() {
+        List cards = new ArrayList<>();
+        for (Rank r : Rank.values()) {
+            for (Suit s : Suit.values()) {
+                cards.add(GetCard(s, r));
+            }
+        }
+        return cards;
+    }
+
 
     public static Card GetCard(Message c) {
         Card card = new Card(null, null);
