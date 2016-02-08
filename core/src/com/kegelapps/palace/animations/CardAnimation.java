@@ -125,7 +125,7 @@ public class CardAnimation extends Animation {
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
             float varianceDelay = MathUtils.random(10) / 10.0f;
-            mAnimation.delay(varianceDelay);
+            mAnimation.pushPause(varianceDelay);
             mAnimation.beginParallel();
 
             Vector3 pos;
@@ -406,7 +406,7 @@ public class CardAnimation extends Animation {
             float length = (float)Math.hypot(w, h);
             float x = (float) (length * Math.cos(Math.toRadians(angle)));
             float y = (float) (length * Math.sin(Math.toRadians(angle)));
-            mAnimation.delay(0.5f);
+            mAnimation.pushPause(0.5f);
             mAnimation.push(Tween.to(mCard, CardAccessor.POSITION_XY, 1.5f).target(x, y).ease(TweenEquations.easeInOutQuad));
             return mAnimation;
         }

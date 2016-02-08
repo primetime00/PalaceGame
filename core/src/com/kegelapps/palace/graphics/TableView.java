@@ -251,6 +251,12 @@ public class TableView extends Group implements Input.BoundObject {
 
                     cameraZoomAnimation = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
                             setPause(true).setDescription("Zoom to play cards").setTable(TableView.this).setCamera(mCamera).
+                            addStatusListener(new Animation.AnimationStatusListener() {
+                                @Override
+                                public void onEnd(Animation animation) {
+                                    super.onEnd(animation);
+                                }
+                            }).
                             setCameraSide(CardCamera.CameraSide.UNKNOWN).setTweenCalculator(new CameraAnimation.ZoomToPlayCards(0.75f, 1.0f)).build();
 
                     cameraZoomAnimation.Start();

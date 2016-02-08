@@ -76,9 +76,6 @@ public class Director {
 
     public void update()
     {
-        // Update events.
-        //eventSource.update();
-
         // Update View
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

@@ -74,7 +74,8 @@ message PlayHumanTurnState {
         optional PlayHumanTurnState state = 107;
     }
     optional Card playCard = 1;
-    optional bool tapped = 2;
+    optional bool deckTapped = 2;
+    optional bool playTapped = 3;
 }
 
 message TapToStartState {

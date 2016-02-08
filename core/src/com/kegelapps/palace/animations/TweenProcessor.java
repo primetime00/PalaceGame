@@ -11,12 +11,13 @@ import aurelienribon.tweenengine.TweenCallback;
 abstract public class TweenProcessor implements AnimationBuilder.TweenCalculator {
 
     protected Timeline mAnimation;
-    protected float mStartDelay;
+    protected float mStartDelay, mEndDelay;
     protected Runnable mStartDelayCallback;
 
     public BaseTween<Timeline> process(final AnimationBuilder builder) {
         mAnimation = Timeline.createSequence();
         mStartDelay = builder.getStartDelay();
+        mEndDelay = builder.getEndDelay();
         mStartDelayCallback = builder.getStartDelayCallback();
         if (mStartDelay > 0.0f) {
             mAnimation.pushPause(mStartDelay);
@@ -30,6 +31,9 @@ abstract public class TweenProcessor implements AnimationBuilder.TweenCalculator
             }));
         }
         mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END);
-        return calculate(builder);
+        calculate(builder);
+        if (mEndDelay > 0.0f)
+            mAnimation.pushPause(mEndDelay);
+        return mAnimation;
     }
 }

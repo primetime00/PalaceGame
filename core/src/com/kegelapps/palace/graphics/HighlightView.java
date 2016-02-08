@@ -17,6 +17,7 @@ public class HighlightView {
     private static float mMaxAlpha = 0.8f;
     private Tween mAnimation;
     private boolean mVisible;
+    private Color mColor = Color.WHITE;
 
     public void setAlpha(float v) { mAlpha = v;
         if (mAlpha > mMaxAlpha)
@@ -29,11 +30,15 @@ public class HighlightView {
         return mAlpha;
     }
 
+    public void setColor (Color c) {
+        mColor = c;
+    }
+
     public void draw(Batch batch, Actor actor) {
         assert (actor == null);
         float pos = (actor.getWidth() * 0.05f)/2.0f;
         Color c = batch.getColor();
-        batch.setColor(1,1,1,mAlpha);
+        batch.setColor(mColor.r,mColor.g,mColor.b,mAlpha);
         batch.draw(CardUtils.getCardHighlight(),actor.getX()+pos, actor.getY()+pos,actor.getOriginX(),actor.getOriginY(),actor.getWidth(),actor.getHeight(),actor.getScaleX(),actor.getScaleY(),actor.getRotation(), 0, 0, CardUtils.getCardHighlight().getWidth(), CardUtils.getCardHighlight().getHeight(), false, false);
         batch.setColor(c);
     }

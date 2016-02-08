@@ -17,6 +17,7 @@ public class Burn extends State {
 
     @Override
     protected void OnFirstRun() {
+
         mTable.Burn();
     }
 

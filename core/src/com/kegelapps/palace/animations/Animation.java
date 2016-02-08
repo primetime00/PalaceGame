@@ -79,6 +79,10 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
             mTimeLineAnimation.setCallback(this);
             mTimeLineAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
             mTimeLineAnimation.start(Director.instance().getTweenManager());
+            if (mChild != null) {
+                mChild.getTimeLineAnimation().pause();
+                mChild.Start();
+            }
         }
     }
 
@@ -101,7 +105,8 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
                 mStatusListeners.clear();
             }
             if (mChild != null)
-                mChild.Start();
+                mChild.getTimeLineAnimation().resume();
+                //mChild.Start();
         }
     }
 

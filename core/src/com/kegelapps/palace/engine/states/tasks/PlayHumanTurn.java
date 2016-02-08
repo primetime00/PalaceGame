@@ -6,7 +6,6 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.StateListener;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StateProtos;
@@ -17,31 +16,46 @@ import com.kegelapps.palace.protos.StateProtos;
 public class PlayHumanTurn extends PlayTurn {
 
     private Card mPlayCard;
-    private boolean mTapped;
+    private boolean mDeckTapped;
+    private boolean mPlayTapped;
 
     public PlayHumanTurn(State parent, Table table) {
         super(parent, table);
         mPlayCard = null;
-        mTapped = false;
+        mDeckTapped = false;
     }
 
     @Override
     protected void OnFirstRun() {
         super.OnFirstRun();
         mPlayCard = null;
-        mTapped = false;
+        mDeckTapped = false;
+        mPlayTapped = false;
+
+        //lets see if we can even play a card!  We might have to pick up!
+        if (CheckForPossiblePlay() == false) { //we will be picking up the pile!
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.HIGHLIGHT_PLAY, true);
+        }
+        else {
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.HIGHLIGHT_PLAY, false);
+        }
+
     }
 
     @Override
     protected boolean DoPlayCard() {
         //normal play state
-        boolean hasPlayed =false;
+        boolean hasPlayed = false;
         if (mHand == null)
             throw new RuntimeException("Hand is null.  It should not be");
-        if (mTapped) {
+        if (mDeckTapped) {
             mHand.GetPlayCards().Clear();
             return true;
         }
+        if (mPlayTapped) {
+            return true;
+        }
+
         int pendingSize = mHand.GetPlayCards().GetPendingCards().size();
         if (pendingSize == 0)
             return false;
@@ -58,6 +72,14 @@ public class PlayHumanTurn extends PlayTurn {
             }
         }
         return hasPlayed;
+    }
+
+    private boolean CheckForPossiblePlay() {
+        for (Card c : mHand.GetActiveCards()) {
+            if (Logic.get().ChallengeCard(c) != Logic.ChallengeResult.FAIL)
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -103,8 +125,12 @@ public class PlayHumanTurn extends PlayTurn {
 
     @Override
     public void UserSignal() {
-        if (mPlayCard != null)
-            mTapped = true;
+        if (CheckForPossiblePlay() == false) {//we need to pick up
+            mPlayTapped = true;
+        }
+        else if (mPlayCard != null) {
+            mDeckTapped = true;
+        }
     }
 
     @Override
@@ -119,7 +145,8 @@ public class PlayHumanTurn extends PlayTurn {
         StateProtos.PlayHumanTurnState.Builder builder = StateProtos.PlayHumanTurnState.newBuilder();
         if (mPlayCard != null)
             builder.setPlayCard((CardsProtos.Card) mPlayCard.WriteBuffer());
-        builder.setTapped(mTapped);
+        builder.setDeckTapped(mDeckTapped);
+        builder.setPlayTapped(mPlayTapped);
         s = s.toBuilder().setExtension(StateProtos.PlayHumanTurnState.state, builder.build()).build();
         return s;
     }
@@ -130,8 +157,11 @@ public class PlayHumanTurn extends PlayTurn {
         StateProtos.PlayHumanTurnState playHumanState = ((StateProtos.State) msg).getExtension(StateProtos.PlayHumanTurnState.state);
         if (playHumanState.hasPlayCard())
             mPlayCard = Card.GetCard(Card.Suit.values()[playHumanState.getPlayCard().getSuit()], Card.Rank.values()[playHumanState.getPlayCard().getRank()]);
-        if (playHumanState.hasTapped())
-            mTapped = playHumanState.getTapped();
+        if (playHumanState.hasDeckTapped())
+            mDeckTapped = playHumanState.getDeckTapped();
+        if (playHumanState.hasPlayTapped())
+            mPlayTapped = playHumanState.getPlayTapped();
+
     }
 
 

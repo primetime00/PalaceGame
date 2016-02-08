@@ -22,7 +22,7 @@ public class AnimationBuilder {
     private Animation mChild;
     private String mDescription;
     private Object mKillPreviousAnimation;
-    private float mStartDelay;
+    private float mStartDelay, mEndDelay;
     private TweenProcessor mCalc;
 
     //Card specific animation
@@ -49,6 +49,7 @@ public class AnimationBuilder {
     }
 
     public float getStartDelay() { return mStartDelay;}
+    public float getEndDelay() { return mEndDelay;}
 
     public AnimationBuilder setStartDelay(float delay, Runnable callback) {
         mStartDelay = delay;
@@ -58,6 +59,11 @@ public class AnimationBuilder {
 
     public AnimationBuilder setStartDelay(float delay) {
         return setStartDelay(delay, null);
+    }
+
+    public AnimationBuilder setEndDelay(float delay) {
+        mEndDelay = delay;
+        return this;
     }
 
     public Runnable getStartDelayCallback() {
@@ -86,6 +92,7 @@ public class AnimationBuilder {
         mStatusListeners = new ArrayList<>();
         mKillPreviousAnimation = false;
         mStartDelay = 0.0f;
+        mEndDelay = 0.0f;
     }
 
 
