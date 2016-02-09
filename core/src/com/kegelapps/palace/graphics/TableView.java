@@ -384,6 +384,72 @@ public class TableView extends Group implements Input.BoundObject {
             }
         });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.PICK_UP_STACK) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof ArrayList)) {
+                    throw new IllegalArgumentException("Invalid parameters for PICK_UP_STACK");
+                }
+                int id = (int) params[0];
+                HandView hand = null;
+                for (HandView h : getHands()) {
+                    if (h.getHand().getID() == id)
+                        hand = h;
+                }
+                if (hand == null)
+                    return;
+                final HandView handView = hand;
+                float delay = 0.05f;
+
+                mPlayView.setHighlight(false);
+
+                List<Card> cards = (List<Card>) params[1];
+                for (int i = 0; i< cards.size(); ++i) {
+                    Card c = cards.get(i);
+                    CardView cardView = CardView.getCardView(c);
+                    final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(true).setDescription(String.format("Picking up the stack %d", i)).setTable(TableView.this).setCard(cardView).setHandID(id);
+                    builder.setStartDelay(delay, new Runnable() {
+                        @Override
+                        public void run() {
+                            CardView cv = builder.getCard();
+                            cv.remove();
+                            addActor(cv);
+                        }
+                    });
+                    delay+=0.1f; //add a delay of 0.1 seconds before the next card is dealt
+                    if (i == cards.size()-1) { //last card
+                        builder.addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                CardView cv = builder.getCard();
+                                cv.remove();
+                                if (handView.getHand().getType() == Hand.HandType.HUMAN)
+                                    cv.setSide(CardView.Side.FRONT);
+                                else
+                                    cv.setSide(CardView.Side.BACK);
+                                handView.addActor(cv);
+                                handView.OrganizeCards(true, true, false, false);
+                            }
+                        });
+                    } else {
+                        builder.addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                CardView cv = builder.getCard();
+                                cv.remove();
+                                if (handView.getHand().getType() == Hand.HandType.HUMAN)
+                                    cv.setSide(CardView.Side.FRONT);
+                                handView.addActor(cv);
+                            }
+                        });
+                    }
+                    builder.setTweenCalculator(new CardAnimation.PickUpStack());
+                    builder.build().Start();
+                }
+            }
+        });
+
 
     }
 

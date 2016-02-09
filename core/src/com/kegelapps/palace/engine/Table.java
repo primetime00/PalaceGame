@@ -86,6 +86,12 @@ public class Table  implements Serializer{
         mPlayCards.Burn();
     }
 
+    public void PickUpStack(int id) {
+        Hand h = getHands().get(id);
+        h.PickUpStack(mPlayCards);
+    }
+
+
     public void DrawEndTurnCards(int player) {
         Hand h = mHands.get(player);
         if (h == null)

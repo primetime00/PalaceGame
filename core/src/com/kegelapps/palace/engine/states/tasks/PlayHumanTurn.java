@@ -53,7 +53,9 @@ public class PlayHumanTurn extends PlayTurn {
             return true;
         }
         if (mPlayTapped) {
-            return true;
+            mTable.PickUpStack(mHand.getID());
+            mPlayTapped = false;
+            return false;
         }
 
         int pendingSize = mHand.GetPlayCards().GetPendingCards().size();

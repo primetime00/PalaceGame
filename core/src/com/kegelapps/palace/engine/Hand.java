@@ -285,6 +285,21 @@ public class Hand implements Serializer{
         Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_TURN_END_CARDS, getID(), cards);
     }
 
+    public void PickUpStack(InPlay stack) {
+        if (stack.GetCards().isEmpty())
+            throw new RuntimeException("The stack can't be empty!");
+        List<Card> cards = new ArrayList<>();
+        for (int i=stack.GetCards().size()-1; i>=0; --i) {
+            Card c = stack.GetCards().get(i);
+            cards.add(c);
+        }
+        GetActiveCards().addAll(cards);
+        Collections.sort(GetActiveCards());
+        stack.Clear();
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.PICK_UP_STACK, getID(), cards);
+
+    }
+
 
     @Override
     public void ReadBuffer(Message msg) {

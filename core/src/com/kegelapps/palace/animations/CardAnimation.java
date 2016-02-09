@@ -418,6 +418,49 @@ public class CardAnimation extends Animation {
         }
     }
 
+    static public class PickUpStack extends TweenProcessor{
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            final CardView mCard = builder.getCard();
+            TableView mTable = builder.getTable();
+            int mHandID = builder.getHandID();
+            //mCard.setPosition(builder.getTable().getPlayView().getX(), builder.getTable().getDeck().getY());
+            mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));
+            HandView hand = mTable.getHands().get(mHandID);
+
+            Rectangle hiddenRect = hand.getHiddenPosition(0);
+            float cardSize = mCard.getMaxCardSize();
+            int roundSize = MathUtils.round(cardSize) / 10;
+            int angleVariation = (MathUtils.random(roundSize) - (roundSize/2))*10;
+            float powerVariation = (hiddenRect.getHeight() - MathUtils.random(hiddenRect.getHeight()))/2.0f;
+            float rotation;
+            float duration = 0.5f;
+
+
+            mAnimation.beginParallel();
+
+            HandUtils.HandSide side = HandUtils.IDtoSide(hand.getHand().getID(), mTable);
+
+            rotation = (MathUtils.random(36) - 18)*10;
+
+            float x = 0;
+            float y = 0;
+            if (side == HandUtils.HandSide.SIDE_BOTTOM || side == HandUtils.HandSide.SIDE_TOP) {
+                x = mTable.getDeck().getX() + angleVariation;
+                y = hiddenRect.getY() + (powerVariation * (side == HandUtils.HandSide.SIDE_TOP ? 1 : -1));
+            } else {
+                x = hiddenRect.getX() + (powerVariation * (side == HandUtils.HandSide.SIDE_RIGHT ? 1 : -1));
+                y = mTable.getDeck().getY()+angleVariation;
+            }
+            mAnimation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(x, y).ease(TweenEquations.easeInOutExpo));
+            mAnimation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(rotation));
+
+            mAnimation.end();
+            return mAnimation;
+        }
+
+    }
+
     @Override
     public AnimationBuilder toBuilder() {
         return super.toBuilder().setCard(mCard).setTable(mTable).setHandID(mHandID);

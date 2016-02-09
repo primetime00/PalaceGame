@@ -40,7 +40,7 @@ public class InPlay implements Serializer{
 
     public void Burn() {
         Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS);
-        mCards.clear();
+        Clear();
     }
 
     @Override
@@ -60,5 +60,10 @@ public class InPlay implements Serializer{
             builder.addCards((CardsProtos.Card) c.WriteBuffer());
         }
         return builder.build();
+    }
+
+    public void Clear() {
+        mCards.clear();
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.INPLAY_CARDS_CHANGED);
     }
 }
