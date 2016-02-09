@@ -60,7 +60,6 @@ public class PlayTurn extends State {
     @Override
     protected void OnFirstRun() {
         mTurnState = TurnState.PLAY_CARD;
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mHand.getID());
     }
 
     protected boolean DoPlayCard() {
