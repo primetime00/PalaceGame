@@ -8,6 +8,7 @@ import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.protos.CardsProtos;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**
@@ -97,6 +98,8 @@ public class DealCard extends State {
         StateProtos.DealCardState dealCardState = ((StateProtos.State) msg).getExtension(StateProtos.DealCardState.state);
         mHidden = dealCardState.getHidden();
         mCardState = CardState.values()[dealCardState.getCurrentState()];
+        if (dealCardState.hasCard())
+            mCard = Card.GetCard(dealCardState.getCard());
     }
 
     @Override
@@ -106,8 +109,9 @@ public class DealCard extends State {
         StateProtos.DealCardState.Builder builder = StateProtos.DealCardState.newBuilder();
         builder.setCurrentState(mCardState.ordinal());
         builder.setHidden(mHidden);
-
-        s.toBuilder().setExtension(StateProtos.DealCardState.state, builder.build()).build();
+        if (mCard != null)
+            builder.setCard((CardsProtos.Card) mCard.WriteBuffer());
+        s = s.toBuilder().setExtension(StateProtos.DealCardState.state, builder.build()).build();
         return s;
     }
 }

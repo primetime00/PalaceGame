@@ -1,11 +1,17 @@
 package com.kegelapps.palace.engine.states.tasks;
 
+import com.google.protobuf.Internal;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.protos.StateProtos;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Ryan on 1/21/2016.
@@ -25,19 +31,45 @@ public class PlayCPUTurn extends PlayTurn {
             return false;
         Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
         //find a card to play
-        for (Card c : mHand.GetActiveCards()) {
-            playResult = Logic.get().ChallengeCard(c);
-            if (playResult != Logic.ChallengeResult.FAIL) {
-                return PlayCard(c);
-            }
+        switch (mPlayMode) {
+            default:
+                throw new RuntimeException("I don't expect to be in this mode: " + mPlayMode);
+            case ACTIVE:
+                for (Card c : mHand.GetActiveCards()) {
+                    playResult = Logic.get().ChallengeCard(c);
+                    if (playResult != Logic.ChallengeResult.FAIL) {
+                        return PlayCard(c);
+                    }
+                }
+                break;
+            case END:
+                for (Card c : mHand.GetEndCards()) {
+                    if (c == null)
+                        continue;
+                    playResult = Logic.get().ChallengeCard(c);
+                    if (playResult != Logic.ChallengeResult.FAIL) {
+                        return PlayCard(c);
+                    }
+                }
+                break;
         }
-        System.out.print("I need to pick up a card!\n");
+        // Logic challenge failed!
+        mTable.PickUpStack(mHand.getID());
         return false; //probably need to pick up!
+    }
+
+    public List<Integer> RandomCardList() {
+        List<Integer> res = new ArrayList<>();
+        for (int i=0; i<mHand.GetHiddenCards().size(); ++i)
+            res.add(i);
+        Collections.shuffle(res);
+        return res;
     }
 
     @Override
     protected boolean PlayCard(Card card) {
-        Logic.ChallengeResult res = mTable.AddPlayCard(mHand, card);
+        Logic.ChallengeResult res;
+        res = mTable.AddPlayCard(mHand, card);
         switch (res) {
             case SUCCESS:
                 if (mHand.ContainsRank(card.getRank())) { //we could play another one...

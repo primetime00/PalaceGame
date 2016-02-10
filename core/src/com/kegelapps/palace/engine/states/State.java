@@ -32,13 +32,15 @@ public class State implements Serializer{
         DRAW_PLAY_CARD,
         TAP_DECK_START,
         BURN_CARDS,
-        SELECT_CARDS_FROM_DECK
+        SELECT_CARDS_FROM_DECK,
+        PLAY_HIDDEN_CARD
     }
 
     public interface OnStateListener {
         void onContinueState();
         void onBackState();
         void onDoneState();
+        void onDoneState(Object result);
     }
 
     protected boolean mPaused;

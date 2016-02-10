@@ -1,13 +1,12 @@
 package com.kegelapps.palace.engine.states.tasks;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateListener;
-import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**
@@ -19,17 +18,27 @@ public class PlayTurn extends State {
     protected Hand mHand;
     protected TurnState mTurnState;
 
+    protected PlayMode mPlayMode;
+
     protected enum TurnState {
         PLAY_CARD,
         BURN,
         SELECT_CARDS,
+        PLAY_HIDDEN_CARD,
         DONE
+    }
+
+    protected enum PlayMode {
+        ACTIVE,
+        END,
+        HIDDEN
     }
 
     public PlayTurn(State parent, Table table) {
         super(parent);
         mTable = table;
         mTurnState = TurnState.PLAY_CARD;
+        mPlayMode = PlayMode.ACTIVE;
     }
 
     @Override
@@ -51,6 +60,19 @@ public class PlayTurn extends State {
                         mTurnState = TurnState.DONE;
                     }
                 });
+
+                mChildrenStates.addState(Names.PLAY_HIDDEN_CARD, this, id).setStateListener(new StateListener() {
+                    @Override
+                    public void onDoneState(Object result) {
+                        if ( !(result instanceof Logic.ChallengeResult) )
+                            throw new RuntimeException("Expecting a ChallengeResult");
+                        Logic.ChallengeResult res = (Logic.ChallengeResult) result;
+                        if (res == Logic.ChallengeResult.FAIL)
+                            mTurnState = TurnState.DONE;
+                        else
+                            mTurnState = TurnState.PLAY_CARD;
+                    }
+                });
                 mHand = h;
                 break;
             }
@@ -60,6 +82,9 @@ public class PlayTurn extends State {
     @Override
     protected void OnFirstRun() {
         mTurnState = TurnState.PLAY_CARD;
+        mPlayMode = CheckPlayMode();
+        if (mPlayMode == PlayMode.HIDDEN)
+            mTurnState = TurnState.PLAY_HIDDEN_CARD;
     }
 
     protected boolean DoPlayCard() {
@@ -68,6 +93,18 @@ public class PlayTurn extends State {
 
     protected boolean PlayCard(Card c) {
         return true;
+    }
+
+    private PlayMode CheckPlayMode() {
+        if (mHand.GetActiveCards().isEmpty()) {
+            if (mHand.HasEndCards()) {//we have at least 1 end card to play
+                return PlayMode.END;
+            }
+            else if (mHand.HasHiddenCards()) {
+                return PlayMode.HIDDEN;
+            }
+        }
+        return PlayMode.ACTIVE;
     }
 
     @Override
@@ -85,6 +122,9 @@ public class PlayTurn extends State {
                 return false;
             case SELECT_CARDS:
                 mChildrenStates.getState(Names.SELECT_CARDS_FROM_DECK, getID()).Execute();
+                return false;
+            case PLAY_HIDDEN_CARD:
+                mChildrenStates.getState(Names.PLAY_HIDDEN_CARD, getID()).Execute();
                 return false;
             case DONE:
                 return true;

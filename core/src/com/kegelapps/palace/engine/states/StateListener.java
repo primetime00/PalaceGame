@@ -19,4 +19,9 @@ public class StateListener implements State.OnStateListener {
     public void onDoneState() {
 
     }
+
+    @Override
+    public void onDoneState(Object result) {
+
+    }
 }

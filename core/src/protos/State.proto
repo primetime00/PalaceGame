@@ -54,6 +54,7 @@ message DealCardState {
     }
     required int32 currentState = 1;
     required bool hidden = 2;
+    optional Card card = 3;
 }
 
 message PlaceEndCardState {
@@ -83,6 +84,14 @@ message TapToStartState {
         optional TapToStartState state = 108;
     }
     required bool tapped = 1;
+}
+
+message PlayHiddenAttemptState {
+    extend State {
+        optional PlayHiddenAttemptState state = 109;
+    }
+    optional Card playCard = 1;
+    optional int32 hiddenState = 2;
 }
 
 

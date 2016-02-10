@@ -76,7 +76,7 @@ public class Table  implements Serializer{
         }
         else {
             mPlayCards.AddCard(activeCard);
-            hand.GetActiveCards().remove(activeCard);
+            hand.RemoveCard(activeCard);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
         }
         return res;

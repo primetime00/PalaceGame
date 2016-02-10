@@ -122,5 +122,8 @@ public class Main extends State {
         super.ReadBuffer(msg);
         StateProtos.MainState mainState = ((StateProtos.State) msg).getExtension(StateProtos.MainState.state);
         mState = GameState.values()[mainState.getMainState()];
+        if (getStatus() == Status.PAUSED)
+            setStatus(Status.ACTIVE);
+
     }
 }

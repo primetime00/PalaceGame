@@ -33,6 +33,7 @@ public class StateFactory {
         mRegistry.add(StateProtos.PlayTurnState.state);
         mRegistry.add(StateProtos.PlayHumanTurnState.state);
         mRegistry.add(StateProtos.TapToStartState.state);
+        mRegistry.add(StateProtos.PlayHiddenAttemptState.state);
         mStateMap = new HashMap<>();
     }
 
@@ -99,6 +100,9 @@ public class StateFactory {
             case SELECT_CARDS_FROM_DECK:
                 s = new EndTurnDrawCards(parent, mTable);
                 break;
+            case PLAY_HIDDEN_CARD:
+                s = new PlayHiddenCard(parent, mTable);
+                break;
             default:
                 throw new RuntimeException("StateFactory cannot find the state! " + stateName);
         }
@@ -150,9 +154,6 @@ public class StateFactory {
         parentState = childBuilder.build();
         return parentState;
     }
-
-
-
 
     public static class StateList extends HashMap<State.Names, ArrayList<State>> {
 

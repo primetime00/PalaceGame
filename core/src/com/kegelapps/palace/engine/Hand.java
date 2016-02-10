@@ -5,15 +5,13 @@ import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Ryan on 12/5/2015.
  */
 public class Hand implements Serializer{
+
 
 
     public enum HandType {
@@ -194,6 +192,21 @@ public class Hand implements Serializer{
         return -1;
     }
 
+    public boolean HasEndCards() {
+        for (int i=0; i<mEndCards.length; ++i)
+            if (mEndCards[i] != null)
+                return true;
+        return false;
+    }
+
+
+    public boolean HasHiddenCards() {
+        for (int i=0; i<mHiddenCards.length; ++i)
+            if (mHiddenCards[i] != null)
+                return true;
+        return false;
+    }
+
     public List<Card> GetActiveCards() { return mActiveCards; }
 
     public void SelectEndCard(Card c) {
@@ -237,6 +250,27 @@ public class Hand implements Serializer{
         if (!mPendingCards.GetAllCards().isEmpty()) {
             Director.instance().getEventSystem().Fire(EventSystem.EventType.UNSELECT_MULTIPLE_CARDS, getID());
             mPendingCards.Clear();
+        }
+    }
+
+    public void RemoveCard(Card card) {
+        for (Iterator<Card> it = GetActiveCards().iterator(); it.hasNext();) {
+            if (card == it.next()) {
+                it.remove();
+                return;
+            }
+        }
+        for (int i=0; i<mEndCards.length; ++i) {
+            if (card == mEndCards[i]) {
+                mEndCards[i] = null;
+                return;
+            }
+        }
+        for (int i=0; i<mHiddenCards.length; ++i) {
+            if (card == mHiddenCards[i]) {
+                mHiddenCards[i] = null;
+                return;
+            }
         }
     }
 

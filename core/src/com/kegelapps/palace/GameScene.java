@@ -55,9 +55,6 @@ public class GameScene extends Scene {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
                 if ((params[0] instanceof SelectEndCards)) {
-                    Logic.get().SaveState();
-                }
-                if ((params[0] instanceof SelectEndCards)) {
                     if (once == false) {
                         mMessageStage.getMessageBand().showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE);
                         once = true;
