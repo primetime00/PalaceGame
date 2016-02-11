@@ -48,7 +48,7 @@ public class GameScene extends Scene {
     private boolean state = false;
 
     private void createEvents() {
-        EventSystem.EventListener mTapDeckEventListener = new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
@@ -61,13 +61,27 @@ public class GameScene extends Scene {
                         state = true;
                     }
                 }
-                if ((params[0] instanceof Burn)) {
-                    mMessageStage.getMessageBand().showMessage("BURN!!", 1.0f, Color.FIREBRICK);
-                }
             }
 
-        };
-        Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
+        });
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.SHOW_MESSAGE) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 3 || !(params[0] instanceof String) || !(params[1] instanceof Float) || !(params[2] instanceof Color)) {
+                    throw new IllegalArgumentException("Invalid parameters for SHOW_MESSAGE");
+                }
+                String message = (String) params[0];
+                float duration = (float) params[1];
+                Color color = (Color) params[2];
+                mMessageStage.getMessageBand().showMessage(message, duration, color);
+            }
+
+        });
+
+    }
+
+    public void ShowMessage(String message, float duration, Color color) {
+        mMessageStage.getMessageBand().showMessage(message, duration, color);
     }
 
     @Override

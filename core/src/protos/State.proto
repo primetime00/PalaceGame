@@ -94,4 +94,12 @@ message PlayHiddenAttemptState {
     optional int32 hiddenState = 2;
 }
 
+message DrawPlayCardState {
+    extend State {
+        optional DrawPlayCardState state = 110;
+    }
+    optional int32 drawState = 1;
+}
+
+
 

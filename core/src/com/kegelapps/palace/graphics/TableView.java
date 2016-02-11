@@ -122,6 +122,13 @@ public class TableView extends Group implements Input.BoundObject {
                     mPlayView.addActor(cardView);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
 
+                if (cardView.getCard().getRank() == Card.Rank.TEN) {//this is a burn, lets zoom in!
+                    CameraAnimation cameraZoomAnimation = (CameraAnimation) AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
+                            setPause(true).setDescription("Zoom to play cards").setTable(TableView.this).setCamera(mCamera).
+                            setCameraSide(CardCamera.CameraSide.UNKNOWN).setTweenCalculator(new CameraAnimation.ZoomToPlayCards(0.75f, 1.0f)).build();
+                    cameraZoomAnimation.Start();
+                }
+
                 AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Drawing from deck to active").setTable(TableView.this).setCard(cardView)
                         .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
@@ -210,11 +217,19 @@ public class TableView extends Group implements Input.BoundObject {
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
 
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Failed card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
-                        killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlayFailedCard()).build().Start();
+                        killPreviousAnimation(cardView).setTweenCalculator(new CardAnimation.PlayFailedCard());
 
-                //mHands.get(hand.getID()).OrganizeCards(true);
+                if (hand.GetPlayCards().GetPendingCards().size() == 0) { //this is the last card?
+                    builder.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            mHands.get(builder.getHandID()).OrganizeCards(true);
+                        }
+                    });
+                }
+                builder.build().Start();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlayFailed);
@@ -286,11 +301,12 @@ public class TableView extends Group implements Input.BoundObject {
             public void handle(Object[] params) {
                 State s = Logic.get().GetMainState();
                 if (s.containsState(State.Names.SELECT_END_CARDS) ||
+                        s.containsState(State.Names.DEAL) ||
                         s.containsState(State.Names.PLAY) ||
                         s.containsState(State.Names.DRAW_PLAY_CARD)) {
 
                     HandUtils.HandSide side = HandUtils.HandSide.SIDE_UNKNOWN;
-                    if (s.getState(State.Names.SELECT_END_CARDS) != null || s.getState(State.Names.DRAW_PLAY_CARD) != null)
+                    if (s.getState(State.Names.SELECT_END_CARDS) != null || s.getState(State.Names.DRAW_PLAY_CARD) != null || s.getState(State.Names.DEAL) != null)
                         side = HandUtils.HandSide.SIDE_BOTTOM;
                     else if (s.getState(State.Names.PLAY) != null) {
                         int id = ((Play)(s.getState(State.Names.PLAY))).getCurrentPlayer();

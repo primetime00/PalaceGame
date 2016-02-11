@@ -10,12 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.engine.states.tasks.DrawPlayCard;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
@@ -81,11 +83,18 @@ public class InPlayView extends Group implements ReparentViews {
             public void handle(Object[] params) {
                 if ( !(getParent() instanceof TableView) )
                     throw new RuntimeException("Cannot burn cards without a TableView parent");
+                if ( !(getStage() instanceof GameScene) )
+                    throw new RuntimeException("Burning cards requires a GameScene Stage");
+                GameScene stage = (GameScene) getStage();
                 TableView table = (TableView) getParent();
                 Play pState = (Play) Logic.get().GetMainState().getState(State.Names.PLAY);
-                if (pState == null)
-                    throw new RuntimeException("Burn Animation requires Play state to be active!");
-                CardCamera.CameraSide side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(pState.getCurrentPlayer(), table));
+                DrawPlayCard dState = (DrawPlayCard) Logic.get().GetMainState().getState(State.Names.DRAW_PLAY_CARD);
+                if (pState == null && dState == null) {
+                    throw new RuntimeException("Burn Animation requires Play or DrawPlayCard state to be active!");
+                }
+                CardCamera.CameraSide side = CardCamera.CameraSide.BOTTOM;
+                if (pState != null)
+                    side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(pState.getCurrentPlayer(), table));
                 int cardSize = mInPlayCards.GetCards().size();
                 for (int i=0; i<cardSize; ++i) {
                     Card c = mInPlayCards.GetCards().get(i);
@@ -100,7 +109,7 @@ public class InPlayView extends Group implements ReparentViews {
                                 }
                             });
 
-                    if (i == cardSize-1) { //this is the last card
+                    if (i == cardSize-1 && table.getCamera().GetSide() != side) { //this is the last card
                         AnimationBuilder cameraBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
                         cameraBuilder.setPause(true).setDescription("Move Back to hand").setTable(table).setCamera(table.getCamera()).
                                 setCameraSide(side).setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 0.5f));
@@ -108,6 +117,10 @@ public class InPlayView extends Group implements ReparentViews {
 
                         burnBuilder.setNextAnimation(cameraBuilder.build());
                     }
+                    //lets show the burn message!
+                    String message = (dState != null ? "THAT'S A BURN!" : "BURN!");
+                    stage.ShowMessage(message, 1.0f, Color.FIREBRICK);
+
                     burnBuilder.build().Start();
                 }
             }

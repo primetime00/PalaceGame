@@ -204,6 +204,10 @@ public class HandView extends Group implements ReparentViews {
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
 
+                if (!cardView.hasParent()) { //this card should have a parent, if not, we may have loaded the state
+                    cardView.setSide(CardView.Side.BACK);
+                    cardView.setPosition(mHiddenPositions[0].getX(), mHiddenPositions[0].getY());
+                }
                 cardView.remove();
                 addActor(cardView);
 
@@ -229,7 +233,11 @@ public class HandView extends Group implements ReparentViews {
                     return;
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
-                cardView.getParent().removeActor(cardView);
+                if (!cardView.hasParent()) { //this card should have a parent, if not, we may have loaded the state
+                    cardView.setSide(mHand.getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
+                    cardView.setPosition(mHiddenPositions[0].getX(), mHiddenPositions[0].getY());
+                }
+                cardView.remove();
                 addActor(cardView);
                 OrganizeCards(true);
             }
@@ -370,10 +378,17 @@ public class HandView extends Group implements ReparentViews {
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             if (animation) {
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(false).setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
                         .killPreviousAnimation(cv)
-                        .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).build().Start();
+                        .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).
+                        addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                builder.getCard().setSide(getHand().getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
+                            }
+                        })
+                        .build().Start();
             } else {
                 Vector3 pos = HandUtils.LineUpActiveCard(i, cv, table, mHand.getID(), getActivePosition(), getCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
