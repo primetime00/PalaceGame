@@ -92,6 +92,14 @@ public class Logic {
             h.SelectPlayCard(c);
     }
 
+    public void PlayerSelectEndCard(Hand hand, Card c) {
+        if (mMainState == null)
+            throw new RuntimeException("Logic need a MainState to continue.");
+        if (mMainState.containsState(State.Names.PLAY))
+            hand.SelectEndPlayCard(c);
+    }
+
+
     public void PlayerSelectAllCards(Hand h, Card c) {
         if (mMainState == null)
             throw new RuntimeException("Logic need a MainState to continue.");

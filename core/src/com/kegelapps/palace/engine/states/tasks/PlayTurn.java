@@ -95,7 +95,7 @@ public class PlayTurn extends State {
         return true;
     }
 
-    private PlayMode CheckPlayMode() {
+    protected PlayMode CheckPlayMode() {
         if (mHand.GetActiveCards().isEmpty()) {
             if (mHand.HasEndCards()) {//we have at least 1 end card to play
                 return PlayMode.END;

@@ -63,7 +63,16 @@ public class PlayHumanTurn extends PlayTurn {
             return false;
         while (mHand.GetPlayCards().GetPendingCards().size() > 0) {
             Card c = mHand.GetPlayCards().PopCard();
-            Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
+            Card activeCard = null;
+            mPlayMode = CheckPlayMode();
+            switch (mPlayMode) {
+                case ACTIVE:
+                    activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
+                    break;
+                case END:
+                    activeCard = mHand.GetEndCards().get(mHand.GetEndCards().indexOf(c));
+                    break;
+            }
             if (mPlayCard == null)
                 hasPlayed = PlayCard(activeCard);
             else {

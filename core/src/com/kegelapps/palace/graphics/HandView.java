@@ -62,8 +62,11 @@ public class HandView extends Group implements ReparentViews {
                 super.fling(event, velocityX, velocityY, button);
                 if (event.getTarget() instanceof CardView) {
                     Card c = ((CardView)event.getTarget()).getCard();
-                    if (getHand().GetActiveCards().contains(c) && velocityY > 200.0f) {
-                        Logic.get().PlayerSelectCard(getHand(), c);
+                    if (velocityY > 200.0f) {
+                        if (getHand().GetActiveCards().contains(c))
+                            Logic.get().PlayerSelectCard(getHand(), c);
+                        else if (getHand().GetEndCards().contains(c))
+                            Logic.get().PlayerSelectEndCard(getHand(), c);
                     }
                     else if (getHand().GetEndCards().contains(c) && velocityY < -200.0f) {
                         Logic.get().PlayerUnselectCard(getHand(), c);

@@ -73,7 +73,7 @@ public class PlayCPUTurn extends PlayTurn {
         switch (res) {
             case SUCCESS:
                 if (mHand.ContainsRank(card.getRank())) { //we could play another one...
-                    if (Math.random() > 0.4f)
+                    if (Math.random() > 0.0f)
                         return PlayCard(mHand.FindRank(card.getRank()));
                     return true;
                 }

@@ -13,7 +13,6 @@ import java.util.*;
 public class Hand implements Serializer{
 
 
-
     public enum HandType {
         HUMAN,
         CPU,
@@ -232,6 +231,15 @@ public class Hand implements Serializer{
             mPendingCards.TransferQueueToPlay();
         }
     }
+
+    public void SelectEndPlayCard(Card c) {
+        if (!GetActiveCards().isEmpty())
+            return;
+        if (!mPendingCards.GetAllCards().isEmpty())
+            return;
+        mPendingCards.AddCardAndTransfer(c);
+    }
+
 
     public void SelectAllPlayCard(Card c) {
         if (mPendingCards.GetAllCards().contains(c))

@@ -71,6 +71,7 @@ public class InPlayView extends Group implements ReparentViews {
     }
 
     private void createEvents() {
+        //todo Wait until all cards are in position first before calculation?
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.INPLAY_CARDS_CHANGED) {
             @Override
             public void handle(Object[] params) {
