@@ -80,7 +80,7 @@ public class PlayHiddenCard extends State {
         if (mPlayCard != null) { //we have a card to play!
             switch (mState) {
                 case ATTEMPT:
-                    Director.instance().getEventSystem().Fire(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY, mPlayCard);
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY, mHand.getID(), mPlayCard);
                     mState = HiddenState.CHECK;
                     break;
                 case CHECK:
@@ -94,12 +94,12 @@ public class PlayHiddenCard extends State {
                     }
                     break;
                 case FAIL:
-                    mTable.PickUpStack(mHand.getID());
+                    //mTable.PickUpStack(mHand.getID());
                     if (mStateListener != null)
                         mStateListener.onDoneState(Logic.ChallengeResult.FAIL);
                     return true;
                 case SUCCESS:
-                    mTable.AddPlayCard(mHand, mPlayCard);
+                    //mTable.AddPlayCard(mHand, mPlayCard);
                     if (mStateListener != null)
                         mStateListener.onDoneState(Logic.ChallengeResult.SUCCESS);
                     return true;

@@ -466,6 +466,67 @@ public class TableView extends Group implements Input.BoundObject {
             }
         });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[1] instanceof Card) || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for ATTEMPT_HIDDEN_PLAY");
+                }
+                final float startDelay = 1.5f;
+                int id = (int) params[0];
+                Card card = (Card) params[1];
+                HandView hand = null;
+                for (HandView h : getHands()) {
+                    if (h.getHand().getID() == id)
+                        hand = h;
+                }
+                if (hand == null)
+                    return;
+                //find the hidden card we are playing
+                Rectangle hiddenRect = null;
+                for (int i=0; i<hand.getHand().GetHiddenCards().size(); ++i) {
+                    Card c = hand.getHand().GetHiddenCards().get(i);
+                    if (c == card)
+                        hiddenRect = hand.getHiddenPosition(i);
+                }
+                Vector2 cardCenter = hiddenRect.getCenter(new Vector2());
+                Vector2 playCenter = new Rectangle(mPlayView.mNextCardPosition.x, mPlayView.mNextCardPosition.y, CardUtils.getCardWidth(), CardUtils.getCardTextureHeight()).getCenter(new Vector2());
+
+                //lets bring the hand zindex to the front.
+                hand.toFront();
+
+                CardView cardView = CardView.getCardView(card);
+                AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                zoomBuilder.setPause(true).setDescription("Zoom to hidden card").setTable(TableView.this).setCard(cardView).setHandID(id);
+                zoomBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
+                zoomBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(cardCenter.x, cardCenter.y, 0.6f, startDelay));
+
+                AnimationBuilder deckBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                deckBuilder.setPause(true).setDescription("Zoom to in play").setTable(TableView.this).setCard(cardView).setHandID(id);
+                deckBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
+                deckBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(playCenter.x, playCenter.y, 0.6f, 1.5f));
+
+                zoomBuilder.setNextAnimation(deckBuilder.build());
+                zoomBuilder.build().Start();
+
+                final AnimationBuilder cardBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                cardBuilder.setPause(true).setDescription("Move card to play pile").setTable(TableView.this).setCard(cardView).setHandID(id);
+                cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(mPlayView.mNextCardPosition.x, mPlayView.mNextCardPosition.y, 1.5f, true));
+                cardBuilder.setStartDelay(startDelay);
+                cardBuilder.setEndDelay(2.5f).addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        cardBuilder.getCard().setSide(CardView.Side.FRONT);
+                    }
+                });
+                cardBuilder.build().Start();
+
+
+
+            }
+        });
+
+
 
     }
 

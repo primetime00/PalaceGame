@@ -38,6 +38,39 @@ public class CardAnimation extends Animation {
         mHandID = ani.mHandID;
     }
 
+    static public class MoveCard extends TweenProcessor {
+
+        protected float mDuration;
+        protected float mX, mY;
+        protected boolean mCorrectRotation;
+
+        public MoveCard(float x, float y, float duration, boolean rotate) {
+            mDuration = duration;
+            mCorrectRotation = rotate;
+            mX = x;
+            mY = y;
+        }
+
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            final CardView mCard = builder.getCard();
+            TableView mTable = builder.getTable();
+            int mHandID = builder.getHandID();
+            float pos_x = mCard.getX();
+            float pos_y = mCard.getY();
+
+            mAnimation.beginParallel();
+            TweenEquation eq = TweenEquations.easeInOutQuart;
+            float duration = mDuration;
+            mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(pos_x, pos_y));
+            mAnimation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(mX, mY).ease(eq));
+            if (mCorrectRotation)
+                mAnimation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(0.0f));
+            return mAnimation;
+        }
+    }
+
+
     static public class DrawToActive extends TweenProcessor {
 
         @Override

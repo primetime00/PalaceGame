@@ -22,6 +22,9 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Ryan on 1/25/2016.
  */
@@ -71,7 +74,6 @@ public class InPlayView extends Group implements ReparentViews {
     }
 
     private void createEvents() {
-        //todo Wait until all cards are in position first before calculation?
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.INPLAY_CARDS_CHANGED) {
             @Override
             public void handle(Object[] params) {
@@ -157,34 +159,15 @@ public class InPlayView extends Group implements ReparentViews {
     }
 
     private Rectangle calculateTotalSize(Rectangle mNext) {
-        float x_min = 0x7FFFFFFF;
-        float x_max = -1;
-        float y_min = 0x7FFFFFFF;
-        float y_max = -1;
-        if (getChildren().size == 0 && mNext == null)
-            return null;
-        for (Actor a : getChildren()) {
-            if (a.getX() < x_min)
-                x_min = a.getX();
-            if (a.getY() < y_min)
-                y_min = a.getY();
-
-            if (a.getRight() > x_max)
-                x_max = a.getRight();
-            if (a.getTop() > y_max)
-                y_max = a.getTop();
+        Rectangle totalRect = null;
+        for (int i=mInPlayCards.GetCards().size(); i>0; i--) {
+            Vector2 pos = CalculatePositionSizeForCard(i);
+            if (i ==mInPlayCards.GetCards().size() )
+                totalRect = new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardHeight());
+            else
+                totalRect = totalRect.merge(new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardHeight()));
         }
-        if (mNext.getX() < x_min)
-            x_min = mNext.getX();
-        if (mNext.getY() < y_min)
-            y_min = mNext.getY();
-
-        if (mNext.getWidth()+mNext.getX() > x_max)
-            x_max = mNext.getWidth()+mNext.getX();
-        if (mNext.getY() + mNext.getHeight() > y_max)
-            y_max = mNext.getY() + mNext.getHeight();
-
-        return new Rectangle(x_min, y_min, x_max - x_min, y_max - y_min);
+        return totalRect;
     }
 
     private Vector2 CalculatePositionSizeForCard(int index) {

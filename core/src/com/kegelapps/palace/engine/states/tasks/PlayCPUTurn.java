@@ -34,6 +34,8 @@ public class PlayCPUTurn extends PlayTurn {
         switch (mPlayMode) {
             default:
                 throw new RuntimeException("I don't expect to be in this mode: " + mPlayMode);
+            case HIDDEN:
+                return false;
             case ACTIVE:
                 for (Card c : mHand.GetActiveCards()) {
                     playResult = Logic.get().ChallengeCard(c);
