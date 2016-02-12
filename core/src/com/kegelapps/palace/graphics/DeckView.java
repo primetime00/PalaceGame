@@ -136,6 +136,7 @@ public class DeckView extends Group implements Input.BoundObject {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.DRAW_TURN_END_CARDS) {
             @Override
             public void handle(Object[] params) {
+
                 CheckLowDeck();
             }
         });
@@ -152,10 +153,8 @@ public class DeckView extends Group implements Input.BoundObject {
                 cardView.setX(cascade);
                 cardView.setY(0);
                 cascade += (cardView.getWidth() * 0.04f);
-                if (cardView.getParent() != null)
-                    cardView.getParent().removeActor(cardView);
-                if (findActor(cardView.getName()) == null)
-                    addActor(cardView);
+                cardView.remove();
+                addActor(cardView);
             }
         }
     }

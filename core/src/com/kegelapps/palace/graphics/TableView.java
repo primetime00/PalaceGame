@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
@@ -345,8 +346,10 @@ public class TableView extends Group implements Input.BoundObject {
                 int id = (int) params[0];
                 HandView hand = null;
                 for (HandView h : getHands()) {
-                    if (h.getHand().getID() == id)
+                    if (h.getHand().getID() == id) {
                         hand = h;
+                        break;
+                    }
                 }
                 if (hand == null)
                     return;
@@ -445,7 +448,7 @@ public class TableView extends Group implements Input.BoundObject {
                                 else
                                     cv.setSide(CardView.Side.BACK);
                                 handView.addActor(cv);
-                                handView.OrganizeCards(true, true, false, false);
+                                handView.OrganizeCards(true, true, false, false, true);
                             }
                         });
                     } else {
@@ -491,9 +494,10 @@ public class TableView extends Group implements Input.BoundObject {
                 }
                 Vector2 cardCenter = hiddenRect.getCenter(new Vector2());
                 Vector2 playCenter = new Rectangle(mPlayView.mNextCardPosition.x, mPlayView.mNextCardPosition.y, CardUtils.getCardWidth(), CardUtils.getCardTextureHeight()).getCenter(new Vector2());
+                Vector2 nextPos = mPlayView.CalculatePositionSizeForCard(mPlayView.getInPlay().GetCards().size());
 
                 //lets bring the hand zindex to the front.
-                hand.toFront();
+                mPlayView.toBack();
 
                 CardView cardView = CardView.getCardView(card);
                 AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
@@ -511,7 +515,7 @@ public class TableView extends Group implements Input.BoundObject {
 
                 final AnimationBuilder cardBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 cardBuilder.setPause(true).setDescription("Move card to play pile").setTable(TableView.this).setCard(cardView).setHandID(id);
-                cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(mPlayView.mNextCardPosition.x, mPlayView.mNextCardPosition.y, 1.5f, true));
+                cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(nextPos.x, nextPos.y, 1.5f, true));
                 cardBuilder.setStartDelay(startDelay);
                 cardBuilder.setEndDelay(2.5f).addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
@@ -523,6 +527,87 @@ public class TableView extends Group implements Input.BoundObject {
 
 
 
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.SUCCESS_HIDDEN_PLAY) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[1] instanceof Card) || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for SUCCESS_HIDDEN_PLAY");
+                }
+                if ( !(getStage() instanceof GameScene) ) {
+                    throw new RuntimeException("Stage is not instance of GameScene.");
+                }
+                final float startDelay = 0.5f;
+                int id = (int) params[0];
+                Card card = (Card) params[1];
+                HandView hand = null;
+                for (HandView h : getHands()) {
+                    if (h.getHand().getID() == id)
+                        hand = h;
+                }
+                if (hand == null)
+                    return;
+                //display a message of some sort depending on how successful
+                if (mPlayView.mInPlayCards.GetTopCard().getRank() == card.getRank()) {
+                    ((GameScene)getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
+                }
+                else {
+                    ((GameScene)getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
+                }
+
+                CardView cardView = CardView.getCardView(card);
+                AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                zoomBuilder.setPause(true).setDescription("Zoom back to turn").setTable(TableView.this).setCard(cardView).setHandID(id);
+                zoomBuilder.setCamera(getCamera()).setCameraSide(HandUtils.HandSideToCamera(HandUtils.IDtoSide(id, TableView.this)));
+                zoomBuilder.setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 1.0f));
+                zoomBuilder.setStartDelay(startDelay);
+                zoomBuilder.addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        mPlayView.toFront();
+                    }
+                });
+                zoomBuilder.build().Start();
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.FAILED_HIDDEN_PLAY) {
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 2 || !(params[1] instanceof Card) || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for FAILED_HIDDEN_PLAY");
+                }
+                if ( !(getStage() instanceof GameScene) ) {
+                    throw new RuntimeException("Stage is not instance of GameScene.");
+                }
+                final float startDelay = 0.5f;
+                int id = (int) params[0];
+                Card card = (Card) params[1];
+                HandView hand = null;
+                for (HandView h : getHands()) {
+                    if (h.getHand().getID() == id)
+                        hand = h;
+                }
+                if (hand == null)
+                    return;
+                //display a message of failure
+                ((GameScene)getStage()).ShowMessage("Oh No!", startDelay, Color.RED);
+
+                CardView cardView = CardView.getCardView(card);
+                AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                zoomBuilder.setPause(true).setDescription("Zoom back to turn").setTable(TableView.this).setCard(cardView).setHandID(id);
+                zoomBuilder.setCamera(getCamera()).setCameraSide(HandUtils.HandSideToCamera(HandUtils.IDtoSide(id, TableView.this)));
+                zoomBuilder.setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 1.0f));
+                zoomBuilder.setStartDelay(startDelay);
+                zoomBuilder.addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        mPlayView.toFront();
+                    }
+                });
+                zoomBuilder.build().Start();
             }
         });
 

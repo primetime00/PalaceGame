@@ -67,10 +67,14 @@ public class PlayTurn extends State {
                         if ( !(result instanceof Logic.ChallengeResult) )
                             throw new RuntimeException("Expecting a ChallengeResult");
                         Logic.ChallengeResult res = (Logic.ChallengeResult) result;
-                        if (res == Logic.ChallengeResult.FAIL)
-                            mTurnState = TurnState.DONE;
-                        else
-                            mTurnState = TurnState.PLAY_CARD;
+                        mPlayMode = CheckPlayMode();
+                        switch (res) {
+                            case SUCCESS: mTurnState = TurnState.DONE; break;
+                            case FAIL: mTurnState = TurnState.PLAY_CARD; break;
+                            case SUCCESS_AGAIN: mTurnState = TurnState.PLAY_HIDDEN_CARD; break;
+                            case SUCCESS_BURN: mTurnState = TurnState.PLAY_HIDDEN_CARD; break;
+                            default:break;
+                        }
                     }
                 });
                 mHand = h;

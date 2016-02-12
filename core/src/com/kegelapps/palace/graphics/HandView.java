@@ -320,10 +320,14 @@ public class HandView extends Group implements ReparentViews {
     }
 
     public void OrganizeCards(boolean animation) {
-        OrganizeCards(animation, true, true, true);
+        OrganizeCards(animation, true, true, true, false);
     }
+    public void OrganizeCards(boolean animation, boolean pause) {
+        OrganizeCards(animation, true, true, true, pause);
+    }
+    public void OrganizeCards(boolean animation, boolean active, boolean hidden, boolean end) {OrganizeCards(animation, active, hidden, end, false);}
 
-    public void OrganizeCards(boolean animation, boolean active, boolean hidden, boolean end) {
+    public void OrganizeCards(boolean animation, boolean active, boolean hidden, boolean end, boolean pause) {
         int zIndex = 0;
         int size = getHand().GetActiveCards().size();
         Rectangle r = getActivePosition();
@@ -344,7 +348,7 @@ public class HandView extends Group implements ReparentViews {
         if (end)
             zIndex = OrganizeEndCards(zIndex);
         if (active)
-            zIndex = OrganizeActiveCards(zIndex, animation);
+            zIndex = OrganizeActiveCards(zIndex, animation, pause);
     }
 
     private void ZSortAllViews() {
@@ -373,7 +377,7 @@ public class HandView extends Group implements ReparentViews {
         }
     }
 
-    private int OrganizeActiveCards(int position, boolean animation) {
+    private int OrganizeActiveCards(int position, boolean animation, boolean pause) {
         if ( !(getParent() instanceof TableView) )
             throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
         TableView table = (TableView) getParent();
@@ -382,16 +386,17 @@ public class HandView extends Group implements ReparentViews {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
             if (animation) {
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                builder.setPause(false).setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
-                        .killPreviousAnimation(cv)
-                        .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).
-                        addStatusListener(new Animation.AnimationStatusListener() {
-                            @Override
-                            public void onEnd(Animation animation) {
-                                builder.getCard().setSide(getHand().getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
-                            }
-                        })
-                        .build().Start();
+                builder.setPause(pause);
+                builder.setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
+                    .killPreviousAnimation(cv)
+                    .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).
+                    addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        builder.getCard().setSide(getHand().getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
+                        }
+                })
+                    .build().Start();
             } else {
                 Vector3 pos = HandUtils.LineUpActiveCard(i, cv, table, mHand.getID(), getActivePosition(), getCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
@@ -443,14 +448,6 @@ public class HandView extends Group implements ReparentViews {
             }
         }
         return position;
-    }
-
-    @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-        shapes.set(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(Color.RED);
-        shapes.rect(mActivePosition.getX(), mActivePosition.getY(), mActivePosition.getWidth(), mActivePosition.getHeight());
     }
 
     @Override

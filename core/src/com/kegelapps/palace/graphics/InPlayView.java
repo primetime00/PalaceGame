@@ -77,6 +77,7 @@ public class InPlayView extends Group implements ReparentViews {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.INPLAY_CARDS_CHANGED) {
             @Override
             public void handle(Object[] params) {
+
                 CalculatePositionAndSize();
             }
         });
@@ -144,13 +145,13 @@ public class InPlayView extends Group implements ReparentViews {
 
 
     private void CalculatePositionAndSize() {
-        Vector2 res = CalculatePositionSizeForCard(mInPlayCards.GetCards().size());
+        Vector2 res = CalculatePositionSizeForCard(mInPlayCards.GetCards().size()-1);
         float x = res.x;
         float y = res.y;
         mPlayRectangle.setWidth(x+CardUtils.getCardWidth() - getX());
         mPlayRectangle.setHeight(y+CardUtils.getCardHeight() - getY());
         mNextCardPosition.set(x, y);
-        mTotalAreaRectangle = calculateTotalSize(mPlayRectangle);
+        mTotalAreaRectangle = calculateTotalSize();
         if (mTotalAreaRectangle != null) {
             setPosition(mTotalAreaRectangle.x, mTotalAreaRectangle.y);
             setWidth(mTotalAreaRectangle.getWidth());
@@ -158,7 +159,7 @@ public class InPlayView extends Group implements ReparentViews {
         }
     }
 
-    private Rectangle calculateTotalSize(Rectangle mNext) {
+    private Rectangle calculateTotalSize() {
         Rectangle totalRect = null;
         for (int i=mInPlayCards.GetCards().size(); i>0; i--) {
             Vector2 pos = CalculatePositionSizeForCard(i);
@@ -170,7 +171,7 @@ public class InPlayView extends Group implements ReparentViews {
         return totalRect;
     }
 
-    private Vector2 CalculatePositionSizeForCard(int index) {
+    public Vector2 CalculatePositionSizeForCard(int index) {
         Vector2 res = new Vector2();
         float x = mPlayRectangle.getX();
         float y = mPlayRectangle.getY();

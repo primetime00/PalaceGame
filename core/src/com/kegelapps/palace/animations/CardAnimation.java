@@ -102,7 +102,7 @@ public class CardAnimation extends Animation {
             final CardView mCard = builder.getCard();
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
-            mCard.setPosition(builder.getTable().getDeck().getX(), builder.getTable().getDeck().getY());
+            //mCard.setPosition(builder.getTable().getDeck().getX(), builder.getTable().getDeck().getY());
             mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
             HandView hand = mTable.getHands().get(mHandID);
 

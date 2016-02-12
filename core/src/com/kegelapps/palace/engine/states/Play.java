@@ -27,8 +27,10 @@ public class Play extends State {
         mSingleTurnDone = new StateListener() {
             @Override
             public void onDoneState() {
-                mCurrentPlayer++;
-                mCurrentPlayer %= mTable.getHands().size();
+                do { //are we out of the game?
+                    mCurrentPlayer++;
+                    mCurrentPlayer %= mTable.getHands().size();
+                } while (!mTable.getHands().get(mCurrentPlayer).HasAnyCards());
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mCurrentPlayer).getID());
             }
         };

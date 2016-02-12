@@ -206,6 +206,12 @@ public class Hand implements Serializer{
         return false;
     }
 
+    public boolean HasAnyCards() {
+        if (GetActiveCards().size() == 0 && !HasEndCards() && !HasHiddenCards())
+            return false;
+        return true;
+    }
+
     public List<Card> GetActiveCards() { return mActiveCards; }
 
     public void SelectEndCard(Card c) {
@@ -319,7 +325,7 @@ public class Hand implements Serializer{
         for (int i=0; i<size; ++i) {
             Card c = deck.Draw();
             if (c == null) //out of cards
-                return;
+                break;
             cards.add(c);
         }
         GetActiveCards().addAll(cards);

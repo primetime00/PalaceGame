@@ -80,28 +80,33 @@ public class PlayHiddenCard extends State {
         if (mPlayCard != null) { //we have a card to play!
             switch (mState) {
                 case ATTEMPT:
+                    if (mTable.getInPlay().GetTopCard() == null || mTable.getInPlay().GetTopCard().getRank() == Card.Rank.TWO) { //this isn't dramatic
+                        mState = HiddenState.SUCCESS;
+                        break;
+                    }
                     Director.instance().getEventSystem().Fire(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY, mHand.getID(), mPlayCard);
                     mState = HiddenState.CHECK;
                     break;
                 case CHECK:
-                    Logic.ChallengeResult res = Logic.get().ChallengeCard(mPlayCard);
-                    if (res == Logic.ChallengeResult.FAIL) {//we failed!
-                        Director.instance().getEventSystem().Fire(EventSystem.EventType.FAILED_HIDDEN_PLAY, mPlayCard);
+                    if (Logic.get().ChallengeCard(mPlayCard) == Logic.ChallengeResult.FAIL) {//we failed!
+                        Director.instance().getEventSystem().Fire(EventSystem.EventType.FAILED_HIDDEN_PLAY, mHand.getID(), mPlayCard);
                         mState = HiddenState.FAIL;
                     } else {
-                        Director.instance().getEventSystem().Fire(EventSystem.EventType.SUCCESS_HIDDEN_PLAY, mPlayCard);
+                        Director.instance().getEventSystem().Fire(EventSystem.EventType.SUCCESS_HIDDEN_PLAY, mHand.getID(), mPlayCard);
                         mState = HiddenState.SUCCESS;
                     }
                     break;
                 case FAIL:
-                    //mTable.PickUpStack(mHand.getID());
+                    mHand.RemoveCard(mPlayCard);
+                    mHand.AddActiveCard(mPlayCard);
+                    mTable.PickUpStack(mHand.getID());
                     if (mStateListener != null)
                         mStateListener.onDoneState(Logic.ChallengeResult.FAIL);
                     return true;
                 case SUCCESS:
-                    //mTable.AddPlayCard(mHand, mPlayCard);
+                    mTable.AddPlayCard(mHand, mPlayCard);
                     if (mStateListener != null)
-                        mStateListener.onDoneState(Logic.ChallengeResult.SUCCESS);
+                        mStateListener.onDoneState(Logic.get().ChallengeCard(mPlayCard));
                     return true;
             }
         }

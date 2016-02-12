@@ -35,12 +35,15 @@ public class PlayCPUTurn extends PlayTurn {
             default:
                 throw new RuntimeException("I don't expect to be in this mode: " + mPlayMode);
             case HIDDEN:
+                mTurnState = TurnState.PLAY_HIDDEN_CARD;
                 return false;
             case ACTIVE:
                 for (Card c : mHand.GetActiveCards()) {
                     playResult = Logic.get().ChallengeCard(c);
                     if (playResult != Logic.ChallengeResult.FAIL) {
-                        return PlayCard(c);
+                        boolean res = PlayCard(c);
+                        mPlayMode = CheckPlayMode();
+                        return res;
                     }
                 }
                 break;
@@ -50,7 +53,9 @@ public class PlayCPUTurn extends PlayTurn {
                         continue;
                     playResult = Logic.get().ChallengeCard(c);
                     if (playResult != Logic.ChallengeResult.FAIL) {
-                        return PlayCard(c);
+                        boolean res = PlayCard(c);
+                        mPlayMode = CheckPlayMode();
+                        return res;
                     }
                 }
                 break;

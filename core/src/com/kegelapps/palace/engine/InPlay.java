@@ -6,6 +6,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,7 +56,7 @@ public class InPlay implements Serializer{
     @Override
     public Message WriteBuffer() {
         CardsProtos.Played.Builder builder = CardsProtos.Played.newBuilder();
-        for (int i = GetCards().size()-1; i>=0; --i) {
+        for (int i = 0; i<GetCards().size(); ++i) {
             Card c = GetCards().get(i);
             builder.addCards((CardsProtos.Card) c.WriteBuffer());
         }
