@@ -71,8 +71,8 @@ public class PlayTurn extends State {
                         switch (res) {
                             case SUCCESS: mTurnState = TurnState.DONE; break;
                             case FAIL: mTurnState = TurnState.PLAY_CARD; break;
-                            case SUCCESS_AGAIN: mTurnState = TurnState.PLAY_HIDDEN_CARD; break;
-                            case SUCCESS_BURN: mTurnState = TurnState.PLAY_HIDDEN_CARD; break;
+                            case SUCCESS_AGAIN: mTurnState = mHand.HasAnyCards() ? TurnState.PLAY_HIDDEN_CARD : TurnState.DONE; break;
+                            case SUCCESS_BURN: mTurnState = mHand.HasAnyCards() ? TurnState.PLAY_HIDDEN_CARD : TurnState.DONE; break;
                             default:break;
                         }
                     }

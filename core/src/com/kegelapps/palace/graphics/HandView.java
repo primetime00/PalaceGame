@@ -67,6 +67,8 @@ public class HandView extends Group implements ReparentViews {
                             Logic.get().PlayerSelectCard(getHand(), c);
                         else if (getHand().GetEndCards().contains(c))
                             Logic.get().PlayerSelectEndCard(getHand(), c);
+                        else if (getHand().GetHiddenCards().contains(c))
+                            Logic.get().PlayerSelectHiddenCard(getHand(), c);
                     }
                     else if (getHand().GetEndCards().contains(c) && velocityY < -200.0f) {
                         Logic.get().PlayerUnselectCard(getHand(), c);
@@ -282,18 +284,15 @@ public class HandView extends Group implements ReparentViews {
                 if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
                     throw new IllegalArgumentException("Invalid parameters for SELECT_MULTIPLE_CARDS");
                 }
+                if ( !(getParent() instanceof TableView) ) {
+                    throw new RuntimeException("SELECT_MULTIPLE_CARDS requires a TableView parent.");
+                }
+                TableView table = (TableView)getParent();
                 int id = (int) params[0];
                 if (getHand().getID() != id)
                     return;
 
-                if (getParent() instanceof TableView) {
-                    for (Card c : mHand.GetPlayCards().GetAllCards()) {
-                        CardView cardView = CardView.getCardView(c);
-                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                        builder.setPause(false).setDescription("Selecting multiple cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
-                                .setTweenCalculator(new CardAnimation.SelectPendingCard()).build().Start();
-                    }
-                }
+                SelectMultipleCards(table);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mSelectMultipleCards);
@@ -317,6 +316,27 @@ public class HandView extends Group implements ReparentViews {
                 OrganizeCards(true, true, true, true);
             }
         });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_LOADED) {
+            @Override
+            public void handle(Object[] params) {
+                if ( !(getParent() instanceof TableView) ) {
+                    return;
+                }
+                SelectMultipleCards((TableView) getParent());
+
+            }
+        });
+
+    }
+
+    private void SelectMultipleCards(TableView table) {
+        for (Card c : mHand.GetPlayCards().GetAllCards()) {
+            CardView cardView = CardView.getCardView(c);
+            AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+            builder.setPause(false).setDescription("Selecting multiple cards").setTable(table).setCard(cardView).setHandID(getHand().getID())
+                    .setTweenCalculator(new CardAnimation.SelectPendingCard()).build().Start();
+        }
     }
 
     public void OrganizeCards(boolean animation) {

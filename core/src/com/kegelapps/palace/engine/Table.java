@@ -79,6 +79,8 @@ public class Table  implements Serializer{
             hand.RemoveCard(activeCard);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
         }
+        if (res == Logic.ChallengeResult.SUCCESS_AGAIN && hand.HasAnyCards() == false)
+            return Logic.ChallengeResult.SUCCESS;
         return res;
     }
 

@@ -129,6 +129,9 @@ public class DeckView extends Group implements Input.BoundObject {
             @Override
             public void handle(Object[] params) {
                 CheckLowDeck();
+                if (Logic.get().GetMainState() != null) {
+                    setHighlight(Logic.get().GetMainState().containsState(State.Names.TAP_DECK_START));
+                }
             }
         });
 

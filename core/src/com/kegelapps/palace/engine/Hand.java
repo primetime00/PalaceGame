@@ -246,6 +246,16 @@ public class Hand implements Serializer{
         mPendingCards.AddCardAndTransfer(c);
     }
 
+    public void SelectHiddenPlayCard(Card c) {
+        if (!GetActiveCards().isEmpty())
+            return;
+        if (HasEndCards())
+            return;
+        if (!mPendingCards.GetAllCards().isEmpty())
+            return;
+        mPendingCards.AddCardAndTransfer(c);
+    }
+
 
     public void SelectAllPlayCard(Card c) {
         if (mPendingCards.GetAllCards().contains(c))

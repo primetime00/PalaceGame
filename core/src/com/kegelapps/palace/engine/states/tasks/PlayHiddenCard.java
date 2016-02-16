@@ -19,7 +19,7 @@ public class PlayHiddenCard extends State {
     private Table mTable;
     private Hand mHand;
     private Card mPlayCard;
-    private PlayHumanTurn mHumanState;
+    private PlayHumanTurn mHumanTurn;
     private PlayCPUTurn mCPUTurn;
     private HiddenState mState;
 
@@ -35,7 +35,7 @@ public class PlayHiddenCard extends State {
         mTable = table;
         mState = HiddenState.ATTEMPT;
         if (parent instanceof PlayHumanTurn)
-            mHumanState = (PlayHumanTurn) parent;
+            mHumanTurn = (PlayHumanTurn) parent;
         else if (parent instanceof PlayCPUTurn)
             mCPUTurn = (PlayCPUTurn) parent;
         else
@@ -50,6 +50,7 @@ public class PlayHiddenCard extends State {
     @Override
     protected void OnEndRun() {
         super.OnEndRun();
+        mPlayCard = null;
     }
 
     @Override
@@ -64,6 +65,7 @@ public class PlayHiddenCard extends State {
     @Override
     protected void OnFirstRun() {
         mState = HiddenState.ATTEMPT;
+        mPlayCard = null;
         if (mCPUTurn != null) {//we are the cpu, we will pick a random card!
             for (int i : mCPUTurn.RandomCardList()) { //here we pick a random card
                 Card c = mHand.GetHiddenCards().get(i);
@@ -77,6 +79,11 @@ public class PlayHiddenCard extends State {
 
     @Override
     protected boolean OnRun() {
+        if (mHumanTurn != null) {
+            if (mHand.GetPlayCards().GetPendingCards().size() > 0) {
+                mPlayCard = mHand.GetPlayCards().PopCard();
+            }
+        }
         if (mPlayCard != null) { //we have a card to play!
             switch (mState) {
                 case ATTEMPT:

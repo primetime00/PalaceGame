@@ -99,6 +99,14 @@ public class Logic {
             hand.SelectEndPlayCard(c);
     }
 
+    public void PlayerSelectHiddenCard(Hand hand, Card c) {
+        if (mMainState == null)
+            throw new RuntimeException("Logic need a MainState to continue.");
+        if (mMainState.containsState(State.Names.PLAY_HIDDEN_CARD))
+            hand.SelectHiddenPlayCard(c);
+    }
+
+
 
     public void PlayerSelectAllCards(Hand h, Card c) {
         if (mMainState == null)

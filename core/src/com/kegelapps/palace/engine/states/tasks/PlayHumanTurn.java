@@ -86,9 +86,23 @@ public class PlayHumanTurn extends PlayTurn {
     }
 
     private boolean CheckForPossiblePlay() {
-        for (Card c : mHand.GetActiveCards()) {
-            if (Logic.get().ChallengeCard(c) != Logic.ChallengeResult.FAIL)
+        switch (mPlayMode) {
+            case ACTIVE:
+                for (Card c : mHand.GetActiveCards()) {
+                    if (Logic.get().ChallengeCard(c) != Logic.ChallengeResult.FAIL)
+                        return true;
+                }
+                break;
+            case HIDDEN:
                 return true;
+            case END:
+                for (Card c : mHand.GetEndCards()) {
+                    if (c != null) {
+                        if (Logic.get().ChallengeCard(c) != Logic.ChallengeResult.FAIL)
+                            return true;
+                    }
+                }
+                break;
         }
         return false;
     }

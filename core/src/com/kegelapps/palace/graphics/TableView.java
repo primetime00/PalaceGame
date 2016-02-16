@@ -108,6 +108,7 @@ public class TableView extends Group implements Input.BoundObject {
         float h = (Director.instance().getScreenHeight() - CardUtils.getCardTextureHeight())/2.0f;
         mDeck.setPosition(w,h);
         mPlayView.setPosition(mDeck.getX()+CardUtils.getCardWidth()+(CardUtils.getCardWidth()*mDeckToActiveGap), mDeck.getY());
+        mPlayView.ReparentAllViews();
     }
 
     private void createTableEvents() {
@@ -192,17 +193,7 @@ public class TableView extends Group implements Input.BoundObject {
                 if (params == null || params.length != 1 || !(params[0] instanceof State)) {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
-                if ((params[0] instanceof TapToStart)) {
-                    mHelperText.setText("Double Tap Deck To Start!");
-                    float x = mDeck.getX() - (mHelperText.getWidth() + mDeck.getWidth())/4.0f;
-                    float y = mDeck.getY()-(mDeck.getHeight()*0.05f);
-                    mHelperText.setX(x);
-                    mHelperText.setY(y);
-                    mHelperText.setColor(Color.RED);
-                    return;
-                }
-                mHelperText.setText("");
-
+                TapDeckToStart((params[0] instanceof TapToStart));
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
@@ -217,6 +208,7 @@ public class TableView extends Group implements Input.BoundObject {
                 Hand hand =  (Hand) params[1];
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
+                cardView.toFront();
 
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Failed card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID()).
@@ -316,6 +308,7 @@ public class TableView extends Group implements Input.BoundObject {
                     Vector2 pos = HandUtils.GetHandPosition(TableView.this, side);
                     mCamera.SetPosition(pos, 1.0f, HandUtils.HandSideToCamera(side));
                 }
+                TapDeckToStart(s.containsState(State.Names.TAP_DECK_START));
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLoadedState);
@@ -553,7 +546,10 @@ public class TableView extends Group implements Input.BoundObject {
                 if (mPlayView.mInPlayCards.GetTopCard().getRank() == card.getRank()) {
                     ((GameScene)getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
                 }
-                else {
+                else if (card.getRank() == Card.Rank.TWO) {
+                    ((GameScene)getStage()).ShowMessage("That's it!", startDelay, Color.GREEN);
+                }
+                else if (card.getRank() != Card.Rank.TEN) {
                     ((GameScene)getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
                 }
 
@@ -699,5 +695,18 @@ public class TableView extends Group implements Input.BoundObject {
 
     public InPlayView getPlayView() {
         return mPlayView;
+    }
+
+    private void TapDeckToStart(boolean enable) {
+        if (enable) {
+            mHelperText.setText("Double Tap Deck To Start!");
+            float x = mDeck.getX() - (mHelperText.getWidth() + mDeck.getWidth()) / 4.0f;
+            float y = mDeck.getY() - (mDeck.getHeight() * 0.05f);
+            mHelperText.setX(x);
+            mHelperText.setY(y);
+            mHelperText.setColor(Color.RED);
+            return;
+        }
+        mHelperText.setText("");
     }
 }
