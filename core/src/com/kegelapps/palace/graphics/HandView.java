@@ -2,8 +2,10 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -80,8 +82,6 @@ public class HandView extends Group implements ReparentViews {
             public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
                 super.pan(event, x, y, deltaX, deltaY);
                 if (Math.abs(deltaX) >6.0f) {
-                    String s = String.format("Pan %f", deltaX);
-                    System.out.print(s + " - " + event.getTarget().getName() + "\n");
                     PanCamera(deltaX);
                 }
             }
@@ -503,6 +503,13 @@ public class HandView extends Group implements ReparentViews {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+        if (!mHand.HasAnyCards()) {
+            TextureRegion r = CardUtils.getCoin(CardUtils.CoinType.GOLD);
+            Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
+            batch.draw(r, center.x - r.getRegionWidth()/2.0f, center.y - r.getRegionHeight()/2.0f,
+                    CardUtils.getCoinOriginX(), CardUtils.getCoinOriginY(), r.getRegionWidth(), r.getRegionHeight(),
+                    CardUtils.getCoinScale(), CardUtils.getCoinScale(), 0.0f);
+        }
     }
 
 

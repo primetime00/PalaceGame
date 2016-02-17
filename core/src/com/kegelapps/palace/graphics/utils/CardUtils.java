@@ -13,6 +13,8 @@ public class CardUtils {
     static private int cardWidth = 750;
     static private int cardHeight = 1089;
     static private TextureAtlas mCardAtlas;
+    static private TextureAtlas mCoinAtlas;
+    static private float mCoinScale = 0.5f;
     static private TextureAtlas.AtlasRegion mCardBack = null;
     static private CardSize mLoadedCardSize;
 
@@ -27,6 +29,12 @@ public class CardUtils {
         LARGE
     }
 
+    public enum CoinType {
+        GOLD,
+        SILVER,
+        BRONZE
+    }
+
     static public void loadCards(CardSize size) {
         String file;
         switch (size) {
@@ -35,12 +43,12 @@ public class CardUtils {
         }
         mLoadedCardSize = size;
         mCardAtlas = new TextureAtlas(file);
+        mCoinAtlas = new TextureAtlas("coins.pack");
         int ov = (int)(getCardWidth() * 0.05f);
         mCardHighlight = new Pixmap(getCardWidth()-ov, getCardHeight()-ov, Pixmap.Format.RGBA8888);
         mCardHighlight.setColor(Color.WHITE);
         mCardHighlight.fillRectangle(0, 0, mCardHighlight.getWidth(), mCardHighlight.getHeight());
         mCardHighlightTexture = new Texture(mCardHighlight);
-
     }
 
     static public int getCardWidth() {
@@ -77,5 +85,31 @@ public class CardUtils {
     }
 
     static public Texture getCardHighlight() { return mCardHighlightTexture;}
+
+    static public TextureAtlas.AtlasRegion getCoin(CoinType type) {
+        String val;
+        switch (type) {
+            case GOLD: val = "gold_coin"; break;
+            case SILVER: val = "silver_coin"; break;
+            case BRONZE: val = "bronze_coin"; break;
+            default: val = null;
+        }
+        if (val == null)
+            return null;
+        return mCoinAtlas.findRegion(val);
+    }
+
+    static public float getCoinScale() {
+        return mCoinScale;
+    }
+
+    static public float getCoinOriginX() {
+        return mCoinAtlas.findRegion("gold_coin").getRegionWidth()/2.0f;
+    }
+
+    static public float getCoinOriginY() {
+        return mCoinAtlas.findRegion("gold_coin").getRegionHeight()/2.0f;
+    }
+
 
 }

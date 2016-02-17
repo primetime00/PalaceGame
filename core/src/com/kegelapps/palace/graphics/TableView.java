@@ -8,10 +8,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
@@ -27,6 +26,7 @@ import com.kegelapps.palace.engine.states.tasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
+import com.kegelapps.palace.input.TablePanListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,14 +45,6 @@ public class TableView extends Group implements Input.BoundObject {
     private Map<HandUtils.HandSide, HandView> mHandSide;
     private CardCamera mCamera;
 
-    private TouchPosition mPosition = TouchPosition.NONE;
-    private enum TouchPosition {
-        TOP,
-        LEFT,
-        RIGHT,
-        NONE
-    }
-
     private Array<CardView> mCards;
 
     private Pixmap mPixmap;
@@ -61,8 +53,6 @@ public class TableView extends Group implements Input.BoundObject {
     final private float mDeckToActiveGap = 0.15f;
 
     private TextView mHelperText;
-    private ActorGestureListener mGestureListener;
-
 
     public TableView(Table table, CardCamera cam) {
         mTable = table;
@@ -86,7 +76,6 @@ public class TableView extends Group implements Input.BoundObject {
     private void init() {
         mHelperText = new TextView(Director.instance().getGameFont());
 
-
         mPixmap = new Pixmap(Director.instance().getVirtualWidth(),Director.instance().getVirtualHeight(), Pixmap.Format.RGB888);
         mPixmap.setColor(Color.GREEN);
         mPixmap.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
@@ -102,64 +91,7 @@ public class TableView extends Group implements Input.BoundObject {
 
         createTableEvents();
 
-        mGestureListener = new ActorGestureListener() {
-            @Override
-            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
-                super.pan(event, x, y, deltaX, deltaY);
-                CardCamera cam = getCamera();
-                switch (mPosition) {
-                    case TOP:
-                        if (Math.abs(deltaY) > 6.0f) {
-                            cam.position.add(0, -deltaY / 1.0f, 0);
-                            HandView h = getHandFromSide(HandUtils.HandSide.SIDE_TOP);
-                            if (cam.position.y + (cam.viewportHeight / 2.0f) > h.getActivePosition().getY() + h.getActivePosition().getHeight())
-                                cam.position.y = (h.getActivePosition().getY() + h.getActivePosition().getHeight()) - (cam.viewportHeight / 2.0f);
-                        }
-                        break;
-                    case RIGHT:
-                    case LEFT:
-                        if (Math.abs(deltaX) > 6.0f) {
-                            cam.position.add(-deltaX / 1.0f, 0, 0);
-                        }
-                        break;
-                    default: break;
-                }
-            }
-
-            @Override
-            public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                super.touchDown(event, x, y, pointer, button);
-                float w = Director.instance().getScreenWidth();
-                float h = Director.instance().getScreenHeight();
-                if (mPosition == TouchPosition.NONE) {
-                    Vector3 pos = getCamera().unproject(new Vector3(x,y,0));
-                    if (pos.x > w*0.1f && pos.x < w - (w*0.1f) && pos.y < h*0.25f) { //top center
-                        mPosition = TouchPosition.TOP;
-                    }
-                    else if (pos.x < w*0.25f && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Left center
-                        mPosition = TouchPosition.LEFT;
-                    }
-                    else if (pos.x > w-(w*0.25f) && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Right center
-                        mPosition = TouchPosition.RIGHT;
-                    }
-                }
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                super.touchUp(event, x, y, pointer, button);
-                if (mPosition != TouchPosition.NONE) {
-                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
-                    builder.setPause(true).setDescription("Move camera to current turn").setTable(TableView.this).
-                            setCameraSide(mCamera.GetSide()).setCamera(mCamera).
-                            setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 0.5f)).build().Start();
-                }
-                mPosition = TouchPosition.NONE;
-
-            }
-        };
-        addListener(mGestureListener);
-
+        addListener(new TablePanListener(this));
 
         mHandSide = new HashMap<>();
         for (HandView h : mHands) {
