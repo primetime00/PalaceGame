@@ -77,6 +77,16 @@ public class HandView extends Group implements ReparentViews {
             }
 
             @Override
+            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
+                super.pan(event, x, y, deltaX, deltaY);
+                if (Math.abs(deltaX) >6.0f) {
+                    String s = String.format("Pan %f", deltaX);
+                    System.out.print(s + " - " + event.getTarget().getName() + "\n");
+                    PanCamera(deltaX);
+                }
+            }
+
+            @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 super.touchUp(event, x, y, pointer, button);
                 if ( !(event.getTarget() instanceof CardView) )
@@ -524,4 +534,11 @@ public class HandView extends Group implements ReparentViews {
 
         OrganizeCards(false);
     }
+
+    private void PanCamera(float x) {
+        if ( !(getParent() instanceof TableView) )
+            throw new RuntimeException("To pan the camera, the parent must be a TableView");
+        ((TableView) getParent()).PanCamera(x, this);
+    }
+
 }

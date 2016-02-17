@@ -7,7 +7,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
@@ -41,6 +45,14 @@ public class TableView extends Group implements Input.BoundObject {
     private Map<HandUtils.HandSide, HandView> mHandSide;
     private CardCamera mCamera;
 
+    private TouchPosition mPosition = TouchPosition.NONE;
+    private enum TouchPosition {
+        TOP,
+        LEFT,
+        RIGHT,
+        NONE
+    }
+
     private Array<CardView> mCards;
 
     private Pixmap mPixmap;
@@ -49,6 +61,8 @@ public class TableView extends Group implements Input.BoundObject {
     final private float mDeckToActiveGap = 0.15f;
 
     private TextView mHelperText;
+    private ActorGestureListener mGestureListener;
+
 
     public TableView(Table table, CardCamera cam) {
         mTable = table;
@@ -87,6 +101,58 @@ public class TableView extends Group implements Input.BoundObject {
 
 
         createTableEvents();
+
+        mGestureListener = new ActorGestureListener() {
+            @Override
+            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
+                super.pan(event, x, y, deltaX, deltaY);
+                CardCamera cam = getCamera();
+                switch (mPosition) {
+                    case TOP: cam.position.add(0, -deltaY/2.0f, 0);
+                        HandView h = getHandFromSide(HandUtils.HandSide.SIDE_TOP);
+                        if (cam.position.y + (cam.viewportHeight/2.0f) >  h.getActivePosition().getY() + h.getActivePosition().getHeight())
+                            cam.position.y = (h.getActivePosition().getY() + h.getActivePosition().getHeight()) - (cam.viewportHeight/2.0f) ;
+                        break;
+                    case RIGHT:
+                    case LEFT: cam.position.add(-deltaX/2.0f, 0, 0); break;
+                    default: break;
+                }
+            }
+
+            @Override
+            public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                super.touchDown(event, x, y, pointer, button);
+                float w = Director.instance().getScreenWidth();
+                float h = Director.instance().getScreenHeight();
+                if (mPosition == TouchPosition.NONE) {
+                    Vector3 pos = getCamera().unproject(new Vector3(x,y,0));
+                    if (pos.x > w*0.1f && pos.x < w - (w*0.1f) && pos.y < h*0.25f) { //top center
+                        mPosition = TouchPosition.TOP;
+                    }
+                    else if (pos.x < w*0.25f && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Left center
+                        mPosition = TouchPosition.LEFT;
+                    }
+                    else if (pos.x > w-(w*0.25f) && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Right center
+                        mPosition = TouchPosition.RIGHT;
+                    }
+                }
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                super.touchUp(event, x, y, pointer, button);
+                if (mPosition != TouchPosition.NONE) {
+                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                    builder.setPause(true).setDescription("Move camera to current turn").setTable(TableView.this).
+                            setCameraSide(mCamera.GetSide()).setCamera(mCamera).
+                            setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 0.5f)).build().Start();
+                }
+                mPosition = TouchPosition.NONE;
+
+            }
+        };
+        addListener(mGestureListener);
+
 
         mHandSide = new HashMap<>();
         for (HandView h : mHands) {
@@ -649,34 +715,6 @@ public class TableView extends Group implements Input.BoundObject {
         return mTable;
     }
 
-    public Vector2 MoveCamera(HandUtils.HandSide side) {
-        Vector2 res = new Vector2();
-        float camX;
-        float camY;
-        CardCamera camera = Director.instance().getScene().getCardCamera();
-        switch (side) {
-            default:
-            case SIDE_BOTTOM:
-                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
-                camY = mHands.get(0).getHiddenPosition(0).getY() + CardUtils.getCardHeight();
-                break;
-            case SIDE_LEFT:
-                camX = mHands.get(1).getHiddenPosition(0).getX() - CardUtils.getCardWidth();
-                camY = mDeck.getY()+(mDeck.getHeight()/2.0f);
-                break;
-            case SIDE_TOP:
-                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
-                camY = mHands.get(2).getHiddenPosition(0).getY() - CardUtils.getCardHeight();
-                break;
-            case SIDE_RIGHT:
-                camX = mHands.get(3).getHiddenPosition(0).getX() + CardUtils.getCardWidth();
-                camY = mDeck.getY()+(mDeck.getHeight()/2.0f);
-                break;
-        }
-        res.set(camX, camY);
-        return res;
-    }
-
     public HandView getHandFromSide(HandUtils.HandSide side) {
         return mHandSide.get(side);
     }
@@ -709,4 +747,27 @@ public class TableView extends Group implements Input.BoundObject {
         }
         mHelperText.setText("");
     }
+
+    public void PanCamera(float x, HandView hand) {
+        if (Logic.get().GetMainState() == null)
+            return;
+        if (!Logic.get().GetMainState().containsState(State.Names.PLAY_HUMAN_TURN))
+            return;
+        x*=-0.5f;
+        float left = hand.getActivePosition().getX();
+        float right = hand.getActivePosition().getWidth() + left;
+        CardCamera cam = getCamera();
+        if (x < 0 && cam.position.x - (cam.viewportWidth/2.0f) > left)
+            getCamera().position.add(x, 0, 0);
+        else if (x > 0 && cam.position.x + (cam.viewportWidth/2.0f) < right)
+            getCamera().position.add(x, 0, 0);
+
+        if (cam.position.x - (cam.viewportWidth/2.0f) < left)
+            cam.position.x = left +  (cam.viewportWidth/2.0f);
+        else if (cam.position.x + (cam.viewportWidth/2.0f) > right)
+            cam.position.x = right -  (cam.viewportWidth/2.0f);
+
+
+    }
+
 }
