@@ -108,13 +108,20 @@ public class TableView extends Group implements Input.BoundObject {
                 super.pan(event, x, y, deltaX, deltaY);
                 CardCamera cam = getCamera();
                 switch (mPosition) {
-                    case TOP: cam.position.add(0, -deltaY/2.0f, 0);
-                        HandView h = getHandFromSide(HandUtils.HandSide.SIDE_TOP);
-                        if (cam.position.y + (cam.viewportHeight/2.0f) >  h.getActivePosition().getY() + h.getActivePosition().getHeight())
-                            cam.position.y = (h.getActivePosition().getY() + h.getActivePosition().getHeight()) - (cam.viewportHeight/2.0f) ;
+                    case TOP:
+                        if (Math.abs(deltaY) > 6.0f) {
+                            cam.position.add(0, -deltaY / 1.0f, 0);
+                            HandView h = getHandFromSide(HandUtils.HandSide.SIDE_TOP);
+                            if (cam.position.y + (cam.viewportHeight / 2.0f) > h.getActivePosition().getY() + h.getActivePosition().getHeight())
+                                cam.position.y = (h.getActivePosition().getY() + h.getActivePosition().getHeight()) - (cam.viewportHeight / 2.0f);
+                        }
                         break;
                     case RIGHT:
-                    case LEFT: cam.position.add(-deltaX/2.0f, 0, 0); break;
+                    case LEFT:
+                        if (Math.abs(deltaX) > 6.0f) {
+                            cam.position.add(-deltaX / 1.0f, 0, 0);
+                        }
+                        break;
                     default: break;
                 }
             }
