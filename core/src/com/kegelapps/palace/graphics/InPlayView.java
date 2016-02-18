@@ -13,6 +13,7 @@ import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.Play;
@@ -85,12 +86,16 @@ public class InPlayView extends Group implements ReparentViews {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.BURN_CARDS) {
             @Override
             public void handle(Object[] params) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Card)) {
+                    throw new IllegalArgumentException("Invalid parameters for BURN_CARDS");
+                }
                 if ( !(getParent() instanceof TableView) )
                     throw new RuntimeException("Cannot burn cards without a TableView parent");
                 if ( !(getStage() instanceof GameScene) )
                     throw new RuntimeException("Burning cards requires a GameScene Stage");
                 GameScene stage = (GameScene) getStage();
                 TableView table = (TableView) getParent();
+                Card topCard = (Card) params[0];
                 Play pState = (Play) Logic.get().GetMainState().getState(State.Names.PLAY);
                 DrawPlayCard dState = (DrawPlayCard) Logic.get().GetMainState().getState(State.Names.DRAW_PLAY_CARD);
                 if (pState == null && dState == null) {
@@ -98,7 +103,7 @@ public class InPlayView extends Group implements ReparentViews {
                 }
                 CardCamera.CameraSide side = CardCamera.CameraSide.BOTTOM;
                 if (pState != null)
-                    side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(pState.getCurrentPlayer(), table));
+                    side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(table.getTable().getCurrentPlayer(), table));
                 int cardSize = mInPlayCards.GetCards().size();
                 for (int i=0; i<cardSize; ++i) {
                     Card c = mInPlayCards.GetCards().get(i);
@@ -122,7 +127,13 @@ public class InPlayView extends Group implements ReparentViews {
                         burnBuilder.setNextAnimation(cameraBuilder.build());
                     }
                     //lets show the burn message!
-                    String message = (dState != null ? "THAT'S A BURN!" : "BURN!");
+                    String message = "THAT'S A BURN!";
+                    if (topCard != null) {
+                        if (topCard.getRank() == Card.Rank.TEN)
+                            message = "BURN!";
+                        else
+                            message = "4 IN A ROW BURN!";
+                    }
                     stage.ShowMessage(message, 1.0f, Color.FIREBRICK);
 
                     burnBuilder.build().Start();

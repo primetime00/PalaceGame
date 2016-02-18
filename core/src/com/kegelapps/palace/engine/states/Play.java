@@ -3,6 +3,7 @@ package com.kegelapps.palace.engine.states;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
@@ -13,7 +14,6 @@ import com.kegelapps.palace.protos.StateProtos;
  */
 public class Play extends State {
 
-    private int mCurrentPlayer;
     private Table mTable;
 
     private StateListener mSingleTurnDone;
@@ -21,17 +21,13 @@ public class Play extends State {
 
     public Play(State parent, Table table) {
         super(parent);
-        mCurrentPlayer = 0;
         mTable = table;
 
         mSingleTurnDone = new StateListener() {
             @Override
             public void onDoneState() {
-                do { //are we out of the game?
-                    mCurrentPlayer++;
-                    mCurrentPlayer %= mTable.getHands().size();
-                } while (!mTable.getHands().get(mCurrentPlayer).HasAnyCards());
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mCurrentPlayer).getID());
+                mTable.NextTurn();
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayer()).getID());
             }
         };
 
@@ -47,15 +43,12 @@ public class Play extends State {
 
     @Override
     protected boolean OnRun() {
+        int mCurrentPlayer = mTable.getCurrentPlayer();
         if (mTable.getHands().get(mCurrentPlayer).getType() == Hand.HandType.HUMAN)
             mChildrenStates.getState(Names.PLAY_HUMAN_TURN, mCurrentPlayer).Execute();
         else
             mChildrenStates.getState(Names.PLAY_CPU_TURN, mCurrentPlayer).Execute();
         return false;
-    }
-
-    public int getCurrentPlayer() {
-        return mCurrentPlayer;
     }
 
     @Override
@@ -68,7 +61,7 @@ public class Play extends State {
         StateProtos.State s = (StateProtos.State) super.WriteBuffer();
 
         StateProtos.PlayState.Builder builder = StateProtos.PlayState.newBuilder();
-        builder.setCurrentPlayer(mCurrentPlayer);
+        //builder.setCurrentPlayer(mCurrentPlayer);
         s = s.toBuilder().setExtension(StateProtos.PlayState.state, builder.build()).build();
         return s;
     }
@@ -77,6 +70,6 @@ public class Play extends State {
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
         StateProtos.PlayState selectEndCardState = ((StateProtos.State) msg).getExtension(StateProtos.PlayState.state);
-        mCurrentPlayer = selectEndCardState.getCurrentPlayer();
+        //mCurrentPlayer = selectEndCardState.getCurrentPlayer();
     }
 }

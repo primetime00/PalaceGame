@@ -236,7 +236,7 @@ public class TableView extends Group implements Input.BoundObject {
         EventSystem.EventListener mCardPlaySuccess = new EventSystem.EventListener(EventSystem.EventType.CARD_PLAY_SUCCESS) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
+                if (params == null || params.length != 3 || !(params[0] instanceof Card) || !(params[1] instanceof Hand) || !(params[2] instanceof Boolean)) {
                     throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_SUCCESS");
                 }
                 Hand hand =  (Hand) params[1];
@@ -249,7 +249,8 @@ public class TableView extends Group implements Input.BoundObject {
                     mPlayView.addActor(cardView);
 
                 //are we playing a burn?
-                boolean isBurnPlay = c.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
+                boolean isBurnPlay = (boolean) params[2];
+                //boolean isBurnPlay = c.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
 
                 AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
@@ -307,7 +308,7 @@ public class TableView extends Group implements Input.BoundObject {
                     if (s.getState(State.Names.SELECT_END_CARDS) != null || s.getState(State.Names.DRAW_PLAY_CARD) != null || s.getState(State.Names.DEAL) != null)
                         side = HandUtils.HandSide.SIDE_BOTTOM;
                     else if (s.getState(State.Names.PLAY) != null) {
-                        int id = ((Play)(s.getState(State.Names.PLAY))).getCurrentPlayer();
+                        int id = getTable().getCurrentPlayer();
                         side = getSideFromHand(id);
                     }
                     Vector2 pos = HandUtils.GetHandPosition(TableView.this, side);

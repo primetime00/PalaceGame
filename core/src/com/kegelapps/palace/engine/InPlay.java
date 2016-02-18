@@ -40,7 +40,7 @@ public class InPlay implements Serializer{
     }
 
     public void Burn() {
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS);
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS, GetTopCard());
         Clear();
     }
 

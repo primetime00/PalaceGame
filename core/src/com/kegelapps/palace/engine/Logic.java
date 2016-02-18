@@ -23,6 +23,7 @@ public class Logic {
     private static Logic mLogic;
 
 
+
     public enum ChallengeResult {
         FAIL,
         SUCCESS,
@@ -31,6 +32,7 @@ public class Logic {
     }
 
     private int mNumberOfPlayers = 0;
+    private int mCurrentPlayer = 0;
 
     private boolean mFastDeal = false;
 
@@ -207,6 +209,17 @@ public class Logic {
         if (mTable == null)
             mNumberOfPlayers = num;
     }
+/*
+    public void NextTurn() {
+        do { //are we out of the game?
+            mCurrentPlayer++;
+            mCurrentPlayer %= mTable.getHands().size();
+        } while (!mTable.getHands().get(mCurrentPlayer).HasAnyCards());
+    }
 
+    public int getCurrentPlayer() {
+        return mCurrentPlayer;
+    }
+*/
 
 }

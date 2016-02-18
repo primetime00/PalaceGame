@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
@@ -20,6 +21,9 @@ public class Table  implements Serializer{
 
     //should the table have the hands?
     List<Hand> mHands;
+
+    private int mCurrentPlayer = 0;
+    private int mNumberOfCardsPlayed = 0;
 
     public interface TableListener {
         void onDealCard(Hand hand, Card c);
@@ -77,7 +81,15 @@ public class Table  implements Serializer{
         else {
             mPlayCards.AddCard(activeCard);
             hand.RemoveCard(activeCard);
-            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand);
+            mNumberOfCardsPlayed++;
+            boolean isTenBurn = activeCard.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
+            boolean isNumberCardsBurn = mNumberOfCardsPlayed == 4;
+            if (isTenBurn)
+                mNumberOfCardsPlayed = 0;
+            boolean isBurnPlay = isTenBurn || isNumberCardsBurn;
+            Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand, isBurnPlay);
+            if (res != Logic.ChallengeResult.SUCCESS_BURN && isBurnPlay)
+                res = Logic.ChallengeResult.SUCCESS_BURN;
         }
         if (res == Logic.ChallengeResult.SUCCESS_AGAIN && hand.HasAnyCards() == false)
             return Logic.ChallengeResult.SUCCESS;
@@ -125,5 +137,15 @@ public class Table  implements Serializer{
         return tableBuilder.build();
     }
 
+    public void NextTurn() {
+        mNumberOfCardsPlayed = 0;
+        do { //are we out of the game?
+            mCurrentPlayer++;
+            mCurrentPlayer %= getHands().size();
+        } while (!getHands().get(mCurrentPlayer).HasAnyCards());
+    }
 
+    public int getCurrentPlayer() {
+        return mCurrentPlayer;
+    }
 }
