@@ -79,6 +79,10 @@ public class Table  implements Serializer{
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_FAILED, activeCard, hand);
         }
         else {
+            if (mNumberOfCardsPlayed > 0) { //we've played 1 card
+                if (mPlayCards.GetTopCard().getRank() != activeCard.getRank()) //we played a 2 first and then other cards
+                    mNumberOfCardsPlayed = 0;
+            }
             mPlayCards.AddCard(activeCard);
             hand.RemoveCard(activeCard);
             mNumberOfCardsPlayed++;
@@ -98,6 +102,7 @@ public class Table  implements Serializer{
 
     public void Burn() {
         mPlayCards.Burn();
+        mNumberOfCardsPlayed = 0;
     }
 
     public void PickUpStack(int id) {
@@ -124,6 +129,8 @@ public class Table  implements Serializer{
         for (CardsProtos.Hand handProto : table.getHandsList()) {
             mHands.add(new Hand(handProto));
         }
+        if (table.hasCurrentTurn())
+            mCurrentPlayer = table.getCurrentTurn();
     }
 
     @Override
@@ -134,18 +141,30 @@ public class Table  implements Serializer{
         for (Hand hand : mHands) {
             tableBuilder.addHands((CardsProtos.Hand) hand.WriteBuffer());
         }
+        tableBuilder.setCurrentTurn(mCurrentPlayer);
         return tableBuilder.build();
     }
 
     public void NextTurn() {
         mNumberOfCardsPlayed = 0;
+        int prevTurn = mCurrentPlayer;
         do { //are we out of the game?
             mCurrentPlayer++;
             mCurrentPlayer %= getHands().size();
         } while (!getHands().get(mCurrentPlayer).HasAnyCards());
+        if (prevTurn > mCurrentPlayer)
+            Logic.get().getStats().NextRound();
     }
 
     public int getCurrentPlayer() {
         return mCurrentPlayer;
+    }
+
+    public Hand GetHand(int id) {
+        for (Hand h : getHands()) {
+            if (id == h.getID())
+                return h;
+        }
+        return null;
     }
 }

@@ -5,8 +5,10 @@ option java_outer_classname = "StatusProtos";
 
 import "Cards.proto";
 import "State.proto";
+import "Logic.proto";
 
 message Status {
     required Table table = 1;
     required State mainState = 2;
+    required Logic logic = 3;
 }

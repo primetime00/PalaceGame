@@ -2,7 +2,6 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,18 +12,14 @@ import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.InPlay;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.DrawPlayCard;
+import com.kegelapps.palace.engine.states.dealtasks.DrawPlayCard;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Ryan on 1/25/2016.
@@ -164,7 +159,7 @@ public class InPlayView extends Group implements ReparentViews {
         mNextCardPosition.set(x, y);
         mTotalAreaRectangle = calculateTotalSize();
         if (mTotalAreaRectangle != null) {
-            setPosition(mTotalAreaRectangle.x, mTotalAreaRectangle.y);
+            //setPosition(mTotalAreaRectangle.x, mTotalAreaRectangle.y);
             setWidth(mTotalAreaRectangle.getWidth());
             setHeight(mTotalAreaRectangle.getHeight());
         }
@@ -181,11 +176,16 @@ public class InPlayView extends Group implements ReparentViews {
         }
         return totalRect;
     }
+    public Vector2 CalculateAbsolutePositionSizeForCard(int index) {
+        Vector2 v = CalculatePositionSizeForCard(index);
+        v.add(getX(), getY());
+        return v;
+    }
 
-    public Vector2 CalculatePositionSizeForCard(int index) {
+    private Vector2 CalculatePositionSizeForCard(int index) {
         Vector2 res = new Vector2();
-        float x = mPlayRectangle.getX();
-        float y = mPlayRectangle.getY();
+        float x = 0;//mPlayRectangle.getX();
+        float y = 0;//mPlayRectangle.getY();
         int size = index;
         int left = size % cardsHorizontal;
         int down = size/cardsHorizontal;
@@ -202,10 +202,18 @@ public class InPlayView extends Group implements ReparentViews {
         return mNextCardPosition;
     }
 
+    public Vector2 GetAbsoluteNextCardPosition() {
+        if (getParent() == null)
+            return mNextCardPosition;
+        Vector2 pos = localToAscendantCoordinates(getParent(), new Vector2(mNextCardPosition));
+        return pos;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
         //we don't want to apply a transform
-        drawChildren(batch, parentAlpha);
+        //drawChildren(batch, parentAlpha);
+        super.draw(batch, parentAlpha);
         if (mHighlightView.isVisible())
             mHighlightView.draw(batch, this);
 
@@ -232,10 +240,23 @@ public class InPlayView extends Group implements ReparentViews {
         CalculatePositionAndSize();
     }
 
+    public void OrganizePile() {
+        int i=0;
+        for (Actor c : getChildren()) {
+            Vector2 pos = CalculatePositionSizeForCard(i++);
+            c.setPosition(pos.x, pos.y);
+        }
+    }
+
     public void setHighlight(boolean highlight) {
         if (highlight)
             mHighlightView.show();
         else
             mHighlightView.hide();
+    }
+
+    @Override
+    public String toString() {
+        return "InPlayView";
     }
 }

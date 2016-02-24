@@ -61,7 +61,6 @@ public class Play extends State {
         StateProtos.State s = (StateProtos.State) super.WriteBuffer();
 
         StateProtos.PlayState.Builder builder = StateProtos.PlayState.newBuilder();
-        //builder.setCurrentPlayer(mCurrentPlayer);
         s = s.toBuilder().setExtension(StateProtos.PlayState.state, builder.build()).build();
         return s;
     }

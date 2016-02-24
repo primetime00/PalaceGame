@@ -38,7 +38,6 @@ message PlayState {
     extend State {
         optional PlayState state = 102;
     }
-    required int32 currentPlayer = 1;
 }
 
 message SelectEndCardState {

@@ -33,7 +33,8 @@ public class State implements Serializer{
         TAP_DECK_START,
         BURN_CARDS,
         SELECT_CARDS_FROM_DECK,
-        PLAY_HIDDEN_CARD
+        PLAY_HIDDEN_CARD,
+        WIN
     }
 
     public interface OnStateListener {

@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
@@ -20,9 +17,8 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.TapToStart;
+import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
@@ -113,7 +109,7 @@ public class TableView extends Group implements Input.BoundObject {
         float h = (Director.instance().getScreenHeight() - CardUtils.getCardTextureHeight())/2.0f;
         mDeck.setPosition(w,h);
         mPlayView.setPosition(mDeck.getX()+CardUtils.getCardWidth()+(CardUtils.getCardWidth()*mDeckToActiveGap), mDeck.getY());
-        mPlayView.ReparentAllViews();
+        //mPlayView.ReparentAllViews();
     }
 
     private void createTableEvents() {
@@ -242,11 +238,9 @@ public class TableView extends Group implements Input.BoundObject {
                 Hand hand =  (Hand) params[1];
 
                 Card c = (Card) params[0];
-                CardView cardView = CardView.getCardView(c);
+                final CardView cardView = CardView.getCardView(c);
 
-                cardView.remove();
-                if (mPlayView.findActor(cardView.getName()) == null)
-                    mPlayView.addActor(cardView);
+                HandUtils.Reparent(TableView.this, cardView);
 
                 //are we playing a burn?
                 boolean isBurnPlay = (boolean) params[2];
@@ -256,8 +250,14 @@ public class TableView extends Group implements Input.BoundObject {
                 builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
                 builder.killPreviousAnimation(cardView);
                 Animation cardAnimation = null, cameraZoomAnimation = null;
-                if (!isBurnPlay) {
+                if (!isBurnPlay || !hand.HasAnyCards()) {
                     cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessCard()).build();
+                    cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            HandUtils.Reparent(mPlayView, cardView);
+                        }
+                    });
                     cardAnimation.Start();
                 }
                 else {
@@ -265,12 +265,6 @@ public class TableView extends Group implements Input.BoundObject {
 
                     cameraZoomAnimation = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
                             setPause(true).setDescription("Zoom to play cards").setTable(TableView.this).setCamera(mCamera).
-                            addStatusListener(new Animation.AnimationStatusListener() {
-                                @Override
-                                public void onEnd(Animation animation) {
-                                    super.onEnd(animation);
-                                }
-                            }).
                             setCameraSide(CardCamera.CameraSide.UNKNOWN).setTweenCalculator(new CameraAnimation.ZoomToPlayCards(0.75f, 1.0f)).build();
 
                     cameraZoomAnimation.Start();
@@ -416,6 +410,7 @@ public class TableView extends Group implements Input.BoundObject {
                 }
                 if (hand == null)
                     return;
+
                 final HandView handView = hand;
                 float delay = 0.05f;
 
@@ -431,8 +426,7 @@ public class TableView extends Group implements Input.BoundObject {
                         @Override
                         public void run() {
                             CardView cv = builder.getCard();
-                            cv.remove();
-                            addActor(cv);
+                            HandUtils.Reparent(TableView.this, cv);
                         }
                     });
                     delay+=0.1f; //add a delay of 0.1 seconds before the next card is dealt
@@ -441,7 +435,7 @@ public class TableView extends Group implements Input.BoundObject {
                             @Override
                             public void onEnd(Animation animation) {
                                 CardView cv = builder.getCard();
-                                cv.remove();
+                                HandUtils.Reparent(handView, cv);
                                 if (handView.getHand().getType() == Hand.HandType.HUMAN)
                                     cv.setSide(CardView.Side.FRONT);
                                 else
@@ -492,8 +486,9 @@ public class TableView extends Group implements Input.BoundObject {
                         hiddenRect = hand.getHiddenPosition(i);
                 }
                 Vector2 cardCenter = hiddenRect.getCenter(new Vector2());
-                Vector2 playCenter = new Rectangle(mPlayView.mNextCardPosition.x, mPlayView.mNextCardPosition.y, CardUtils.getCardWidth(), CardUtils.getCardTextureHeight()).getCenter(new Vector2());
-                Vector2 nextPos = mPlayView.CalculatePositionSizeForCard(mPlayView.getInPlay().GetCards().size());
+                Vector2 pos = mPlayView.GetAbsoluteNextCardPosition();
+                Vector2 playCenter = new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardTextureHeight()).getCenter(new Vector2());
+                Vector2 nextPos = mPlayView.CalculateAbsolutePositionSizeForCard(mPlayView.getInPlay().GetCards().size());
 
                 //lets bring the hand zindex to the front.
                 mPlayView.toBack();
@@ -511,6 +506,9 @@ public class TableView extends Group implements Input.BoundObject {
 
                 zoomBuilder.setNextAnimation(deckBuilder.build());
                 zoomBuilder.build().Start();
+
+                //lets bring the card to the table
+                HandUtils.Reparent(TableView.this, cardView);
 
                 final AnimationBuilder cardBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 cardBuilder.setPause(true).setDescription("Move card to play pile").setTable(TableView.this).setCard(cardView).setHandID(id);
@@ -548,6 +546,12 @@ public class TableView extends Group implements Input.BoundObject {
                 }
                 if (hand == null)
                     return;
+
+                CardView cardView = CardView.getCardView(card);
+
+                //lets place the card into the playview
+                HandUtils.Reparent(mPlayView, cardView);
+
                 //display a message of some sort depending on how successful
                 if (mPlayView.mInPlayCards.GetTopCard().getRank() == card.getRank()) {
                     ((GameScene)getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
@@ -559,7 +563,12 @@ public class TableView extends Group implements Input.BoundObject {
                     ((GameScene)getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
                 }
 
-                CardView cardView = CardView.getCardView(card);
+                //no need to zoom back to turn if this is a burn!
+                if (card.getRank() == Card.Rank.TEN) {
+                    mPlayView.toFront();
+                    return;
+                }
+
                 AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
                 zoomBuilder.setPause(true).setDescription("Zoom back to turn").setTable(TableView.this).setCard(cardView).setHandID(id);
                 zoomBuilder.setCamera(getCamera()).setCameraSide(HandUtils.HandSideToCamera(HandUtils.IDtoSide(id, TableView.this)));
@@ -697,6 +706,9 @@ public class TableView extends Group implements Input.BoundObject {
         float left = hand.getActivePosition().getX();
         float right = hand.getActivePosition().getWidth() + left;
         CardCamera cam = getCamera();
+        if (cam.position.x - (cam.viewportWidth /2.0f) < left && cam.position.x + (cam.viewportWidth /2.0f) > right)
+            return;
+
         if (x < 0 && cam.position.x - (cam.viewportWidth/2.0f) > left)
             getCamera().position.add(x, 0, 0);
         else if (x > 0 && cam.position.x + (cam.viewportWidth/2.0f) < right)
@@ -708,6 +720,11 @@ public class TableView extends Group implements Input.BoundObject {
             cam.position.x = right -  (cam.viewportWidth/2.0f);
 
 
+    }
+
+    @Override
+    public String toString() {
+        return "TableView";
     }
 
 }

@@ -1,4 +1,4 @@
-package com.kegelapps.palace.engine.states.tasks;
+package com.kegelapps.palace.engine.states.dealtasks;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.google.protobuf.Message;

@@ -309,17 +309,37 @@ public class Hand implements Serializer{
     }
 
     public boolean ContainsRank(Card.Rank rank) {
-        for (Card c : GetActiveCards()) {
-            if (c.getRank() == rank)
-                return true;
+        if (HasEndCards() && GetActiveCards().size() == 0) {
+            for (Card c : GetEndCards()) {
+                if (c == null)
+                    continue;
+                if (c.getRank() == rank)
+                    return true;
+            }
+        }
+        else if (GetActiveCards().size() > 0) {
+            for (Card c : GetActiveCards()) {
+                if (c.getRank() == rank)
+                    return true;
+            }
         }
         return false;
     }
 
     public Card FindRank(Card.Rank rank) {
-        for (Card c : GetActiveCards()) {
-            if (c.getRank() == rank)
-                return c;
+        if (HasEndCards() && GetActiveCards().size() == 0) {
+            for (Card c : GetEndCards()) {
+                if (c == null)
+                    continue;
+                if (c.getRank() == rank)
+                    return c;
+            }
+        }
+        else if (GetActiveCards().size() > 0) {
+            for (Card c : GetActiveCards()) {
+                if (c.getRank() == rank)
+                    return c;
+            }
         }
         return null;
     }

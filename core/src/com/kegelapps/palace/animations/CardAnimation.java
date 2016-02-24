@@ -78,7 +78,7 @@ public class CardAnimation extends Animation {
             final CardView mCard = builder.getCard();
             TableView mTable = builder.getTable();
             mCard.setSide(CardView.Side.BACK);
-            Vector2 vec = mTable.getPlayView().GetNextCardPosition();
+            Vector2 vec = mTable.getPlayView().GetAbsoluteNextCardPosition();
             mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, CardAccessor.POSITION_XY, 1.0f).target(vec.x, vec.y).ease(TweenEquations.easeInOutExpo));
@@ -325,14 +325,14 @@ public class CardAnimation extends Animation {
             int mHandID = builder.getHandID();
             float pos_x = mCard.getX();
             float pos_y = mCard.getY();
-            Vector2 vec = mTable.getPlayView().GetNextCardPosition();
+            Vector2 vec = mTable.getPlayView().GetAbsoluteNextCardPosition();
             float x = vec.x;
             float y = vec.y;
 
             mAnimation.beginParallel();
             TweenEquation eq = TweenEquations.easeInOutQuart;
             float duration = mDuration;
-            mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(pos_x, pos_y));
+            //mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(pos_x, pos_y));
             mAnimation.push(Tween.to(mCard, CardAccessor.POSITION_XY, duration).target(x, y).ease(eq));
             mAnimation.push(Tween.to(mCard, CardAccessor.ROTATION, duration).target(0.0f));
             mAnimation.push(Tween.call(new TweenCallback() {
@@ -458,7 +458,7 @@ public class CardAnimation extends Animation {
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
             //mCard.setPosition(builder.getTable().getPlayView().getX(), builder.getTable().getDeck().getY());
-            mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));
+            //mAnimation.push(Tween.set(mCard, CardAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));
             HandView hand = mTable.getHands().get(mHandID);
 
             Rectangle hiddenRect = hand.getHiddenPosition(0);

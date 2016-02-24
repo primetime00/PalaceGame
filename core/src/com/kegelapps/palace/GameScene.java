@@ -1,17 +1,12 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Logic;
-import com.kegelapps.palace.engine.states.Deal;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.Burn;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 

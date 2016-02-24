@@ -1,0 +1,22 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "LogicProtos";
+
+message Placement {
+    optional int32 handID = 1 [default = -1];
+    optional int32 rounds = 2 [default = 0];
+    optional int32 coinType = 3 [default = 0];
+}
+
+message Stats {
+    required int32 totalRounds = 1;
+    optional Placement goldHand = 2;
+    optional Placement silverHand = 3;
+    optional Placement bronzeHand = 4;
+}
+
+message Logic {
+    required Stats stats = 1;
+    required int32 numberOfPlayer = 2;
+}

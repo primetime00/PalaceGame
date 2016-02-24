@@ -1,15 +1,11 @@
-package com.kegelapps.palace.engine.states.tasks;
+package com.kegelapps.palace.engine.states.playtasks;
 
-import com.google.protobuf.Internal;
-import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,6 +55,9 @@ public class PlayCPUTurn extends PlayTurn {
                     }
                 }
                 break;
+            case NO_CARDS:
+                mTurnState = TurnState.CARDS_GONE;
+                return false;
         }
         // Logic challenge failed!
         mTable.PickUpStack(mHand.getID());

@@ -170,7 +170,8 @@ public class Card implements Comparable<Card>, Serializer {
         CardsProtos.Card cardProto = (CardsProtos.Card) msg;
         mSuit = Suit.values()[cardProto.getSuit()];
         mRank = Rank.values()[cardProto.getRank()];
-        /* debuggin only
+         //debuggin only
+        /*
         if (mSuit == Suit.DIAMOND && mRank == Rank.TEN)
             mRank = Rank.THREE;
         else if (mSuit == Suit.DIAMOND && mRank == Rank.THREE)

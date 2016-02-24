@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.Animation;
 import com.kegelapps.palace.animations.AnimationBuilder;
 import com.kegelapps.palace.animations.AnimationFactory;
@@ -22,6 +23,7 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
+import com.kegelapps.palace.input.CardGestureListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,63 +60,8 @@ public class HandView extends Group implements ReparentViews {
 
         createHandEvents();
 
-        mGestureListener = new ActorGestureListener() {
-            @Override
-            public void fling(InputEvent event, float velocityX, float velocityY, int button) {
-                super.fling(event, velocityX, velocityY, button);
-                if (event.getTarget() instanceof CardView) {
-                    Card c = ((CardView)event.getTarget()).getCard();
-                    if (velocityY > 200.0f) {
-                        if (getHand().GetActiveCards().contains(c))
-                            Logic.get().PlayerSelectCard(getHand(), c);
-                        else if (getHand().GetEndCards().contains(c))
-                            Logic.get().PlayerSelectEndCard(getHand(), c);
-                        else if (getHand().GetHiddenCards().contains(c))
-                            Logic.get().PlayerSelectHiddenCard(getHand(), c);
-                    }
-                    else if (getHand().GetEndCards().contains(c) && velocityY < -200.0f) {
-                        Logic.get().PlayerUnselectCard(getHand(), c);
-                    }
-                }
-            }
-
-            @Override
-            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
-                super.pan(event, x, y, deltaX, deltaY);
-                if (Math.abs(deltaX) >6.0f) {
-                    PanCamera(deltaX);
-                }
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                super.touchUp(event, x, y, pointer, button);
-                if ( !(event.getTarget() instanceof CardView) )
-                    return;
-                CardView cv = (CardView) event.getTarget();
-                if (!getHand().GetPlayCards().GetAllCards().contains(cv.getCard())) {
-                    Logic.get().PlayerUnSelectAllCards(getHand());
-                }
-            }
-
-            @Override
-            public boolean longPress(Actor actor, float x, float y) {
-                boolean res = super.longPress(actor, x, y);
-                Actor cardView = null;
-                if (getActivePosition().contains(x, y)) {
-                    cardView = hit(x, y, true);
-                    if (cardView == null || !(cardView instanceof CardView))
-                        return false;
-                    Card c = ((CardView)cardView).getCard();
-                    if (getHand().GetActiveCards().contains(c)) {
-                        Logic.get().PlayerSelectAllCards(getHand(), c);
-                    }
-                }
-                return res;
-            }
-        };
         if (getHand().getType() == Hand.HandType.HUMAN)
-            addListener(mGestureListener);
+            addListener(new CardGestureListener(this));
     }
 
     public float getCardOverlapPercent() {
@@ -338,6 +285,31 @@ public class HandView extends Group implements ReparentViews {
             }
         });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.CARDS_GONE){
+            @Override
+            public void handle(Object[] params) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
+                    throw new IllegalArgumentException("Invalid parameters for CARDS_GONE");
+                }
+                int id = (int) params[0];
+                if (getHand().getID() != id)
+                    return;
+                CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(id);
+                if (ct == null)
+                    throw new RuntimeException("There is no coin for player with ID: " + id);
+                CoinView cv = new CoinView(ct);
+                Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
+                cv.setPosition(center.x - cv.getWidth()/2.0f, center.y- cv.getHeight()/2.0f);
+                cv.setScale(0.5f);
+                addActor(cv);
+                switch (ct) {
+                    case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD); break;
+                    case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY); break;
+                    case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN); break;
+                }
+            }
+        });
+
     }
 
     private void SelectMultipleCards(TableView table) {
@@ -414,6 +386,8 @@ public class HandView extends Group implements ReparentViews {
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
+            HandUtils.Reparent(this, cv);
+
             if (animation) {
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(pause);
@@ -503,13 +477,14 @@ public class HandView extends Group implements ReparentViews {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+        /*
         if (!mHand.HasAnyCards()) {
             TextureRegion r = CardUtils.getCoin(CardUtils.CoinType.GOLD);
             Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
             batch.draw(r, center.x - r.getRegionWidth()/2.0f, center.y - r.getRegionHeight()/2.0f,
                     CardUtils.getCoinOriginX(), CardUtils.getCoinOriginY(), r.getRegionWidth(), r.getRegionHeight(),
                     CardUtils.getCoinScale(), CardUtils.getCoinScale(), 0.0f);
-        }
+        }*/
     }
 
 
@@ -542,10 +517,14 @@ public class HandView extends Group implements ReparentViews {
         OrganizeCards(false);
     }
 
-    private void PanCamera(float x) {
+    public void PanCamera(float x) {
         if ( !(getParent() instanceof TableView) )
             throw new RuntimeException("To pan the camera, the parent must be a TableView");
         ((TableView) getParent()).PanCamera(x, this);
     }
 
+    @Override
+    public String toString() {
+        return "HandView";
+    }
 }

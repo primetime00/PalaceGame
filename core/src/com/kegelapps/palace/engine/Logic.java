@@ -2,12 +2,14 @@ package com.kegelapps.palace.engine;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.states.Main;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateFactory;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
+import com.kegelapps.palace.protos.LogicProtos;
 import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
@@ -18,11 +20,9 @@ import java.io.IOException;
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Logic {
+public class Logic implements Serializer{
 
     private static Logic mLogic;
-
-
 
     public enum ChallengeResult {
         FAIL,
@@ -32,7 +32,7 @@ public class Logic {
     }
 
     private int mNumberOfPlayers = 0;
-    private int mCurrentPlayer = 0;
+    private Stats mStats;
 
     private boolean mFastDeal = false;
 
@@ -45,6 +45,7 @@ public class Logic {
 
     public Logic() {
         mPaused = false;
+        mStats = new Stats();
     }
 
     static public Logic get() {
@@ -58,18 +59,17 @@ public class Logic {
         StateFactory.get().SetTable(mTable);
         mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
         StateFactory.get().ParseState(s.getMainState(), GetMainState());
+        ReadBuffer(s.getLogic());
     }
 
     public void Pause(boolean pause) {
         //System.out.print("Logic system is " + (pause ? "Paused" : "UnPaused") + "\n");
         if (mMainState != null) {
             if (pause) {
-                System.out.print("-- PAUSED\n");
                 mMainState.pause();
 
             }
             else {
-                System.out.print("-- UNPAUSED\n");
                 mMainState.resume();
             }
         }
@@ -192,6 +192,7 @@ public class Logic {
         StatusProtos.Status.Builder statBuilder = StatusProtos.Status.newBuilder();
         statBuilder.setTable((CardsProtos.Table) GetTable().WriteBuffer());
         statBuilder.setMainState((StateProtos.State) GetMainState().WriteBuffer());
+        statBuilder.setLogic((LogicProtos.Logic) Logic.get().WriteBuffer());
         StatusProtos.Status st = statBuilder.build();
         try {
             FileOutputStream bs = new FileOutputStream("test.dat");
@@ -202,6 +203,7 @@ public class Logic {
             e.printStackTrace();
             return false;
         }
+        System.out.print("Saved State!\n");
         return true;
     }
 
@@ -209,17 +211,25 @@ public class Logic {
         if (mTable == null)
             mNumberOfPlayers = num;
     }
-/*
-    public void NextTurn() {
-        do { //are we out of the game?
-            mCurrentPlayer++;
-            mCurrentPlayer %= mTable.getHands().size();
-        } while (!mTable.getHands().get(mCurrentPlayer).HasAnyCards());
+
+    public Stats getStats() {
+        return mStats;
     }
 
-    public int getCurrentPlayer() {
-        return mCurrentPlayer;
+    @Override
+    public void ReadBuffer(Message msg) {
+        LogicProtos.Logic logic = (LogicProtos.Logic) msg;
+        mNumberOfPlayers = logic.getNumberOfPlayer();
+        mStats.ReadBuffer(logic.getStats());
     }
-*/
+
+    @Override
+    public Message WriteBuffer() {
+        LogicProtos.Logic.Builder logicBuilder = LogicProtos.Logic.newBuilder();
+        logicBuilder.setNumberOfPlayer(mNumberOfPlayers);
+        logicBuilder.setStats((LogicProtos.Stats) mStats.WriteBuffer());
+        return logicBuilder.build();
+    }
+
 
 }

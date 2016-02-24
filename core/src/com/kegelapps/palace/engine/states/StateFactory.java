@@ -3,7 +3,11 @@ package com.kegelapps.palace.engine.states;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Table;
-import com.kegelapps.palace.engine.states.tasks.*;
+import com.kegelapps.palace.engine.states.dealtasks.DealCard;
+import com.kegelapps.palace.engine.states.dealtasks.DrawPlayCard;
+import com.kegelapps.palace.engine.states.dealtasks.PlaceEndCard;
+import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
+import com.kegelapps.palace.engine.states.playtasks.*;
 import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
@@ -103,6 +107,9 @@ public class StateFactory {
                 break;
             case PLAY_HIDDEN_CARD:
                 s = new PlayHiddenCard(parent, mTable);
+                break;
+            case WIN:
+                s = new Win(parent, mTable);
                 break;
             default:
                 throw new RuntimeException("StateFactory cannot find the state! " + stateName);

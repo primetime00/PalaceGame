@@ -31,4 +31,5 @@ message Table {
     optional Deck deck = 1;
     optional Played played = 2;
     repeated Hand hands = 3;
+    optional int32 currentTurn = 4;
 }

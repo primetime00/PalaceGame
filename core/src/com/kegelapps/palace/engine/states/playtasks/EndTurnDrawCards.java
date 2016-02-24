@@ -1,4 +1,4 @@
-package com.kegelapps.palace.engine.states.tasks;
+package com.kegelapps.palace.engine.states.playtasks;
 
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;

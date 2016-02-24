@@ -5,24 +5,16 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Input;
-import com.kegelapps.palace.animations.Animation;
-import com.kegelapps.palace.animations.AnimationBuilder;
-import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
-import com.kegelapps.palace.engine.states.tasks.TapToStart;
+import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -168,8 +160,9 @@ public class DeckView extends Group implements Input.BoundObject {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if (mDeckLow)
+        if (mDeckLow) {
             super.draw(batch, parentAlpha);
+        }
         else {
             batch.draw(mDeckBack, getX(), getY());
         }
@@ -187,5 +180,10 @@ public class DeckView extends Group implements Input.BoundObject {
             mHighlightView.show();
         else
             mHighlightView.hide();
+    }
+
+    @Override
+    public String toString() {
+        return "DeckView";
     }
 }

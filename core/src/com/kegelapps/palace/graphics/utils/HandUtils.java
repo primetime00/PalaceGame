@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.kegelapps.palace.graphics.*;
 
 /**
@@ -138,5 +140,43 @@ public class HandUtils {
         return res;
     }
 
+    public static void Reparent(Group destView, CardView point) {
+        Reparent(destView, null, point);
+    }
+
+    public static void Reparent(Group destView, Actor src, CardView point) {
+        boolean promote = true;
+        Group parent = point.getParent();
+        if (destView == parent)
+            return;
+        if (point.getParent() != destView) {
+            Vector2 pos = new Vector2();
+            if (src == null) {
+                if (parent != null) {
+                    if (destView.isAscendantOf(parent)) //the current parent is a child of destView
+                        promote = false;
+                    if (promote)
+                        pos = parent.localToDescendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+                    else
+                        pos = parent.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+                }
+                else
+                    pos = point.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+            } else {
+                //is destView a child of the current parent
+                if (parent != null) {
+                    if (destView.isAscendantOf(parent)) //the current parent is a child of destView
+                        promote = false;
+                }
+                if (promote)
+                    pos = destView.localToDescendantCoordinates(src, new Vector2(point.getX(), point.getY()));
+                else
+                    pos = src.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+            }
+            point.remove();
+            point.setPosition(pos.x, pos.y);
+        }
+        destView.addActor(point);
+    }
 
 }
