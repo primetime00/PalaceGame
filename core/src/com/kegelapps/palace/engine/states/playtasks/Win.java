@@ -12,6 +12,7 @@ import com.kegelapps.palace.events.EventSystem;
  */
 public class Win extends State {
     Table mTable;
+    int mState;
 
     public Win(State parent, Table table) {
         super(parent);
@@ -20,13 +21,21 @@ public class Win extends State {
 
     @Override
     protected void OnFirstRun() {
+        mState = 0;
 
     }
 
     @Override
     protected boolean OnRun() {
-        Logic.get().getStats().DefineWinner(getID());
-        Director.instance().getEventSystem().Fire(EventSystem.EventType.CARDS_GONE, getID());
+        switch (mState) {
+            case 0:
+                Logic.get().getStats().DefineWinner(getID());
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.CARDS_GONE, getID());
+                mState = 1;
+                return false;
+            case 1:
+                return true;
+        }
         return true;
     }
 

@@ -302,6 +302,7 @@ public class HandView extends Group implements ReparentViews {
                 cv.setPosition(center.x - cv.getWidth()/2.0f, center.y- cv.getHeight()/2.0f);
                 cv.setScale(0.5f);
                 addActor(cv);
+
                 switch (ct) {
                     case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD); break;
                     case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY); break;

@@ -119,10 +119,9 @@ public class TableView extends Group implements Input.BoundObject {
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Card) )
                     throw new IllegalArgumentException("Invalid parameters for DRAW_PLAY_CARD");
-                CardView cardView = CardView.getCardView((Card) params[0]);
-                cardView.remove();
-                if (mPlayView.findActor(cardView.getName()) == null)
-                    mPlayView.addActor(cardView);
+                final CardView cardView = CardView.getCardView((Card) params[0]);
+                //move this card to the table view first
+                HandUtils.Reparent(TableView.this, cardView);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
 
                 if (cardView.getCard().getRank() == Card.Rank.TEN) {//this is a burn, lets zoom in!
@@ -132,8 +131,15 @@ public class TableView extends Group implements Input.BoundObject {
                     cameraZoomAnimation.Start();
                 }
 
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Drawing from deck to active").setTable(TableView.this).setCard(cardView)
+                        .addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                HandUtils.Reparent(mPlayView, cardView);
+                                //mPlayView.addActor(builder.getCard());
+                            }
+                        })
                         .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
 
             }
