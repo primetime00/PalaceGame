@@ -24,10 +24,7 @@ import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.TablePanListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -423,6 +420,7 @@ public class TableView extends Group implements Input.BoundObject {
                 mPlayView.setHighlight(false);
 
                 List<Card> cards = (List<Card>) params[1];
+                //Collections.reverse(cards);
                 for (int i = 0; i< cards.size(); ++i) {
                     Card c = cards.get(i);
                     CardView cardView = CardView.getCardView(c);
@@ -446,7 +444,6 @@ public class TableView extends Group implements Input.BoundObject {
                                     cv.setSide(CardView.Side.FRONT);
                                 else
                                     cv.setSide(CardView.Side.BACK);
-                                handView.addActor(cv);
                                 handView.OrganizeCards(true, true, false, false, true);
                             }
                         });
@@ -455,10 +452,9 @@ public class TableView extends Group implements Input.BoundObject {
                             @Override
                             public void onEnd(Animation animation) {
                                 CardView cv = builder.getCard();
-                                cv.remove();
+                                HandUtils.Reparent(handView, cv);
                                 if (handView.getHand().getType() == Hand.HandType.HUMAN)
                                     cv.setSide(CardView.Side.FRONT);
-                                handView.addActor(cv);
                             }
                         });
                     }
@@ -520,7 +516,7 @@ public class TableView extends Group implements Input.BoundObject {
                 cardBuilder.setPause(true).setDescription("Move card to play pile").setTable(TableView.this).setCard(cardView).setHandID(id);
                 cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(nextPos.x, nextPos.y, 1.5f, true));
                 cardBuilder.setStartDelay(startDelay);
-                cardBuilder.setEndDelay(2.5f).addStatusListener(new Animation.AnimationStatusListener() {
+                cardBuilder.setEndDelay(0.5f).addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
                     public void onEnd(Animation animation) {
                         cardBuilder.getCard().setSide(CardView.Side.FRONT);
@@ -733,4 +729,11 @@ public class TableView extends Group implements Input.BoundObject {
         return "TableView";
     }
 
+    public HandView getHand(int mHandID) {
+        for (HandView h : getHands() ) {
+            if (h.getHand().getID() == mHandID)
+                return h;
+        }
+        return null;
+    }
 }

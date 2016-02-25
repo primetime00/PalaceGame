@@ -13,7 +13,7 @@ public class AnimationFactory implements AnimationStatus {
 
     public enum AnimationType {
         CARD,
-        CAMERA
+        COIN, CAMERA
     }
 
     private AnimationFactory () {
@@ -37,7 +37,7 @@ public class AnimationFactory implements AnimationStatus {
         return builder;
     }
 
-    private void pauseDecrement() {
+    public void pauseDecrement() {
         mPauseCount--;
         if (mPauseCount <= 0) {
             mPauseCount = 0;
@@ -45,7 +45,7 @@ public class AnimationFactory implements AnimationStatus {
         }
     }
 
-    private void pauseIncrement() {
+    public void pauseIncrement() {
         mPauseCount++;
         Logic.get().Pause(true);
     }

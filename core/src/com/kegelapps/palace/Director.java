@@ -8,12 +8,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.tween.CameraAccessor;
-import com.kegelapps.palace.tween.CardAccessor;
+import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
 import com.kegelapps.palace.tween.MessageBandAccessor;
 
@@ -46,7 +47,7 @@ public class Director {
         //create a camera tween
         Tween.registerAccessor(OrthographicCamera.class, new CameraAccessor());
         //create card tweens
-        Tween.registerAccessor(CardView.class, new CardAccessor());
+        Tween.registerAccessor(Actor.class, new ActorAccessor());
         //create highlight tweens
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
         //create message band tweens

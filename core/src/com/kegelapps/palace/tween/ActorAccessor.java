@@ -1,12 +1,13 @@
 package com.kegelapps.palace.tween;
 
 import aurelienribon.tweenengine.TweenAccessor;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.graphics.CardView;
 
 /**
  * Created by Ryan on 12/21/2015.
  */
-public class CardAccessor implements TweenAccessor<CardView>{
+public class ActorAccessor implements TweenAccessor<Actor>{
 
     public static final int POSITION_X = 1;
     public static final int POSITION_Y = 2;
@@ -14,7 +15,7 @@ public class CardAccessor implements TweenAccessor<CardView>{
     public static final int ROTATION = 4;
 
     @Override
-    public int getValues(CardView target, int tweenType, float[] returnValues) {
+    public int getValues(Actor target, int tweenType, float[] returnValues) {
         switch (tweenType) {
             case POSITION_X: returnValues[0] = target.getX(); return 1;
             case POSITION_Y: returnValues[0] = target.getY(); return 1;
@@ -30,7 +31,7 @@ public class CardAccessor implements TweenAccessor<CardView>{
     }
 
     @Override
-    public void setValues(CardView target, int tweenType, float[] newValues) {
+    public void setValues(Actor target, int tweenType, float[] newValues) {
         switch (tweenType) {
             case POSITION_X: target.setX(newValues[0]); break;
             case POSITION_Y: target.setY(newValues[0]); break;

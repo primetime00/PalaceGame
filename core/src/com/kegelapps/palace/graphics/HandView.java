@@ -13,10 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
-import com.kegelapps.palace.animations.Animation;
-import com.kegelapps.palace.animations.AnimationBuilder;
-import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.animations.CardAnimation;
+import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
@@ -24,6 +21,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
+import sun.rmi.runtime.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -291,23 +289,57 @@ public class HandView extends Group implements ReparentViews {
                 if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
                     throw new IllegalArgumentException("Invalid parameters for CARDS_GONE");
                 }
+                if ( !(getParent() instanceof TableView) ) {
+                    throw new RuntimeException("SELECT_MULTIPLE_CARDS requires a TableView parent.");
+                }
+                TableView table = (TableView)getParent();
                 int id = (int) params[0];
                 if (getHand().getID() != id)
                     return;
-                CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(id);
+                final CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(id);
                 if (ct == null)
                     throw new RuntimeException("There is no coin for player with ID: " + id);
                 CoinView cv = new CoinView(ct);
                 Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
                 cv.setPosition(center.x - cv.getWidth()/2.0f, center.y- cv.getHeight()/2.0f);
                 cv.setScale(0.5f);
-                addActor(cv);
-
-                switch (ct) {
-                    case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD); break;
-                    case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY); break;
-                    case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN); break;
+                CardCamera cam = table.getCamera();
+                switch ((int)(Math.random() * 4)) {
+                    case 0:
+                        cv.setX( (cam.position.x - cam.viewportWidth/2.0f) - cv.getWidth());
+                        cv.setY( (cam.position.y) );
+                        break;
+                    case 1:
+                        cv.setX( (cam.position.x + cam.viewportWidth/2.0f) + cv.getWidth());
+                        cv.setY( (cam.position.y) );
+                        break;
+                    case 2:
+                        cv.setY( (cam.position.y - cam.viewportHeight/2.0f) - cv.getHeight());
+                        cv.setX( (cam.position.x) );
+                        break;
+                    default:
+                    case 3:
+                        cv.setY( (cam.position.y + cam.viewportHeight/2.0f) + cv.getHeight());
+                        cv.setX( (cam.position.x) );
+                        break;
                 }
+                table.addActor(cv);
+
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.COIN);
+                builder.setTable(table).setCamera(table.getCamera()).setPause(true).setCoin(cv).setDescription("Flying in coin.");
+                builder.setHandID(id).setTweenCalculator(new CoinAnimation.FlyInCoin(3.0f, true));
+                builder.addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        HandUtils.Reparent(HandView.this, builder.getCoin());
+                        switch (ct) {
+                            case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD); break;
+                            case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY); break;
+                            case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN); break;
+                        }
+                    }
+                });
+                builder.build().Start();
             }
         });
 
@@ -380,9 +412,11 @@ public class HandView extends Group implements ReparentViews {
         }
     }
 
-    private int OrganizeActiveCards(int position, boolean animation, boolean pause) {
+    private int OrganizeActiveCards(int position, boolean animation, final boolean pause) {
         if ( !(getParent() instanceof TableView) )
             throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
+        if (pause && animation)
+            AnimationFactory.get().pauseIncrement();
         TableView table = (TableView) getParent();
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
@@ -394,14 +428,25 @@ public class HandView extends Group implements ReparentViews {
                 builder.setPause(pause);
                 builder.setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
                     .killPreviousAnimation(cv)
-                    .setTweenCalculator(new CardAnimation.LineUpActiveCard(i)).
-                    addStatusListener(new Animation.AnimationStatusListener() {
+                    .setTweenCalculator(new CardAnimation.LineUpActiveCard(i))
+                    .addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
                     public void onEnd(Animation animation) {
                         builder.getCard().setSide(getHand().getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
                         }
-                })
-                    .build().Start();
+                });
+
+                if (i == size -1) {
+                    builder.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            if (pause) {
+                                AnimationFactory.get().pauseDecrement();
+                            }
+                        }
+                    });
+                }
+                builder.build().Start();
             } else {
                 Vector3 pos = HandUtils.LineUpActiveCard(i, cv, table, mHand.getID(), getActivePosition(), getCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);

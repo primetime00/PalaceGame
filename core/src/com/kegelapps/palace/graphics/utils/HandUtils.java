@@ -140,11 +140,11 @@ public class HandUtils {
         return res;
     }
 
-    public static void Reparent(Group destView, CardView point) {
+    public static void Reparent(Group destView, Actor point) {
         Reparent(destView, null, point);
     }
 
-    public static void Reparent(Group destView, Actor src, CardView point) {
+    public static void Reparent(Group destView, Actor src, Actor point) {
         boolean promote = true;
         Group parent = point.getParent();
         if (destView == parent)

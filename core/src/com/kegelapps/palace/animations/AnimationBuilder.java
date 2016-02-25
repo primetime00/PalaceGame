@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import com.kegelapps.palace.graphics.CardCamera;
 import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.CoinView;
 import com.kegelapps.palace.graphics.TableView;
 
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ public class AnimationBuilder {
     //Camera specific animation
     private CardCamera.CameraSide mCameraSide;
     private CardCamera mCamera;
+
+    //Coin specific animation
+    private CoinView mCoin;
 
 
 
@@ -68,6 +72,10 @@ public class AnimationBuilder {
 
     public Runnable getStartDelayCallback() {
         return mAnimationAfterDelay;
+    }
+
+    public CoinView getCoin() {
+        return mCoin;
     }
 
 
@@ -152,6 +160,11 @@ public class AnimationBuilder {
         return this;
     }
 
+    public AnimationBuilder setCoin(CoinView coin) {
+        mCoin = coin;
+        return this;
+    }
+
     public CardCamera getCamera() {
         return mCamera;
     }
@@ -169,6 +182,8 @@ public class AnimationBuilder {
             case CAMERA:
                 ani = new CameraAnimation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCamera, mCameraSide, mTable);
                 break;
+            case COIN:
+                ani = new CoinAnimation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCoin, mHandID, mTable);
             default:
                 break;
         }
@@ -202,6 +217,8 @@ public class AnimationBuilder {
 
         mCamera = builder.mCamera;
         mCameraSide = builder.mCameraSide;
+
+        mCoin = builder.mCoin;
         return this;
     }
 
