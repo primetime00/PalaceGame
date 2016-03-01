@@ -247,10 +247,9 @@ public class TableView extends Group implements Input.BoundObject {
 
                 //are we playing a burn?
                 boolean isBurnPlay = (boolean) params[2];
-                //boolean isBurnPlay = c.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
 
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                builder.setPause(true).setDescription("Success card").setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription(String.format("Success card %s", c.toString())).setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
                 builder.killPreviousAnimation(cardView);
                 Animation cardAnimation = null, cameraZoomAnimation = null;
                 if (!isBurnPlay || !hand.HasAnyCards()) {
@@ -259,6 +258,7 @@ public class TableView extends Group implements Input.BoundObject {
                         @Override
                         public void onEnd(Animation animation) {
                             HandUtils.Reparent(mPlayView, cardView);
+                            builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
                         }
                     });
                     cardAnimation.Start();
@@ -273,7 +273,6 @@ public class TableView extends Group implements Input.BoundObject {
                     cameraZoomAnimation.Start();
                     cardAnimation.Start();
                 }
-                mHands.get(hand.getID()).OrganizeCards(true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlaySuccess);
@@ -325,6 +324,7 @@ public class TableView extends Group implements Input.BoundObject {
 
                 int id = (int) params[0];
                 float duration = 0.7f;
+
                 HandUtils.HandSide side = HandUtils.IDtoSide(id, TableView.this);
                 AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
                 builder.setPause(true).setDescription("Move camera to current turn").setTable(TableView.this).

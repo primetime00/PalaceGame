@@ -28,6 +28,7 @@ public class PlayHumanTurn extends PlayTurn {
     @Override
     protected void OnFirstRun() {
         super.OnFirstRun();
+        mHand.GetPlayCards().Clear();
         mPlayCard = null;
         mDeckTapped = false;
         mPlayTapped = false;
@@ -58,6 +59,11 @@ public class PlayHumanTurn extends PlayTurn {
             return false;
         }
 
+        if (mPlayMode == PlayMode.HIDDEN) {
+            mTurnState = TurnState.PLAY_HIDDEN_CARD;
+            return false;
+        }
+
         int pendingSize = mHand.GetPlayCards().GetPendingCards().size();
         if (pendingSize == 0)
             return false;
@@ -82,8 +88,11 @@ public class PlayHumanTurn extends PlayTurn {
                     hasPlayed = PlayCard(activeCard);
             }
         }
+        mPlayMode = CheckPlayMode();
         return hasPlayed;
     }
+
+
 
     private boolean CheckForPossiblePlay() {
         switch (mPlayMode) {

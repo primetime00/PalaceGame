@@ -1,7 +1,6 @@
 package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.animations.CardAnimation;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 

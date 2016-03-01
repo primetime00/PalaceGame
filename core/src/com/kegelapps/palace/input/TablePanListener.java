@@ -36,6 +36,8 @@ public class TablePanListener extends ActorGestureListener {
         mTable = table;
     }
 
+
+
     @Override
     public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
         //a hack
@@ -93,6 +95,8 @@ public class TablePanListener extends ActorGestureListener {
     @Override
     public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
         super.touchDown(event, x, y, pointer, button);
+        if (button != 0)
+            return;
         float w = Director.instance().getScreenWidth();
         float h = Director.instance().getScreenHeight();
         CardCamera cam = mTable.getCamera();
@@ -113,6 +117,8 @@ public class TablePanListener extends ActorGestureListener {
     @Override
     public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
         super.touchUp(event, x, y, pointer, button);
+        if (button != 0)
+            return;
         CardCamera cam = mTable.getCamera();
         if (mPosition != TouchPosition.NONE) {
             AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
@@ -130,8 +136,9 @@ public class TablePanListener extends ActorGestureListener {
         State s = Logic.get().GetMainState();
         if (s == null)
             return false;
-        if (s.containsState(State.Names.PLAY_HUMAN_TURN) || s.containsState(State.Names.SELECT_END_CARDS))
+        if (s.containsState(State.Names.PLAY_HUMAN_TURN) || s.containsState(State.Names.SELECT_END_CARDS)) {
             return super.handle(e);
+        }
         return false;
     }
 }

@@ -68,6 +68,7 @@ public class CameraAnimation extends Animation {
             CardCamera mCamera = builder.getCamera();
             CardCamera.CameraSide mSide = builder.getCameraSide();
             Vector2 pos = HandUtils.GetHandPosition(builder.getTable(), HandUtils.CameraSideToHand(mSide));
+            mAnimation.push(Tween.set(mCamera, CameraAccessor.POSITION_XY).target(mCamera.position.x, mCamera.position.y));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCamera, CameraAccessor.POSITION_XY, mDuration).target(pos.x,pos.y).ease(eq));
             mAnimation.push(Tween.to(mCamera, CameraAccessor.ZOOM, mDuration).target(mZoom));

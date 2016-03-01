@@ -187,7 +187,6 @@ public class CardAnimation extends Animation {
             if (mPosition < 0) {
                 throw new RuntimeException("Position is out of range!");
             }
-            mAnimation.beginParallel();
             Rectangle rect = mTable.getHands().get(mHandID).getHiddenPosition(mPosition);
             float ov = CardUtils.getCardWidth() * mTable.getHands().get(mHandID).getEndCardOverlapPercent();
             float x = rect.x;
@@ -216,6 +215,8 @@ public class CardAnimation extends Animation {
                     y += -((rotDiff*MathUtils.sinDeg(sideRot))-ov);
                     break;
             }
+            mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(),mCard.getY()));
+            mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x,y));
             mAnimation.push(Tween.call(new TweenCallback() {
                 @Override
@@ -239,7 +240,6 @@ public class CardAnimation extends Animation {
             final CardView mCard = builder.getCard();
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
-            mAnimation.beginParallel();
             TweenCallback mFlipCallback = new TweenCallback() {
                 @Override
                 public void onEvent(int type, BaseTween<?> source) {
@@ -251,6 +251,8 @@ public class CardAnimation extends Animation {
             pos = HandUtils.LineUpActiveCard(mIndex, mCard, mTable, mHandID, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
 
             float duration = 0.1f;
+            mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));
+            mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(pos.x, pos.y));
             mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(pos.z));
 
@@ -318,17 +320,16 @@ public class CardAnimation extends Animation {
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             final CardView mCard = builder.getCard();
             TableView mTable = builder.getTable();
-            int mHandID = builder.getHandID();
             float pos_x = mCard.getX();
             float pos_y = mCard.getY();
             Vector2 vec = mTable.getPlayView().GetAbsoluteNextCardPosition();
             float x = vec.x;
             float y = vec.y;
 
+            mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(pos_x, pos_y));
             mAnimation.beginParallel();
             TweenEquation eq = TweenEquations.easeInOutQuart;
             float duration = mDuration;
-            //mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(pos_x, pos_y));
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x, y).ease(eq));
             mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(0.0f));
             mAnimation.push(Tween.call(new TweenCallback() {

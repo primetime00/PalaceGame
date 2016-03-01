@@ -42,14 +42,12 @@ public class PlaceEndCard extends State {
                     Card c = mHand.GetPlayCards().PopCard();
                     Card activeCard = mHand.GetActiveCards().get(mHand.GetActiveCards().indexOf(c));
                     mHand.AddEndCard(activeCard);
-                    System.out.print("HUMAN SELECTS " + c + "\n");
                 }
                 for (Iterator<Card> it = mHand.GetDiscardCards().iterator(); it.hasNext(); ) {
                     Card c = it.next();
                     it.remove();
                     Card activeCard = mHand.GetEndCards().get(mHand.GetEndCards().indexOf(c));
                     mHand.RemoveEndCard(activeCard);
-                    System.out.print("HUMAN DESELECTS " + c + "\n");
                 }
             } else {
                 Card c = mHand.GetActiveCards().get(MathUtils.random(mHand.GetActiveCards().size() - 1));

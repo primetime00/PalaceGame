@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.animations.Animation;
+import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.tween.MessageBandAccessor;
 
@@ -26,6 +28,8 @@ public class MessageBandView extends Actor implements TweenCallback{
     private Vector3 mCenter, mConvert;
     private float mWindowX, mWindowY;
     private boolean mChanged = false;
+
+    Animation.AnimationStatusListener mListener;
 
     public MessageBandView() {
         mPixmap = new Pixmap(Director.instance().getScreenWidth(), CardUtils.getCardHeight(), Pixmap.Format.RGBA8888);
@@ -118,7 +122,16 @@ public class MessageBandView extends Actor implements TweenCallback{
         mAlpha = val;
     }
 
-    public void showMessage(String message, float length, Color textColor) {
+    public void showMessage(String message, float length, Color textColor, final boolean pause) {
+        if (pause) {
+            AnimationFactory.get().pauseIncrement();
+            mListener = new Animation.AnimationStatusListener() {
+                @Override
+                public void onEnd(Animation animation) {
+                    AnimationFactory.get().pauseDecrement();
+                }
+            };
+        }
         setWindowX(Director.instance().getScreenWidth());
         setText(message);
         setTextColor(textColor);
@@ -137,9 +150,14 @@ public class MessageBandView extends Actor implements TweenCallback{
     @Override
     public void onEvent(int type, BaseTween<?> source) {
         if (type == TweenCallback.BEGIN) {
+            if (mListener != null)
+                mListener.onBegin(null);
         }
         if (type == TweenCallback.END) {
             setText("");
+            if (mListener != null)
+                mListener.onEnd(null);
+            mListener = null;
         }
     }
 }

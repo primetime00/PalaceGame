@@ -4,6 +4,8 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
 
 import java.util.List;
@@ -72,8 +74,13 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
     }
 
     public void Start() {
-        if (mKillPreviousAnimation != null)
+        if (mKillPreviousAnimation != null && (mKillPreviousAnimation instanceof Actor || mKillPreviousAnimation instanceof Camera)) {
             Director.instance().getTweenManager().killTarget(mKillPreviousAnimation);
+
+            Actor a = (Actor) mKillPreviousAnimation;
+            System.out.print(String.format("Killing target %s\n", a.getName()));
+        }
+        System.out.print(String.format("Starting animation %s\n", mDescription ));
 
         if (mTimeLineAnimation != null) {
             mTimeLineAnimation.setCallback(this);

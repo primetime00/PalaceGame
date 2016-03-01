@@ -40,23 +40,25 @@ public class CoinAnimation extends Animation {
         @Override
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             final CoinView mCoin = builder.getCoin();
+            final int maxRotateDegree = 60;
+            final int rotateSections = 5;
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
             HandView hand = mTable.getHand(mHandID);
             if (hand == null)
                 throw new RuntimeException("FlyInCoin requires a valid HandView.");
             Vector2 pos = hand.getHiddenPosition(1).getCenter(new Vector2());
+            int overRotate = (int)(Math.random() * maxRotateDegree/rotateSections)+1; //1 - 12
             pos.y -= mCoin.getHeight()/2.0f;
             pos.x -= mCoin.getWidth()/2.0f;
+            float rotation = 720 + (overRotate*rotateSections) -  maxRotateDegree/2;
 
             mAnimation.beginParallel();
             TweenEquation eq = TweenEquations.easeInOutQuart;
             float duration = mDuration;
             mAnimation.push(Tween.to(mCoin, ActorAccessor.POSITION_XY, duration).target(pos.x, pos.y).ease(eq));
             if (mRotation) {
-                mAnimation.beginSequence();
-                mAnimation.push(Tween.to(mCoin, ActorAccessor.ROTATION, duration / 2.0f).target(360));
-                mAnimation.push(Tween.to(mCoin, ActorAccessor.ROTATION, duration / 2.0f).target(360)).end();
+                mAnimation.push(Tween.to(mCoin, ActorAccessor.ROTATION, duration).target(rotation));
             }
             return mAnimation.end();
         }

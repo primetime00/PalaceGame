@@ -49,7 +49,10 @@ public class HandView extends Group implements ReparentViews {
     }
 
     private void init() {
-        mCardOverlapPercent = 0.75f;
+        if (mHand.getType() == Hand.HandType.HUMAN)
+            mCardOverlapPercent = 0.75f;
+        else
+            mCardOverlapPercent = 0.4f;
         mEndCardOverlapPercent = 0.05f;
 
         setupHiddenLayout();
@@ -173,7 +176,7 @@ public class HandView extends Group implements ReparentViews {
 
                 if (getParent() instanceof TableView) {
                     AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Lining up hidden cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
+                    builder.setPause(false).setDescription(String.format("Lining up hidden card %s", cardView.getCard().toString())).setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
                             .setTweenCalculator(new CardAnimation.LineUpHiddenCards(pos)).build().Start();
                 }
                 cardView.setZIndex(0);
@@ -193,13 +196,12 @@ public class HandView extends Group implements ReparentViews {
                     return;
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
-                if (!cardView.hasParent()) { //this card should have a parent, if not, we may have loaded the state
-                    cardView.setSide(mHand.getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
+                if (cardView.getParent() == null)
                     cardView.setPosition(mHiddenPositions[0].getX(), mHiddenPositions[0].getY());
-                }
-                cardView.remove();
-                addActor(cardView);
-                OrganizeCards(true);
+                HandUtils.Reparent(HandView.this, cardView);
+                cardView.setSide(mHand.getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
+                //OrganizeCards(true);
+                OrganizeCards(true, true, false, false, true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLayoutActiveCardEventListener);
@@ -214,21 +216,32 @@ public class HandView extends Group implements ReparentViews {
                 if (getHand().getID() != id)
                     return;
 
+                if ( !(getParent() instanceof TableView) ) {
+                    throw new RuntimeException("SELECT_MULTIPLE_CARDS requires a TableView parent.");
+                }
+                TableView table = (TableView)getParent();
+
+
                 int pos = (int) params[2];
 
                 CardView cardView = CardView.getCardView((Card) params[0]);
+                HandUtils.Reparent(table, cardView);
 
                 if (getParent() instanceof TableView) {
-                    AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Selecting end cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
-                            .setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
+                    final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                    builder.setPause(false).setDescription("Selecting end cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID());
+                    builder.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            HandUtils.Reparent(builder.getTable().getHand(builder.getHandID()), builder.getCard());
+                        }
+                    });
 
-                    CardAnimation ca = (CardAnimation) builder.build();
-                    int i = 5;
-                    i++;
+                    builder.setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
+
                 }
 
-                OrganizeCards(true, true, true, false);
+                OrganizeCards(true, true, false, false, true);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEventListener);
@@ -296,13 +309,10 @@ public class HandView extends Group implements ReparentViews {
                 int id = (int) params[0];
                 if (getHand().getID() != id)
                     return;
-                final CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(id);
-                if (ct == null)
-                    throw new RuntimeException("There is no coin for player with ID: " + id);
-                CoinView cv = new CoinView(ct);
-                Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
-                cv.setPosition(center.x - cv.getWidth()/2.0f, center.y- cv.getHeight()/2.0f);
-                cv.setScale(0.5f);
+                CoinView cv = createCoin();
+                if (cv == null) {
+                    throw new RuntimeException("Could not create a coin for hand " + mHand.getID());
+                }
                 CardCamera cam = table.getCamera();
                 switch ((int)(Math.random() * 4)) {
                     case 0:
@@ -327,15 +337,15 @@ public class HandView extends Group implements ReparentViews {
 
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.COIN);
                 builder.setTable(table).setCamera(table.getCamera()).setPause(true).setCoin(cv).setDescription("Flying in coin.");
-                builder.setHandID(id).setTweenCalculator(new CoinAnimation.FlyInCoin(3.0f, true));
+                builder.setHandID(id).setTweenCalculator(new CoinAnimation.FlyInCoin(1.5f, true));
                 builder.addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
                     public void onEnd(Animation animation) {
                         HandUtils.Reparent(HandView.this, builder.getCoin());
-                        switch (ct) {
-                            case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD); break;
-                            case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY); break;
-                            case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN); break;
+                        switch (builder.getCoin().getType()) {
+                            case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD, true); break;
+                            case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY, true); break;
+                            case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN, true); break;
                         }
                     }
                 });
@@ -343,6 +353,17 @@ public class HandView extends Group implements ReparentViews {
             }
         });
 
+    }
+
+    private CoinView createCoin() {
+        final CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(mHand.getID());
+        if (ct == null)
+            return null;
+        CoinView cv = new CoinView(ct);
+        Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
+        cv.setPosition(center.x - cv.getWidth()/2.0f, center.y- cv.getHeight()/2.0f);
+        cv.setScale(0.5f);
+        return cv;
     }
 
     private void SelectMultipleCards(TableView table) {
@@ -426,7 +447,7 @@ public class HandView extends Group implements ReparentViews {
             if (animation) {
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(pause);
-                builder.setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
+                builder.setDescription(String.format("Lining up active card %s", cv.getCard().toString())).setTable(table).setCard(cv).setHandID(getHand().getID())
                     .killPreviousAnimation(cv)
                     .setTweenCalculator(new CardAnimation.LineUpActiveCard(i))
                     .addStatusListener(new Animation.AnimationStatusListener() {
@@ -486,7 +507,7 @@ public class HandView extends Group implements ReparentViews {
                 CardView cv = CardView.getCardView(c);
                 if (animation) {
                     AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Lining up active cards").setTable(table).setCard(cv).setHandID(getHand().getID())
+                    builder.setPause(false).setDescription(String.format("Lining up hidden card %s", c.toString())).setTable(table).setCard(cv).setHandID(getHand().getID())
                             .setTweenCalculator(new CardAnimation.LineUpHiddenCards(i)).build().Start();
                 }
                 else {
@@ -520,25 +541,20 @@ public class HandView extends Group implements ReparentViews {
         return mGestureListener;
     }
 
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
-        /*
-        if (!mHand.HasAnyCards()) {
-            TextureRegion r = CardUtils.getCoin(CardUtils.CoinType.GOLD);
-            Vector2 center = mHiddenPositions[1].getCenter(new Vector2());
-            batch.draw(r, center.x - r.getRegionWidth()/2.0f, center.y - r.getRegionHeight()/2.0f,
-                    CardUtils.getCoinOriginX(), CardUtils.getCoinOriginY(), r.getRegionWidth(), r.getRegionHeight(),
-                    CardUtils.getCoinScale(), CardUtils.getCoinScale(), 0.0f);
-        }*/
-    }
-
 
     @Override
     public void ReparentAllViews() {
         for (Actor c : getChildren()) {
             c.remove();
         }
+
+        CoinView coin = createCoin();
+        if (coin != null) {
+            addActor(coin);
+            return;
+        }
+
+
         Card cards[] = (Card[]) mHand.GetHiddenCards().toArray();
         for (Card card : cards) {
             if (card != null) {

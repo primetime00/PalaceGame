@@ -51,7 +51,7 @@ public class GameScene extends Scene {
                 }
                 if ((params[0] instanceof SelectEndCards)) {
                     if (once == false) {
-                        mMessageStage.getMessageBand().showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE);
+                        mMessageStage.getMessageBand().showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE, false);
                         once = true;
                         state = true;
                     }
@@ -68,7 +68,7 @@ public class GameScene extends Scene {
                 String message = (String) params[0];
                 float duration = (float) params[1];
                 Color color = (Color) params[2];
-                mMessageStage.getMessageBand().showMessage(message, duration, color);
+                mMessageStage.getMessageBand().showMessage(message, duration, color, false);
             }
 
         });
@@ -76,7 +76,11 @@ public class GameScene extends Scene {
     }
 
     public void ShowMessage(String message, float duration, Color color) {
-        mMessageStage.getMessageBand().showMessage(message, duration, color);
+        ShowMessage(message, duration, color, false);
+    }
+
+    public void ShowMessage(String message, float duration, Color color, boolean pause) {
+        mMessageStage.getMessageBand().showMessage(message, duration, color, pause);
     }
 
     @Override

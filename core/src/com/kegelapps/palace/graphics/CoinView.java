@@ -11,8 +11,10 @@ import com.kegelapps.palace.graphics.utils.CardUtils;
 public class CoinView extends Actor {
 
     private TextureAtlas.AtlasRegion mCoinRegion;
+    private CardUtils.CoinType mType;
 
     public CoinView(CardUtils.CoinType type) {
+        mType = type;
         mCoinRegion = CardUtils.getCoin(type);
         setWidth(mCoinRegion.originalWidth);
         setHeight(mCoinRegion.originalHeight);
@@ -25,5 +27,9 @@ public class CoinView extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         batch.draw(mCoinRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+    }
+
+    public CardUtils.CoinType getType() {
+        return mType;
     }
 }
