@@ -4,8 +4,8 @@ import aurelienribon.tweenengine.Tween;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.tween.HighlightAccessor;
 
 /**
@@ -39,7 +39,12 @@ public class HighlightView {
         float pos = (actor.getWidth() * 0.05f)/2.0f;
         Color c = batch.getColor();
         batch.setColor(mColor.r,mColor.g,mColor.b,mAlpha);
-        batch.draw(CardUtils.getCardHighlight(),actor.getX()+pos, actor.getY()+pos,actor.getOriginX(),actor.getOriginY(),actor.getWidth(),actor.getHeight(),actor.getScaleX(),actor.getScaleY(),actor.getRotation(), 0, 0, CardUtils.getCardHighlight().getWidth(), CardUtils.getCardHighlight().getHeight(), false, false);
+        batch.draw(Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight(),
+                actor.getX()+pos, actor.getY()+pos,actor.getOriginX(),actor.getOriginY(),actor.getWidth(),actor.getHeight(),
+                actor.getScaleX(),actor.getScaleY(),actor.getRotation(), 0, 0,
+                Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight().getWidth(),
+                Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight().getHeight(),
+                false, false);
         batch.setColor(c);
     }
 

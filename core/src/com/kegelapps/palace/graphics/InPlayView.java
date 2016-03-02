@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.*;
@@ -18,7 +19,6 @@ import com.kegelapps.palace.engine.states.Play;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.dealtasks.DrawPlayCard;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 
 /**
@@ -34,6 +34,8 @@ public class InPlayView extends Group implements ReparentViews {
     Vector2 mNextCardPosition;
     Rectangle mTotalAreaRectangle;
 
+    private int mCardWidth, mCardHeight;
+
     private ActorGestureListener mGestureListener;
 
     private HighlightView mHighlightView;
@@ -41,12 +43,14 @@ public class InPlayView extends Group implements ReparentViews {
     public InPlayView(InPlay play) {
         super();
         mInPlayCards = play;
+        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
         init();
     }
 
     private void init() {
         mNextCardPosition = new Vector2();
-        mPlayRectangle = new Rectangle(0, 0, CardUtils.getCardWidth(), CardUtils.getCardHeight());
+        mPlayRectangle = new Rectangle(0, 0, mCardWidth, mCardHeight);
         mHighlightView = new HighlightView();
         mHighlightView.setColor(Color.RED);
         createGestures();
@@ -154,8 +158,8 @@ public class InPlayView extends Group implements ReparentViews {
         Vector2 res = CalculatePositionSizeForCard(mInPlayCards.GetCards().size()-1);
         float x = res.x;
         float y = res.y;
-        mPlayRectangle.setWidth(x+CardUtils.getCardWidth() - getX());
-        mPlayRectangle.setHeight(y+CardUtils.getCardHeight() - getY());
+        mPlayRectangle.setWidth(x+mCardWidth - getX());
+        mPlayRectangle.setHeight(y+mCardHeight - getY());
         mNextCardPosition.set(x, y);
         mTotalAreaRectangle = calculateTotalSize();
         if (mTotalAreaRectangle != null) {
@@ -170,9 +174,9 @@ public class InPlayView extends Group implements ReparentViews {
         for (int i=mInPlayCards.GetCards().size(); i>0; i--) {
             Vector2 pos = CalculatePositionSizeForCard(i);
             if (i ==mInPlayCards.GetCards().size() )
-                totalRect = new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardHeight());
+                totalRect = new Rectangle(pos.x, pos.y, mCardWidth, mCardHeight);
             else
-                totalRect = totalRect.merge(new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardHeight()));
+                totalRect = totalRect.merge(new Rectangle(pos.x, pos.y, mCardWidth, mCardHeight));
         }
         return totalRect;
     }
@@ -189,11 +193,12 @@ public class InPlayView extends Group implements ReparentViews {
         int size = index;
         int left = size % cardsHorizontal;
         int down = size/cardsHorizontal;
+        int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
         if (down % 2 == 0) //even
-            x = x + (CardUtils.getCardWidth() * overlapPercentX * left);
+            x = x + (width * overlapPercentX * left);
         else //odd
-            x = x + (CardUtils.getCardWidth() * overlapPercentX * (cardsHorizontal-left));
-        y = y - (CardUtils.getCardWidth() * overlapPercentY * down);
+            x = x + (width * overlapPercentX * (cardsHorizontal-left));
+        y = y - (width * overlapPercentY * down);
         res.set(x, y);
         return res;
     }

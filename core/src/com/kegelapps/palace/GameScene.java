@@ -1,5 +1,6 @@
 package com.kegelapps.palace;
 
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -35,7 +36,7 @@ public class GameScene extends Scene {
         tableView = new TableView(logic.GetTable(), getCardCamera());
         mMessageStage = new MessageStage(new ScreenViewport());
         addActor(tableView);
-
+        getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
     }
 
@@ -104,4 +105,12 @@ public class GameScene extends Scene {
     public Logic getLogic() {
         return logic;
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        mMessageStage.dispose();
+        mMessageStage = null;
+    }
+
 }

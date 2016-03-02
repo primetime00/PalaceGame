@@ -1,0 +1,26 @@
+
+ui.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+card-board-small
+  rotate: false
+  xy: 1, 67
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+button
+  rotate: false
+  xy: 1, 1
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button_down
+  rotate: false
+  xy: 259, 259
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1

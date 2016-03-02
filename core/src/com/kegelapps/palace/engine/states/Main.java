@@ -16,6 +16,7 @@ public class Main extends State {
         PLAY_FIRST_CARD,
         SELECT_END_CARDS,
         PLAY,
+        GAME_OVER,
         MAX
     }
 
@@ -74,6 +75,12 @@ public class Main extends State {
         });
 
         s = mChildrenStates.addState(Names.PLAY, this);
+        s.setStateListener(new StateListener() {
+            @Override
+            public void onDoneState() {
+                mState = GameState.GAME_OVER;
+            }
+        });
     }
 
     @Override
@@ -98,6 +105,8 @@ public class Main extends State {
                 break;
             case PLAY:
                 mChildrenStates.getState(Names.PLAY).Execute();
+                break;
+            case GAME_OVER:
                 break;
         }
         return false;

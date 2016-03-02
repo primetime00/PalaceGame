@@ -1,8 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.graphics.utils.CardUtils;
-import com.kegelapps.palace.graphics.utils.HandUtils;
+import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**
@@ -20,7 +19,7 @@ public class Stats implements Serializer{
         mStats = mStats.toBuilder().setTotalRounds(r).build();
     }
 
-    public void SetWinner(CardUtils.CoinType coin, Hand hand) {
+    public void SetWinner(CoinResource.CoinType coin, Hand hand) {
         LogicProtos.Stats.Builder statBuilder = mStats.toBuilder();
         LogicProtos.Placement.Builder placeBuild = LogicProtos.Placement.newBuilder();
         placeBuild.setCoinType(coin.ordinal());
@@ -47,23 +46,32 @@ public class Stats implements Serializer{
 
     public void DefineWinner(int id) {
         if (mStats.getGoldHand().getHandID() == -1) { //winner is first place
-            SetWinner(CardUtils.CoinType.GOLD, Logic.get().GetTable().GetHand(id));
+            SetWinner(CoinResource.CoinType.GOLD, Logic.get().GetTable().GetHand(id));
         }
         else if (mStats.getSilverHand().getHandID() == -1) { //winner is second place
-            SetWinner(CardUtils.CoinType.SILVER, Logic.get().GetTable().GetHand(id));
+            SetWinner(CoinResource.CoinType.SILVER, Logic.get().GetTable().GetHand(id));
         }
         else if (mStats.getBronzeHand().getHandID() == -1) { //winner is third place
-            SetWinner(CardUtils.CoinType.BRONZE, Logic.get().GetTable().GetHand(id));
+            SetWinner(CoinResource.CoinType.BRONZE, Logic.get().GetTable().GetHand(id));
         }
     }
 
-    public CardUtils.CoinType GetCoinType(int id) {
+    public CoinResource.CoinType GetCoinType(int id) {
         if (mStats.getGoldHand().getHandID() == id)
-            return CardUtils.CoinType.GOLD;
+            return CoinResource.CoinType.GOLD;
         if (mStats.getSilverHand().getHandID() == id)
-            return CardUtils.CoinType.SILVER;
+            return CoinResource.CoinType.SILVER;
         if (mStats.getBronzeHand().getHandID() == id)
-            return CardUtils.CoinType.BRONZE;
+            return CoinResource.CoinType.BRONZE;
         return null;
+    }
+
+    public LogicProtos.Placement GetStats(CoinResource.CoinType type) {
+        switch (type) {
+            case GOLD: return mStats.getGoldHand();
+            case SILVER: return mStats.getSilverHand();
+            case BRONZE: return mStats.getBronzeHand();
+            default: return null;
+        }
     }
 }

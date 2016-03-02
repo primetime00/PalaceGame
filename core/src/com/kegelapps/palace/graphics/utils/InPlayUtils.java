@@ -1,6 +1,5 @@
 package com.kegelapps.palace.graphics.utils;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.kegelapps.palace.graphics.InPlayView;
 

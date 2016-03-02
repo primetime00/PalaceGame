@@ -48,7 +48,7 @@ public class HandUtils {
 
     static public Vector3 LineUpActiveCard(int cardNumber, CardView cardView, TableView table, int id, Rectangle rect, float overlap) {
         HandSide side = table.getSideFromHand(id);
-        int cardWidth = CardUtils.getCardTextureWidth();
+        float cardWidth = cardView.getWidth();
 
         //find out card1 X position:
         float width = cardWidth*cardNumber*overlap;
@@ -111,7 +111,7 @@ public class HandUtils {
         if (side == HandSide.SIDE_UNKNOWN) {
             throw new RuntimeException("Hand side is set to unknown!");
         }
-        float gap = CardUtils.getCardHeight() * 0.1f;
+        float gap = table.getDeck().getHeight() * 0.1f;
         Vector2 res = new Vector2();
         DeckView mDeck = table.getDeck();
         HandView h = table.getHandFromSide(side);

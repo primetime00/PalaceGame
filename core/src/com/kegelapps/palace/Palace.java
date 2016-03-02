@@ -3,15 +3,12 @@ package com.kegelapps.palace;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.kegelapps.palace.engine.Logic;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 
 public class Palace extends ApplicationAdapter {
 	GameScene mGameScene;
 
 	@Override
 	public void create () {
-		CardUtils.loadCards(CardUtils.CardSize.TINY);
-
         Logic.get().SetNumberOfPlayers(4);
         Logic.get().Initialize();
         mGameScene = new GameScene(new ExtendViewport(800,480));
@@ -32,6 +29,8 @@ public class Palace extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		super.dispose();
-		mGameScene.dispose();
+		Director.instance().dispose();
+
+		mGameScene = null;
 	}
 }

@@ -3,7 +3,8 @@ package com.kegelapps.palace.graphics;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.CoinResource;
+import com.kegelapps.palace.Director;
 
 /**
  * Created by Ryan on 2/23/2016.
@@ -11,11 +12,11 @@ import com.kegelapps.palace.graphics.utils.CardUtils;
 public class CoinView extends Actor {
 
     private TextureAtlas.AtlasRegion mCoinRegion;
-    private CardUtils.CoinType mType;
+    private CoinResource.CoinType mType;
 
-    public CoinView(CardUtils.CoinType type) {
+    public CoinView(CoinResource.CoinType type) {
         mType = type;
-        mCoinRegion = CardUtils.getCoin(type);
+        mCoinRegion = Director.instance().getAssets().get("coins.pack", CoinResource.class).getCoin(type);
         setWidth(mCoinRegion.originalWidth);
         setHeight(mCoinRegion.originalHeight);
         setOrigin(mCoinRegion.originalWidth/2, mCoinRegion.originalWidth/2);
@@ -26,10 +27,11 @@ public class CoinView extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        batch.draw(mCoinRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+        batch.draw(mCoinRegion, getX(), getY(), getOriginX(), getOriginY(), getWidth(),
+                getHeight(), getScaleX(), getScaleY(), getRotation());
     }
 
-    public CardUtils.CoinType getType() {
+    public CoinResource.CoinType getType() {
         return mType;
     }
 }

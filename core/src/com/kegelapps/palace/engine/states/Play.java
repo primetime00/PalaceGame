@@ -26,8 +26,13 @@ public class Play extends State {
         mSingleTurnDone = new StateListener() {
             @Override
             public void onDoneState() {
-                mTable.NextTurn();
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayer()).getID());
+                boolean keepPlaying = mTable.NextTurn();
+                if (keepPlaying)
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayer()).getID());
+                else {
+                    if (mStateListener != null)
+                        mStateListener.onDoneState();
+                }
             }
         };
 

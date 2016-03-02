@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Input;
 import com.kegelapps.palace.engine.Card;
@@ -14,7 +15,6 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -38,7 +38,7 @@ public class DeckView extends Group implements Input.BoundObject {
     }
 
     private void init() {
-        mDeckBack = CardUtils.getCardBackDeckRegion();
+        mDeckBack = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardBackDeck();
         setBounds(0,0,mDeckBack.originalWidth, mDeckBack.originalHeight);
         mHighlightView = new HighlightView();
         createEvents();

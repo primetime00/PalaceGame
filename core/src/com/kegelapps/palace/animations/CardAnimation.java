@@ -6,8 +6,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.kegelapps.palace.engine.Hand;
-import com.kegelapps.palace.graphics.*;
-import com.kegelapps.palace.graphics.utils.CardUtils;
+import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.HandView;
+import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.tween.ActorAccessor;
 
@@ -188,7 +189,7 @@ public class CardAnimation extends Animation {
                 throw new RuntimeException("Position is out of range!");
             }
             Rectangle rect = mTable.getHands().get(mHandID).getHiddenPosition(mPosition);
-            float ov = CardUtils.getCardWidth() * mTable.getHands().get(mHandID).getEndCardOverlapPercent();
+            float ov = mCard.getWidth() * mTable.getHands().get(mHandID).getEndCardOverlapPercent();
             float x = rect.x;
             float y = rect.y;
 
@@ -358,7 +359,7 @@ public class CardAnimation extends Animation {
             int mHandID = builder.getHandID();
             float x = mCard.getX();
             float y = mCard.getY();
-            float raise = CardUtils.getCardTextureHeight() * 0.15f;
+            float raise = mCard.getHeight() * 0.15f;
             float duration = 0.5f;
             TweenEquation eq = TweenEquations.easeInOutQuart;
             float rotDiff = (mCard.getOriginY() - mCard.getOriginX()) / 1;
@@ -397,7 +398,7 @@ public class CardAnimation extends Animation {
         public BaseTween<Timeline> calculate(AnimationBuilder builder) {
             final CardView mCard = builder.getCard();
             int mHandID = builder.getHandID();
-            float fall = CardUtils.getCardTextureHeight() * 0.10f;
+            float fall = mCard.getHeight() * 0.10f;
             float duration = 0.5f;
             TweenEquation eq = TweenEquations.easeInCubic;
             float x, y;

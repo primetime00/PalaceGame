@@ -1,14 +1,18 @@
 package com.kegelapps.palace.graphics;
 
 import aurelienribon.tweenengine.*;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.animations.Animation;
 import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.tween.MessageBandAccessor;
 
 /**
@@ -32,20 +36,22 @@ public class MessageBandView extends Actor implements TweenCallback{
     Animation.AnimationStatusListener mListener;
 
     public MessageBandView() {
-        mPixmap = new Pixmap(Director.instance().getScreenWidth(), CardUtils.getCardHeight(), Pixmap.Format.RGBA8888);
+        int height = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        mPixmap = new Pixmap(Director.instance().getScreenWidth(), height, Pixmap.Format.RGBA8888);
         mPixmap.setColor(Color.WHITE);
         mPixmap.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
         mTexture = new Texture(mPixmap);
 
-        mShadowPix = new Pixmap(Director.instance().getScreenWidth(), CardUtils.getCardHeight(), Pixmap.Format.RGBA8888);
+        mShadowPix = new Pixmap(Director.instance().getScreenWidth(), height, Pixmap.Format.RGBA8888);
         mShadowPix.setColor(Color.BLACK);
         mShadowPix.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
 
         mShadowTex = new Texture(mShadowPix);
 
-        mShadowLength = CardUtils.getCardHeight() * 0.1f;
+        mShadowLength = height * 0.1f;
 
-        mText = new TextView(Director.instance().getGameFont());
+        //mText = new TextView(Director.instance().getGameFont());
+        mText = new TextView(Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class));
 
         setWidth(mPixmap.getWidth());
         setHeight(mPixmap.getHeight());

@@ -5,8 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.kegelapps.palace.CardResource;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 
 /**
  * Created by keg45397 on 12/8/2015.
@@ -31,7 +32,7 @@ public class CardView extends Actor {
     public CardView(Card.Suit suit, Card.Rank rank) {
         super();
         mCard = Card.GetCard(suit, rank);
-        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
         setSide(Side.FRONT);
         init();
     }
@@ -40,7 +41,7 @@ public class CardView extends Actor {
         super();
         assert(card == null);
         mCard = card;
-        mCardFace = CardUtils.getCardRegion(mCard.getSuit(), mCard.getRank());
+        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
         setSide(Side.FRONT);
         init();
     }
@@ -70,7 +71,7 @@ public class CardView extends Actor {
 
     public void setSide(Side side) {
         mSide = side;
-        mCardRegion = side == Side.FRONT ? mCardFace : CardUtils.getCardBackRegion();
+        mCardRegion = side == Side.FRONT ? mCardFace : Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardBack();
     }
 
     public float getMaxCardSize() {

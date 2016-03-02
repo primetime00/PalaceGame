@@ -1,16 +1,14 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.kegelapps.palace.CardResource;
+import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.animations.*;
@@ -18,13 +16,8 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
-import sun.rmi.runtime.Log;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -34,6 +27,8 @@ public class HandView extends Group implements ReparentViews {
     private Hand mHand;
     private Rectangle mHiddenPositions[];
     private Rectangle mActivePosition;
+
+    private int mCardWidth, mCardHeight;
 
     private float mCardOverlapPercent;
     private float mEndCardOverlapPercent;
@@ -49,6 +44,9 @@ public class HandView extends Group implements ReparentViews {
     }
 
     private void init() {
+        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+
         if (mHand.getType() == Hand.HandType.HUMAN)
             mCardOverlapPercent = 0.75f;
         else
@@ -71,25 +69,23 @@ public class HandView extends Group implements ReparentViews {
     public float getEndCardOverlapPercent() { return mEndCardOverlapPercent; }
 
     private void setupActiveLayout() {
-        int cardHeight = CardUtils.getCardHeight();
-        int cardWidth = CardUtils.getCardWidth();
         switch (mHand.getID()) {
             default:
             case 0: //bottom
-                mActivePosition = new Rectangle(0, 0, Director.instance().getScreenWidth(), cardHeight);
-                mActivePosition.setY(-cardHeight - (cardHeight*0.10f));
+                mActivePosition = new Rectangle(0, 0, Director.instance().getScreenWidth(), mCardHeight);
+                mActivePosition.setY(-mCardHeight - (mCardHeight*0.10f));
                 break;
             case 1: //left
-                mActivePosition = new Rectangle(0, 0, cardHeight, Director.instance().getScreenHeight());
-                mActivePosition.setX(-cardHeight - (cardHeight*0.10f));
+                mActivePosition = new Rectangle(0, 0, mCardHeight, Director.instance().getScreenHeight());
+                mActivePosition.setX(-mCardHeight - (mCardHeight*0.10f));
                 break;
             case 2: //top
-                mActivePosition = new Rectangle(0, Director.instance().getScreenHeight()-cardHeight, Director.instance().getScreenWidth(), cardHeight);
-                mActivePosition.setY(Director.instance().getScreenHeight()+ (cardHeight*0.10f));
+                mActivePosition = new Rectangle(0, Director.instance().getScreenHeight()-mCardHeight, Director.instance().getScreenWidth(), mCardHeight);
+                mActivePosition.setY(Director.instance().getScreenHeight()+ (mCardHeight*0.10f));
                 break;
             case 3: //right
-                mActivePosition = new Rectangle(Director.instance().getScreenWidth()-cardHeight, 0, cardHeight, Director.instance().getScreenHeight());
-                mActivePosition.setX(Director.instance().getScreenWidth()+ (cardHeight*0.10f));
+                mActivePosition = new Rectangle(Director.instance().getScreenWidth()-mCardHeight, 0, mCardHeight, Director.instance().getScreenHeight());
+                mActivePosition.setX(Director.instance().getScreenWidth()+ (mCardHeight*0.10f));
                 break;
         }
     }
@@ -100,20 +96,18 @@ public class HandView extends Group implements ReparentViews {
 
     private void setupHiddenLayout() {
         mHiddenPositions = new Rectangle[3];
-        int cardHeight = CardUtils.getCardHeight();
-        int cardWidth = CardUtils.getCardWidth();
         int screenWidth = Director.instance().getScreenWidth();
         int screenHeight = Director.instance().getScreenHeight();
-        float cardGap = cardWidth * 0.1f;
-        float hiddenWidth = cardWidth * 3 + cardGap * 2;
+        float cardGap = mCardWidth * 0.1f;
+        float hiddenWidth = mCardWidth * 3 + cardGap * 2;
         float startX = (screenWidth - hiddenWidth) / 2.0f;
         float startY = (screenHeight - hiddenWidth) / 2.0f;
-        float nextX = cardWidth + cardGap;
+        float nextX = mCardWidth + cardGap;
         for (int i=0; i<mHiddenPositions.length; ++i) {
             if (i == 0 || i == 2)
-                mHiddenPositions[i] = new Rectangle(0, 0, cardWidth, cardHeight);
+                mHiddenPositions[i] = new Rectangle(0, 0, mCardWidth, mCardHeight);
             else
-                mHiddenPositions[i] = new Rectangle(0, 0, cardHeight, cardWidth);
+                mHiddenPositions[i] = new Rectangle(0, 0, mCardHeight, mCardWidth);
         }
         switch (mHand.getID()) {
             default:
@@ -128,14 +122,14 @@ public class HandView extends Group implements ReparentViews {
                 mHiddenPositions[2].setPosition(0, startY + nextX + nextX);
                 break;
             case 2: //top
-                mHiddenPositions[0].setPosition(startX, screenHeight-cardHeight);
-                mHiddenPositions[1].setPosition(startX + nextX, screenHeight-cardHeight);
-                mHiddenPositions[2].setPosition(startX + nextX + nextX, screenHeight-cardHeight);
+                mHiddenPositions[0].setPosition(startX, screenHeight-mCardHeight);
+                mHiddenPositions[1].setPosition(startX + nextX, screenHeight-mCardHeight);
+                mHiddenPositions[2].setPosition(startX + nextX + nextX, screenHeight-mCardHeight);
                 break;
             case 3: //right
-                mHiddenPositions[0].setPosition(screenWidth - cardHeight, startY);
-                mHiddenPositions[1].setPosition(screenWidth - cardHeight, startY + nextX);
-                mHiddenPositions[2].setPosition(screenWidth - cardHeight, startY + nextX + nextX);
+                mHiddenPositions[0].setPosition(screenWidth - mCardHeight, startY);
+                mHiddenPositions[1].setPosition(screenWidth - mCardHeight, startY + nextX);
+                mHiddenPositions[2].setPosition(screenWidth - mCardHeight, startY + nextX + nextX);
                 break;
         }
     }
@@ -356,7 +350,7 @@ public class HandView extends Group implements ReparentViews {
     }
 
     private CoinView createCoin() {
-        final CardUtils.CoinType ct = Logic.get().getStats().GetCoinType(mHand.getID());
+        final CoinResource.CoinType ct = Logic.get().getStats().GetCoinType(mHand.getID());
         if (ct == null)
             return null;
         CoinView cv = new CoinView(ct);
@@ -387,7 +381,13 @@ public class HandView extends Group implements ReparentViews {
         int zIndex = 0;
         int size = getHand().GetActiveCards().size();
         Rectangle r = getActivePosition();
-        float width = (( (size-1) * CardUtils.getCardWidth()) * mCardOverlapPercent) + CardUtils.getCardWidth();
+        float width;
+        if (size > 0) {
+            CardView c = CardView.getCardView(getHand().GetActiveCards().get(0));
+            width = (((size - 1) * c.getWidth()) * mCardOverlapPercent) + c.getWidth();
+        } else {
+            width = 0;
+        }
         if (getHand().getID() == 0 || getHand().getID() == 2) {
             r.setWidth(width);
             r.setX( (Director.instance().getScreenWidth() - r.getWidth()) /2.0f);
@@ -488,7 +488,7 @@ public class HandView extends Group implements ReparentViews {
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                Vector3 pos = HandUtils.LineUpEndCard(cv, table, getHand().getID(), getHiddenPosition(i), CardUtils.getCardWidth() * getEndCardOverlapPercent());
+                Vector3 pos = HandUtils.LineUpEndCard(cv, table, getHand().getID(), getHiddenPosition(i), cv.getWidth() * getEndCardOverlapPercent());
                 cv.setPosition(pos.x, pos.y);
                 cv.setRotation(pos.z);
             }

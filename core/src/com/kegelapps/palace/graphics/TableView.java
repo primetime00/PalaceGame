@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
+import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.GameScene;
 import com.kegelapps.palace.Input;
@@ -20,11 +22,13 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.utils.CardUtils;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.TablePanListener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -37,6 +41,7 @@ public class TableView extends Group implements Input.BoundObject {
     private Array<HandView> mHands;
     private Map<HandUtils.HandSide, HandView> mHandSide;
     private CardCamera mCamera;
+    private int mCardHeight, mCardWidth;
 
     private Array<CardView> mCards;
 
@@ -67,7 +72,9 @@ public class TableView extends Group implements Input.BoundObject {
     }
 
     private void init() {
-        mHelperText = new TextView(Director.instance().getGameFont());
+        mHelperText = new TextView(Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class));
+        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
         mPixmap = new Pixmap(Director.instance().getVirtualWidth(),Director.instance().getVirtualHeight(), Pixmap.Format.RGB888);
         mPixmap.setColor(Color.GREEN);
@@ -102,11 +109,12 @@ public class TableView extends Group implements Input.BoundObject {
             }
         }
 
-        float w = (Director.instance().getScreenWidth() - CardUtils.getCardTextureWidth())/2.0f;
-        float h = (Director.instance().getScreenHeight() - CardUtils.getCardTextureHeight())/2.0f;
+        float w = (Director.instance().getScreenWidth() - mCardWidth)/2.0f;
+        float h = (Director.instance().getScreenHeight() - mCardHeight)/2.0f;
         mDeck.setPosition(w,h);
-        mPlayView.setPosition(mDeck.getX()+CardUtils.getCardWidth()+(CardUtils.getCardWidth()*mDeckToActiveGap), mDeck.getY());
-        //mPlayView.ReparentAllViews();
+        int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+
+        mPlayView.setPosition(mDeck.getX()+width+(width*mDeckToActiveGap), mDeck.getY());
     }
 
     private void createTableEvents() {
@@ -487,15 +495,16 @@ public class TableView extends Group implements Input.BoundObject {
                     if (c == card)
                         hiddenRect = hand.getHiddenPosition(i);
                 }
+
+                CardView cardView = CardView.getCardView(card);
                 Vector2 cardCenter = hiddenRect.getCenter(new Vector2());
                 Vector2 pos = mPlayView.GetAbsoluteNextCardPosition();
-                Vector2 playCenter = new Rectangle(pos.x, pos.y, CardUtils.getCardWidth(), CardUtils.getCardTextureHeight()).getCenter(new Vector2());
+                Vector2 playCenter = new Rectangle(pos.x, pos.y, cardView.getWidth(), cardView.getHeight()).getCenter(new Vector2());
                 Vector2 nextPos = mPlayView.CalculateAbsolutePositionSizeForCard(mPlayView.getInPlay().GetCards().size());
 
                 //lets bring the hand zindex to the front.
                 mPlayView.toBack();
 
-                CardView cardView = CardView.getCardView(card);
                 AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
                 zoomBuilder.setPause(true).setDescription("Zoom to hidden card").setTable(TableView.this).setCard(cardView).setHandID(id);
                 zoomBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);

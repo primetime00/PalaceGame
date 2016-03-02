@@ -3,16 +3,23 @@ package com.kegelapps.palace;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Disposable;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
+import com.kegelapps.palace.graphics.ShadowView;
+import com.kegelapps.palace.loaders.CardLoader;
+import com.kegelapps.palace.loaders.CoinLoader;
+import com.kegelapps.palace.loaders.FontLoader;
+import com.kegelapps.palace.loaders.ShadowLoader;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
@@ -21,12 +28,13 @@ import com.kegelapps.palace.tween.MessageBandAccessor;
 /**
  * Created by keg45397 on 12/15/2015.
  */
-public class Director {
+public class Director implements Disposable{
     private static Director instance = null;
-    private Scene scene;
-    private TweenManager mManager;
+    private Scene mScene;
+    private TweenManager mTweenManager;
     private EventSystem mEventSystem;
-    private BitmapFont mGameFont;
+
+    private AssetManager mAssetManager;
 
     public synchronized static Director instance()
     {
@@ -40,7 +48,9 @@ public class Director {
 
     public Director()
     {
-        scene = null;
+        mScene = null;
+
+        mAssetManager = new AssetManager();
 
         mEventSystem = new EventSystem();
 
@@ -53,13 +63,9 @@ public class Director {
         //create message band tweens
         Tween.registerAccessor(MessageBandView.class, new MessageBandAccessor());
 
-        mManager = new TweenManager();
+        mTweenManager = new TweenManager();
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(new FileHandle("FatCow.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        param.size = 45;
-        mGameFont = generator.generateFont(param);
-        generator.dispose();
+        loadAssets();
 
         // Latch onto event source.
         //eventSource = ActorEventSource.instance();
@@ -71,7 +77,7 @@ public class Director {
     }
 
     public TweenManager getTweenManager() {
-        return mManager;
+        return mTweenManager;
     }
     public EventSystem getEventSystem() { return mEventSystem;}
 
@@ -81,37 +87,37 @@ public class Director {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        mManager.update(Gdx.graphics.getDeltaTime());
+        mTweenManager.update(Gdx.graphics.getDeltaTime());
         mEventSystem.ProcessWaitingEvents();
-        if (scene != null)
+        if (mScene != null)
         {
-            scene.act(Gdx.graphics.getDeltaTime());
+            mScene.act(Gdx.graphics.getDeltaTime());
 
-            scene.draw();
+            mScene.draw();
         }
         else
         {
-            Gdx.app.log("WTF!", "No scene");
+            Gdx.app.log("WTF!", "No mScene");
         }
     }
 
     public synchronized void setScene(Scene scene)
     {
-        // If already active scene...
-        if (this.scene != null)
+        // If already active mScene...
+        if (this.mScene != null)
         {
             // Exit stage left..
-            this.scene.exit();
+            this.mScene.exit();
         }
 
-        this.scene = scene;
+        this.mScene = scene;
 
-        if (this.scene != null)
+        if (this.mScene != null)
         {
             // Enter stage right..
-            this.scene.enter();
+            this.mScene.enter();
 
-            // NOTE: Route input events to the scene.
+            // NOTE: Route input events to the mScene.
             Gdx.input.setInputProcessor(scene.getInputMultiplexer());
         }
     }
@@ -137,8 +143,46 @@ public class Director {
     }
 
     public Scene getScene() {
-        return scene;
+        return mScene;
     }
 
-    public BitmapFont getGameFont() { return mGameFont;}
+    public AssetManager getAssets() {
+        return mAssetManager;
+    }
+
+    public void loadAssets() {
+        //lets load out font first
+        mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("FatCow.ttf", BitmapFont.class);
+
+        mAssetManager.setLoader(CardResource.class, new CardLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("cards_tiny.pack", CardResource.class);
+
+        mAssetManager.setLoader(CoinResource.class, new CoinLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("coins.pack", CoinResource.class);
+
+        mAssetManager.load("ui.pack", TextureAtlas.class);
+        //mAssetManager.load("card-board-small.png", Texture.class);
+
+        mAssetManager.setLoader(ShadowView.ShadowTexture.class, new ShadowLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("shadow", ShadowView.ShadowTexture.class);
+
+
+        mAssetManager.finishLoading();
+
+    }
+
+    @Override
+    public void dispose() {
+        mAssetManager.dispose();
+        mEventSystem.dispose();
+        mTweenManager.killAll();
+        mScene.dispose();
+
+        mAssetManager = null;
+        mEventSystem = null;
+        mTweenManager = null;
+        mScene = null;
+        instance = null;
+    }
 }
