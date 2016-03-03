@@ -148,12 +148,17 @@ public class Table  implements Serializer{
     public boolean NextTurn() {
         mNumberOfCardsPlayed = 0;
         int prevTurn = mCurrentPlayer;
+        int numberOfPlayersLeft = getHands().size();
+        for (Hand h : mHands) {
+            if (!h.HasAnyCards())
+                numberOfPlayersLeft--;
+        }
+        if (numberOfPlayersLeft < 2)
+            return false;
         do { //are we out of the game?
             mCurrentPlayer++;
             mCurrentPlayer %= getHands().size();
         } while (!getHands().get(mCurrentPlayer).HasAnyCards());
-        if (mCurrentPlayer == prevTurn) //we are done, there is only one player left
-            return false;
         if (prevTurn > mCurrentPlayer)
             Logic.get().getStats().NextRound();
         return true;
