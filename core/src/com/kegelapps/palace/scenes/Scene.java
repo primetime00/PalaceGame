@@ -1,7 +1,10 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.scenes;
 
+import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.graphics.CardCamera;
 
@@ -11,10 +14,12 @@ import com.kegelapps.palace.graphics.CardCamera;
 public class Scene extends Stage {
 
     private InputMultiplexer inputMultiplexer;
+    protected TweenManager mTweenManager;
 
     public Scene() {
         super();
         this.inputMultiplexer = new InputMultiplexer(this);
+        mTweenManager = new TweenManager();
     }
 
     public Scene(Viewport viewport) {
@@ -22,7 +27,9 @@ public class Scene extends Stage {
         viewport.setCamera(new CardCamera(viewport.getScreenWidth(), viewport.getScreenHeight()));
         viewport.apply(true);
         this.inputMultiplexer = new InputMultiplexer(this);
+        mTweenManager = new TweenManager();
     }
+
 
     public CardCamera getCardCamera() {
         return (CardCamera) getCamera();
@@ -36,8 +43,28 @@ public class Scene extends Stage {
 
     }
 
+
+    protected void clearScene() {
+        SnapshotArray<Actor> actors = new SnapshotArray<Actor>(getActors());
+        for(Actor actor : actors) {
+            actor.remove();
+        }
+    }
+
+
     public InputMultiplexer getInputMultiplexer() {
         return inputMultiplexer;
     }
 
+    public TweenManager getTweenManager() {
+        return mTweenManager;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        mTweenManager.killAll();
+        mTweenManager = null;
+        inputMultiplexer = null;
+    }
 }

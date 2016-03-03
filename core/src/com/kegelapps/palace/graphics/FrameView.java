@@ -18,11 +18,13 @@ public class FrameView extends Table{
     private TextureRegion mGrid[][];
     private ShadowView mShadow;
     private final int sz = 26;
+    private boolean mNeedsRedraw;
 
     public FrameView() {
         super();
         TextureRegion t = ((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("card-board-small");
         mShadow = new ShadowView();
+        mNeedsRedraw = true;
         int w = t.getRegionWidth();
         int h = t.getRegionHeight();
         mGrid = new TextureRegion[3][3];
@@ -94,5 +96,24 @@ public class FrameView extends Table{
         mRightTile.draw(batch, x + getWidth() - sz, y + sz, sz, getHeight() - (sz*2));
         mCenterTile.draw(batch, x + sz, y + sz, getWidth() - (sz*2), getHeight() - (sz*2));
 
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        if (needsRedraw())
+            update();
+    }
+
+    public boolean needsRedraw() {
+        return mNeedsRedraw;
+    }
+
+    public void update() {
+        mNeedsRedraw = false;
+    }
+
+    public void mark() {
+        mNeedsRedraw = true;
     }
 }

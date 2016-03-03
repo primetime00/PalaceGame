@@ -178,6 +178,7 @@ public class Logic implements Serializer{
     }
 
     public void Initialize() {
+        StateFactory.get().reset();
         CheckForSave();
         if (mTable == null)
             mTable = new Table(new Deck(), mNumberOfPlayers);

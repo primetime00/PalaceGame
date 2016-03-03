@@ -163,6 +163,10 @@ public class StateFactory {
         return parentState;
     }
 
+    public void reset() {
+        mStateMap.clear();
+    }
+
     public static class StateList extends HashMap<State.Names, ArrayList<State>> {
 
         public StateList() {

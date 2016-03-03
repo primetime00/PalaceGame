@@ -1,15 +1,16 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.scenes;
 
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.scenes.Scene;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -33,15 +34,14 @@ public class GameScene extends Scene {
 
     private void init() {
         logic = Logic.get();
+        logic.SetNumberOfPlayers(4);
+        logic.Initialize();
         tableView = new TableView(logic.GetTable(), getCardCamera());
         mMessageStage = new MessageStage(new ScreenViewport());
         addActor(tableView);
         getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
     }
-
-    private boolean once = false;
-    private boolean state = false;
 
     private void createEvents() {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
@@ -51,11 +51,7 @@ public class GameScene extends Scene {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
                 if ((params[0] instanceof SelectEndCards)) {
-                    if (once == false) {
-                        mMessageStage.getMessageBand().showMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE, false);
-                        once = true;
-                        state = true;
-                    }
+                    ShowMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE, false);
                 }
             }
 
@@ -87,11 +83,8 @@ public class GameScene extends Scene {
     @Override
     public void act(float delta) {
         super.act(delta);
+        mTweenManager.update(delta);
         logic.Poll();
-        if (state) {
-            //logic.SaveState();
-            state = false;
-        }
     }
 
     @Override
@@ -113,4 +106,10 @@ public class GameScene extends Scene {
         mMessageStage = null;
     }
 
+    public void Restart() {
+        clearScene();
+        Director.instance().getEventSystem();
+        mTweenManager.killAll();
+        init();
+    }
 }

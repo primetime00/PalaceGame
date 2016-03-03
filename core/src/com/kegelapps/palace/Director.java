@@ -5,13 +5,16 @@ import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.kegelapps.palace.engine.states.SelectEndCards;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
@@ -20,6 +23,9 @@ import com.kegelapps.palace.loaders.CardLoader;
 import com.kegelapps.palace.loaders.CoinLoader;
 import com.kegelapps.palace.loaders.FontLoader;
 import com.kegelapps.palace.loaders.ShadowLoader;
+import com.kegelapps.palace.scenes.GameScene;
+import com.kegelapps.palace.scenes.Scene;
+import com.kegelapps.palace.scenes.UIScene;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
@@ -30,8 +36,11 @@ import com.kegelapps.palace.tween.MessageBandAccessor;
  */
 public class Director implements Disposable{
     private static Director instance = null;
-    private Scene mScene;
-    private TweenManager mTweenManager;
+
+    private GameScene mGameScene;
+    private UIScene mUIScene;
+
+    private Scene mCurrentScene;
     private EventSystem mEventSystem;
 
     private AssetManager mAssetManager;
@@ -48,12 +57,19 @@ public class Director implements Disposable{
 
     public Director()
     {
-        mScene = null;
-
-        mAssetManager = new AssetManager();
+        mCurrentScene = null;
 
         mEventSystem = new EventSystem();
+        registerTweens();
+        createEvents();
+    }
 
+    private void createScenes() {
+        mGameScene = new GameScene(new ExtendViewport(800,480));
+        mUIScene = new UIScene(new ExtendViewport(800,480));
+    }
+
+    private void registerTweens() {
         //create a camera tween
         Tween.registerAccessor(OrthographicCamera.class, new CameraAccessor());
         //create card tweens
@@ -62,62 +78,59 @@ public class Director implements Disposable{
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
         //create message band tweens
         Tween.registerAccessor(MessageBandView.class, new MessageBandAccessor());
-
-        mTweenManager = new TweenManager();
-
-        loadAssets();
-
-        // Latch onto event source.
-        //eventSource = ActorEventSource.instance();
-
-        // These are scale factors for adjusting touch events to the actual size
-        // of the view-port.
-        //scaleFactorX = 1;
-        //scaleFactorY = 1;
     }
 
     public TweenManager getTweenManager() {
-        return mTweenManager;
+        return mCurrentScene.getTweenManager();
     }
     public EventSystem getEventSystem() { return mEventSystem;}
 
     public void update()
     {
+        if (mAssetManager == null) {
+            loadAssets();
+        }
+        if (mGameScene == null) {
+            createScenes();
+            restart();
+        }
         // Update View
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        mTweenManager.update(Gdx.graphics.getDeltaTime());
         mEventSystem.ProcessWaitingEvents();
-        if (mScene != null)
+        if (mCurrentScene != null)
         {
-            mScene.act(Gdx.graphics.getDeltaTime());
+            mCurrentScene.act(Gdx.graphics.getDeltaTime());
 
-            mScene.draw();
+            //we want to overlay the UI, so lets still draw the gameScene
+            if (mCurrentScene instanceof UIScene && mGameScene != null)
+                mGameScene.draw();
+            mCurrentScene.draw();
         }
         else
         {
-            Gdx.app.log("WTF!", "No mScene");
+            Gdx.app.log("WTF!", "No mCurrentScene");
         }
     }
 
     public synchronized void setScene(Scene scene)
     {
-        // If already active mScene...
-        if (this.mScene != null)
+        // If already active mCurrentScene...
+        if (this.mCurrentScene != null)
         {
             // Exit stage left..
-            this.mScene.exit();
+            this.mCurrentScene.exit();
         }
 
-        this.mScene = scene;
+        this.mCurrentScene = scene;
 
-        if (this.mScene != null)
+        if (this.mCurrentScene != null)
         {
             // Enter stage right..
-            this.mScene.enter();
+            this.mCurrentScene.enter();
 
-            // NOTE: Route input events to the mScene.
+            // NOTE: Route input events to the mCurrentScene.
             Gdx.input.setInputProcessor(scene.getInputMultiplexer());
         }
     }
@@ -143,7 +156,7 @@ public class Director implements Disposable{
     }
 
     public Scene getScene() {
-        return mScene;
+        return mCurrentScene;
     }
 
     public AssetManager getAssets() {
@@ -151,6 +164,7 @@ public class Director implements Disposable{
     }
 
     public void loadAssets() {
+        mAssetManager = new AssetManager();
         //lets load out font first
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
         mAssetManager.load("FatCow.ttf", BitmapFont.class);
@@ -162,7 +176,6 @@ public class Director implements Disposable{
         mAssetManager.load("coins.pack", CoinResource.class);
 
         mAssetManager.load("ui.pack", TextureAtlas.class);
-        //mAssetManager.load("card-board-small.png", Texture.class);
 
         mAssetManager.setLoader(ShadowView.ShadowTexture.class, new ShadowLoader(new InternalFileHandleResolver()));
         mAssetManager.load("shadow", ShadowView.ShadowTexture.class);
@@ -172,17 +185,41 @@ public class Director implements Disposable{
 
     }
 
+    public void restart() {
+        setScene(mGameScene);
+    }
+
+    private void createEvents() {
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.GAME_OVER) {
+            @Override
+            public void handle(Object params[]) {
+                setScene(mUIScene);
+            }
+        });
+
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESTART_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                mGameScene.Restart();
+                setScene(mGameScene);
+            }
+        });
+
+    }
+
+
     @Override
     public void dispose() {
         mAssetManager.dispose();
         mEventSystem.dispose();
-        mTweenManager.killAll();
-        mScene.dispose();
+        mUIScene.dispose();
+        mGameScene.dispose();
 
         mAssetManager = null;
         mEventSystem = null;
-        mTweenManager = null;
-        mScene = null;
+        mCurrentScene = null;
+        mUIScene = null;
+        mGameScene = null;
         instance = null;
     }
 }

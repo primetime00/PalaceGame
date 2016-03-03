@@ -1,8 +1,11 @@
 package com.kegelapps.palace.events;
 
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+
+import java.util.Iterator;
 
 /**
  * Created by Ryan on 12/22/2015.
@@ -32,7 +35,7 @@ public class EventSystem implements Disposable{
         ATTEMPT_HIDDEN_PLAY,
         FAILED_HIDDEN_PLAY,
         SUCCESS_HIDDEN_PLAY,
-        SHOW_MESSAGE, CARDS_GONE,
+        SHOW_MESSAGE, CARDS_GONE, GAME_OVER, RESTART_GAME,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;
@@ -45,6 +48,13 @@ public class EventSystem implements Disposable{
 
     public void RegisterEvent(EventListener evt) {
         if (mListeners.containsKey(evt.getType()) && !mListeners.get(evt.getType()).contains(evt, false)) {
+            for (Iterator it = mListeners.get(evt.getType()).iterator(); it.hasNext();) {
+                EventListener l = (EventListener) it.next();
+                if (l.getClass() == evt.getClass()) {
+                    it.remove();
+                    break;
+                }
+            }
             mListeners.get(evt.getType()).add(evt);
         }
         else if (!mListeners.containsKey(evt.getType())) {

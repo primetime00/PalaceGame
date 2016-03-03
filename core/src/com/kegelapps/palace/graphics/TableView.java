@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.GameScene;
+import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
