@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
@@ -24,7 +25,7 @@ import com.kegelapps.palace.graphics.utils.HandUtils;
 /**
  * Created by Ryan on 1/25/2016.
  */
-public class InPlayView extends Group implements ReparentViews {
+public class InPlayView extends Group implements ReparentViews, Resettable {
 
     Rectangle mPlayRectangle;
     InPlay mInPlayCards;
@@ -102,7 +103,7 @@ public class InPlayView extends Group implements ReparentViews {
                 }
                 CardCamera.CameraSide side = CardCamera.CameraSide.BOTTOM;
                 if (pState != null)
-                    side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(table.getTable().getCurrentPlayer(), table));
+                    side = HandUtils.HandSideToCamera(HandUtils.IDtoSide(table.getTable().getCurrentPlayTurn(), table));
                 int cardSize = mInPlayCards.GetCards().size();
                 for (int i=0; i<cardSize; ++i) {
                     Card c = mInPlayCards.GetCards().get(i);
@@ -163,7 +164,8 @@ public class InPlayView extends Group implements ReparentViews {
         mNextCardPosition.set(x, y);
         mTotalAreaRectangle = calculateTotalSize();
         if (mTotalAreaRectangle != null) {
-            //setPosition(mTotalAreaRectangle.x, mTotalAreaRectangle.y);
+            Vector2 pos = this.localToAscendantCoordinates(getParent(), new Vector2(mTotalAreaRectangle.x, mTotalAreaRectangle.y));
+            //setPosition(pos.x, pos.y);
             setWidth(mTotalAreaRectangle.getWidth());
             setHeight(mTotalAreaRectangle.getHeight());
         }
@@ -216,8 +218,6 @@ public class InPlayView extends Group implements ReparentViews {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        //we don't want to apply a transform
-        //drawChildren(batch, parentAlpha);
         super.draw(batch, parentAlpha);
         if (mHighlightView.isVisible())
             mHighlightView.draw(batch, this);
@@ -245,14 +245,6 @@ public class InPlayView extends Group implements ReparentViews {
         CalculatePositionAndSize();
     }
 
-    public void OrganizePile() {
-        int i=0;
-        for (Actor c : getChildren()) {
-            Vector2 pos = CalculatePositionSizeForCard(i++);
-            c.setPosition(pos.x, pos.y);
-        }
-    }
-
     public void setHighlight(boolean highlight) {
         if (highlight)
             mHighlightView.show();
@@ -263,5 +255,15 @@ public class InPlayView extends Group implements ReparentViews {
     @Override
     public String toString() {
         return "InPlayView";
+    }
+
+    @Override
+    public void Reset() {
+        for (Actor a : getChildren()) {
+            a.remove();
+        }
+        getChildren().clear();
+        Vector2 v = CalculatePositionSizeForCard(0);
+        mNextCardPosition.set(v.x, v.y);
     }
 }

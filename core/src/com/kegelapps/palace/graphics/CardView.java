@@ -15,7 +15,6 @@ import com.kegelapps.palace.engine.Card;
 public class CardView extends Actor {
 
     private Card mCard;
-    private Side mSide;
     private TextureAtlas.AtlasRegion mCardRegion;
     private TextureAtlas.AtlasRegion mCardFace;
     private float mMaxCardSize;
@@ -70,7 +69,6 @@ public class CardView extends Actor {
     }
 
     public void setSide(Side side) {
-        mSide = side;
         mCardRegion = side == Side.FRONT ? mCardFace : Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardBack();
     }
 

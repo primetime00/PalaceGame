@@ -196,7 +196,9 @@ public class PlayHumanTurn extends PlayTurn {
         if (playHumanState.hasPlayTapped())
             mPlayTapped = playHumanState.getPlayTapped();
 
-    }
+        if (mPlayCard == null || mDeckTapped == false)
+            mStatus = Status.NOT_STARTED;
 
+    }
 
 }

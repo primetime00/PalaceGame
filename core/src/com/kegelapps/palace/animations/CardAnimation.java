@@ -99,7 +99,6 @@ public class CardAnimation extends Animation {
             final CardView mCard = builder.getCard();
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
-            //mCard.setPosition(builder.getTable().getDeck().getX(), builder.getTable().getDeck().getY());
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
             HandView hand = mTable.getHands().get(mHandID);
 
@@ -111,7 +110,6 @@ public class CardAnimation extends Animation {
             float powerVariation = (hiddenRect.getHeight() - MathUtils.random(hiddenRect.getHeight()))/2.0f;
             float rotation;
             float duration = 0.5f;
-
 
             mAnimation.beginParallel();
 

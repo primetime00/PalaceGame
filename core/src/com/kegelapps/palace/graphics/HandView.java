@@ -7,9 +7,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
@@ -22,7 +24,7 @@ import com.kegelapps.palace.input.CardGestureListener;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class HandView extends Group implements ReparentViews {
+public class HandView extends Group implements ReparentViews, Resettable {
 
     private Hand mHand;
     private Rectangle mHiddenPositions[];
@@ -588,5 +590,14 @@ public class HandView extends Group implements ReparentViews {
     @Override
     public String toString() {
         return "HandView";
+    }
+
+    @Override
+    public void Reset() {
+        SnapshotArray<Actor> mSnap = new SnapshotArray<>(getChildren());
+        for (Actor c : mSnap) {
+            c.remove();
+        }
+        mSnap.clear();
     }
 }

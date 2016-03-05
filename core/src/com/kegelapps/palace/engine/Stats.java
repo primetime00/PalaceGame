@@ -2,12 +2,13 @@ package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.CoinResource;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**
  * Created by Ryan on 2/19/2016.
  */
-public class Stats implements Serializer{
+public class Stats implements Serializer, Resettable{
     private LogicProtos.Stats mStats;
 
     public Stats() {
@@ -73,5 +74,14 @@ public class Stats implements Serializer{
             case BRONZE: return mStats.getBronzeHand();
             default: return null;
         }
+    }
+
+    @Override
+    public void Reset() {
+        mStats = mStats.toBuilder().setTotalRounds(0)
+                .setGoldHand(LogicProtos.Placement.newBuilder().setHandID(-1).setRounds(0).build())
+                .setSilverHand(LogicProtos.Placement.newBuilder().setHandID(-1).setRounds(0).build())
+                .setBronzeHand(LogicProtos.Placement.newBuilder().setHandID(-1).setRounds(0).build())
+                .build();
     }
 }

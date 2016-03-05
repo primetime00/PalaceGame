@@ -41,10 +41,7 @@ public class Logic implements Serializer{
 
     private Table mTable;
 
-    private boolean mPaused;
-
     public Logic() {
-        mPaused = false;
         mStats = new Stats();
     }
 
@@ -55,9 +52,15 @@ public class Logic implements Serializer{
     }
 
     public void LoadStatus(StatusProtos.Status s) {
-        mTable = new Table(s.getTable());
+        if (mTable == null)
+            mTable = new Table(s.getTable());
+        else
+            mTable.Load(s.getTable());
         StateFactory.get().SetTable(mTable);
-        mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
+        if (mMainState == null)
+            mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
+        else
+            mMainState.Reset();
         StateFactory.get().ParseState(s.getMainState(), GetMainState());
         ReadBuffer(s.getLogic());
     }
@@ -73,7 +76,6 @@ public class Logic implements Serializer{
                 mMainState.resume();
             }
         }
-        mPaused = pause;
     }
 
     public void Poll() {
@@ -178,8 +180,11 @@ public class Logic implements Serializer{
     }
 
     public void Initialize() {
-        StateFactory.get().reset();
-        CheckForSave();
+        if (mStats != null)
+            mStats.Reset();
+        //if we are rematching, don't load save
+        if (mTable == null && mMainState == null)
+            CheckForSave();
         if (mTable == null)
             mTable = new Table(new Deck(), mNumberOfPlayers);
         StateFactory.get().SetTable(mTable);

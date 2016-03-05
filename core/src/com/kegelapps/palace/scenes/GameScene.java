@@ -41,6 +41,7 @@ public class GameScene extends Scene {
         addActor(tableView);
         getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
+        Director.instance().addResetter(this, 0);
     }
 
     private void createEvents() {
@@ -106,10 +107,10 @@ public class GameScene extends Scene {
         mMessageStage = null;
     }
 
-    public void Restart() {
-        clearScene();
-        Director.instance().getEventSystem();
-        mTweenManager.killAll();
-        init();
+    @Override
+    public void Reset() {
+        super.Reset();
+        logic.Initialize();
+        addActor(tableView);
     }
 }

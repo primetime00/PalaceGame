@@ -171,6 +171,11 @@ public class PlayTurn extends State {
 
     }
 
+    @Override
+    public void Reset() {
+        mTurnState = TurnState.PLAY_CARD;
+        mPlayMode = PlayMode.ACTIVE;
 
-
+        super.Reset();
+    }
 }

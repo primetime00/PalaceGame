@@ -68,7 +68,7 @@ public class DealCard extends State {
             default:
             case DEALING:
                 mCard = mDeck.Draw();
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_CARD, mCard, mHand); //triggers a deal animation
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_CARD, mCard, mHand.getID()); //triggers a deal animation
                 mCardState = CardState.ACCEPTING;
                 return false;
             case ACCEPTING:
@@ -113,5 +113,11 @@ public class DealCard extends State {
             builder.setCard((CardsProtos.Card) mCard.WriteBuffer());
         s = s.toBuilder().setExtension(StateProtos.DealCardState.state, builder.build()).build();
         return s;
+    }
+
+    @Override
+    public void Reset() {
+        mCardState = CardState.DEALING;
+        super.Reset();
     }
 }

@@ -3,12 +3,14 @@ package com.kegelapps.palace.graphics;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Input;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Logic;
@@ -19,7 +21,7 @@ import com.kegelapps.palace.events.EventSystem;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class DeckView extends Group implements Input.BoundObject {
+public class DeckView extends Group implements Input.BoundObject, Resettable {
 
     private Deck mDeck;
 
@@ -147,6 +149,7 @@ public class DeckView extends Group implements Input.BoundObject {
                 cardView.setSide(CardView.Side.BACK);
                 cardView.setX(cascade);
                 cardView.setY(0);
+                cardView.setRotation(0.0f);
                 cascade += (cardView.getWidth() * 0.04f);
                 cardView.remove();
                 addActor(cardView);
@@ -185,5 +188,14 @@ public class DeckView extends Group implements Input.BoundObject {
     @Override
     public String toString() {
         return "DeckView";
+    }
+
+    @Override
+    public void Reset() {
+        for (Actor a : getChildren()) {
+            a.remove();
+        }
+        getChildren().clear();
+        mDeckLow = false;
     }
 }

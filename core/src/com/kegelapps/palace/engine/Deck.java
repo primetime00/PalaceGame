@@ -24,21 +24,8 @@ public class Deck implements Serializer{
         //mDebugRanks.add(Card.Rank.FIVE);
         mCards = new ArrayList<>();
 
-        if (mDebugRanks.size() > 0) { //this is debug mode
-            for (Card.Suit s : Card.Suit.values()) {
-                for (int rank = 0; rank < Card.Rank.values().length; ++rank) {
-                    Card.Rank r = mDebugRanks.get(rank % mDebugRanks.size());
-                    mCards.add(Card.GetCard(s, r));
-                }
-            }
-        }
-        else {
-            for (Card.Suit s : Card.Suit.values()) {
-                for (Card.Rank r : Card.Rank.values()) {
-                    mCards.add(Card.GetCard(s, r));
-                }
-            }
-        }
+        Reset();
+
     }
 
     public Deck(CardsProtos.Deck deckProto) {
@@ -84,6 +71,25 @@ public class Deck implements Serializer{
         mCards.clear();
         for (CardsProtos.Card protoCard : deck.getCardsList()) {
             mCards.add(Card.GetCard(protoCard));
+        }
+    }
+
+    public void Reset() {
+        mCards.clear();
+        if (mDebugRanks != null && mDebugRanks.size() > 0) { //this is debug mode
+            for (Card.Suit s : Card.Suit.values()) {
+                for (int rank = 0; rank < Card.Rank.values().length; ++rank) {
+                    Card.Rank r = mDebugRanks.get(rank % mDebugRanks.size());
+                    mCards.add(Card.GetCard(s, r));
+                }
+            }
+        }
+        else {
+            for (Card.Suit s : Card.Suit.values()) {
+                for (Card.Rank r : Card.Rank.values()) {
+                    mCards.add(Card.GetCard(s, r));
+                }
+            }
         }
     }
 }

@@ -86,4 +86,10 @@ public class SelectEndCards extends State {
         mState = selectEndCardState.getCurrentState();
 
     }
+
+    @Override
+    public void Reset() {
+        mState = 0;
+        super.Reset();
+    }
 }

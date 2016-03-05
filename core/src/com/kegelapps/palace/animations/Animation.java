@@ -78,9 +78,7 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
             Director.instance().getTweenManager().killTarget(mKillPreviousAnimation);
 
             Actor a = (Actor) mKillPreviousAnimation;
-            System.out.print(String.format("Killing target %s\n", a.getName()));
         }
-        System.out.print(String.format("Starting animation %s\n", mDescription ));
 
         if (mTimeLineAnimation != null) {
             mTimeLineAnimation.setCallback(this);

@@ -20,9 +20,7 @@ import com.kegelapps.palace.tween.MessageBandAccessor;
  */
 public class MessageBandView extends Actor implements TweenCallback{
 
-    private Pixmap mPixmap, mShadowPix;
     private Texture mTexture, mShadowTex;
-    private float mShadowLength;
 
     private float mAlpha;
 
@@ -33,28 +31,26 @@ public class MessageBandView extends Actor implements TweenCallback{
     private float mWindowX, mWindowY;
     private boolean mChanged = false;
 
+    private ShadowView mShadow;
+
     Animation.AnimationStatusListener mListener;
+
+    static public class MessageBandTexture extends Texture {
+
+        public MessageBandTexture(Pixmap pixmap) {
+            super(pixmap);
+        }
+    }
 
     public MessageBandView() {
         int height = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
-        mPixmap = new Pixmap(Director.instance().getScreenWidth(), height, Pixmap.Format.RGBA8888);
-        mPixmap.setColor(Color.WHITE);
-        mPixmap.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
-        mTexture = new Texture(mPixmap);
-
-        mShadowPix = new Pixmap(Director.instance().getScreenWidth(), height, Pixmap.Format.RGBA8888);
-        mShadowPix.setColor(Color.BLACK);
-        mShadowPix.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
-
-        mShadowTex = new Texture(mShadowPix);
-
-        mShadowLength = height * 0.1f;
-
-        //mText = new TextView(Director.instance().getGameFont());
+        int width = Director.instance().getScreenWidth();
+        setWidth(width);
+        setHeight(height);
+        mTexture = Director.instance().getAssets().get("messageband");
+        mShadow = new ShadowView();
+        mShadow.setColor(Color.BLACK, 0.5f);
         mText = new TextView(Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class));
-
-        setWidth(mPixmap.getWidth());
-        setHeight(mPixmap.getHeight());
 
         setWindowX(0);
         setWindowY((Director.instance().getScreenHeight() + getHeight())/2.0f);
@@ -84,7 +80,6 @@ public class MessageBandView extends Actor implements TweenCallback{
     @Override
     public void draw(Batch batch, float parentAlpha) {
         Camera cam = this.getStage().getCamera();
-        //OrthographicCamera cam = (OrthographicCamera) Director.instance().getScene().getCamera();
         if (cam == null)
             throw new RuntimeException("MessageBandView has a null camera!");
         if (mChanged) {
@@ -97,10 +92,10 @@ public class MessageBandView extends Actor implements TweenCallback{
         setY(pos.y);
         mCenter.set(mConvert);
         super.draw(batch, parentAlpha);
-        batch.setColor(0, 0, 0, mAlpha*0.5f);
-        batch.draw(mShadowTex, getX()+mShadowLength, getY()-mShadowLength, getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation(), 0, 0, mShadowPix.getWidth(), mShadowPix.getHeight(), false, false);
+        mShadow.shadowBottomRight(getHeight() * 0.1f, this);
+        mShadow.draw(batch, parentAlpha);
         batch.setColor(getColor().r, getColor().g, getColor().b, mAlpha);
-        batch.draw(mTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation(), 0, 0, mPixmap.getWidth(), mPixmap.getHeight(), false, false);
+        batch.draw(mTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation(), 0, 0, mTexture.getWidth(), mTexture.getHeight(), false, false);
         if (mText.getText().length() > 0) {
             mText.setX((getWidth() - mText.getWidth())/2.0f + getX());
             mText.setY((getY() + mText.getHeight()) + (( getHeight() - mText.getHeight())/2.0f));

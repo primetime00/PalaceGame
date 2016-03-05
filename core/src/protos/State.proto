@@ -30,8 +30,7 @@ message DealState {
     extend State {
         optional DealState state = 101;
     }
-    required int32 currentPlayer = 1;
-    required int32 round=2;
+    required int32 round=1;
 }
 
 message PlayState {

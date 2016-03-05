@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
@@ -9,7 +10,7 @@ import java.util.*;
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Hand implements Serializer{
+public class Hand implements Serializer, Resettable{
 
 
     public enum HandType {
@@ -376,6 +377,17 @@ public class Hand implements Serializer{
         Director.instance().getEventSystem().Fire(EventSystem.EventType.PICK_UP_STACK, getID(), cards);
 
     }
+
+    @Override
+    public void Reset() {
+        Arrays.fill(mHiddenCards, null);
+        Arrays.fill(mEndCards, null);
+        mActiveCards.clear();
+        mPendingCards.Clear();
+        mDiscardCards.clear();
+    }
+
+
 
 
     @Override

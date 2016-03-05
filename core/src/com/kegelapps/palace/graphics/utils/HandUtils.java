@@ -155,10 +155,15 @@ public class HandUtils {
                 if (parent != null) {
                     if (destView.isAscendantOf(parent)) //the current parent is a child of destView
                         promote = false;
-                    if (promote)
-                        pos = parent.localToDescendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
-                    else
-                        pos = parent.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+                    try {
+                        if (promote)
+                            pos = parent.localToDescendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+                        else
+                            pos = parent.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
+                    }
+                    catch (Exception e) {
+                        System.out.print(String.format("Card is %s", point.getName()));
+                    }
                 }
                 else
                     pos = point.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));

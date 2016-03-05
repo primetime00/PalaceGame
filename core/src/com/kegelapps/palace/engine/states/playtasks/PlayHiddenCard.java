@@ -141,4 +141,10 @@ public class PlayHiddenCard extends State {
         s = s.toBuilder().setExtension(StateProtos.PlayHiddenAttemptState.state, builder.build()).build();
         return s;
     }
+
+    @Override
+    public void Reset() {
+        mState = HiddenState.ATTEMPT;
+        super.Reset();
+    }
 }

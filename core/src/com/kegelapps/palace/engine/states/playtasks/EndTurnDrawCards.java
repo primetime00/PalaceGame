@@ -1,6 +1,5 @@
 package com.kegelapps.palace.engine.states.playtasks;
 
-import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.Play;
@@ -25,7 +24,7 @@ public class EndTurnDrawCards extends State {
         Play state = (Play) Logic.get().GetMainState().getState(Names.PLAY);
         if (state == null)
             throw new RuntimeException("Could not find Play state.  It is required!");
-        mCurrentPlayer = mTable.getCurrentPlayer();
+        mCurrentPlayer = mTable.getCurrentPlayTurn();
     }
 
     @Override

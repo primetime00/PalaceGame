@@ -6,12 +6,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.graphics.CardCamera;
 
 /**
  * Created by keg45397 on 12/15/2015.
  */
-public class Scene extends Stage {
+public class Scene extends Stage implements Resettable {
 
     private InputMultiplexer inputMultiplexer;
     protected TweenManager mTweenManager;
@@ -66,5 +67,11 @@ public class Scene extends Stage {
         mTweenManager.killAll();
         mTweenManager = null;
         inputMultiplexer = null;
+    }
+
+    @Override
+    public void Reset() {
+        clearScene();
+        mTweenManager.killAll();
     }
 }

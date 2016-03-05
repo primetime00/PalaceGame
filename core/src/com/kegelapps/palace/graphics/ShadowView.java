@@ -83,8 +83,9 @@ public class ShadowView extends Actor {
     }
 
     public void setColor(Color c, float alpha) {
-        c.a = alpha;
-        setColor(c);
+        Color res = new Color(c);
+        res.a = alpha;
+        setColor(res);
     }
 
 

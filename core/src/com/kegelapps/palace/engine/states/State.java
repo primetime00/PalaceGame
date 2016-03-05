@@ -6,10 +6,13 @@ import com.kegelapps.palace.engine.Serializer;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
+import java.util.ArrayList;
+
 /**
  * Created by Ryan on 12/23/2015.
  */
 public class State implements Serializer{
+
 
     public enum Status{
         NOT_STARTED,
@@ -48,7 +51,7 @@ public class State implements Serializer{
     protected int mID;
 
 
-    private Status mStatus, mPreviousStatus;
+    protected Status mStatus, mPreviousStatus;
 
     protected StateListener mStateListener;
 
@@ -199,4 +202,18 @@ public class State implements Serializer{
         stateProto = StateFactory.get().WriteStateList(mChildrenStates, builder.build(), this);
         return stateProto;
     }
+
+    public void Reset() {
+        mPaused = false;
+        mStatus = Status.NOT_STARTED;
+
+        for (ArrayList<State> s : mChildrenStates.values()) {
+            for (State state : s) {
+                state.Reset();
+            }
+        }
+
+
+    }
+
 }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.*;
@@ -33,7 +34,7 @@ import java.util.Map;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class TableView extends Group implements Input.BoundObject {
+public class TableView extends Group implements Input.BoundObject, Resettable {
 
     private Table mTable;
     private DeckView mDeck;
@@ -115,6 +116,21 @@ public class TableView extends Group implements Input.BoundObject {
         int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
         mPlayView.setPosition(mDeck.getX()+width+(width*mDeckToActiveGap), mDeck.getY());
+        Director.instance().addResetter(this);
+
+    }
+
+    @Override
+    public void Reset() {
+        float x = mCamera.viewportWidth / 2.0f;
+        float y = mCamera.viewportHeight / 2.0f;
+        mCamera.SetPosition(new Vector2(x, y), 1.0f, CardCamera.CameraSide.CENTER);
+        for (HandView h : mHands) {
+            h.Reset();
+        }
+        mPlayView.Reset();
+        mDeck.Reset();
+
     }
 
     private void createTableEvents() {
@@ -128,6 +144,7 @@ public class TableView extends Group implements Input.BoundObject {
                 //move this card to the table view first
                 HandUtils.Reparent(TableView.this, cardView);
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
+                cardView.setRotation(0.0f);
 
                 if (cardView.getCard().getRank() == Card.Rank.TEN) {//this is a burn, lets zoom in!
                     CameraAnimation cameraZoomAnimation = (CameraAnimation) AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
@@ -155,26 +172,21 @@ public class TableView extends Group implements Input.BoundObject {
         EventSystem.EventListener mDealCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DEAL_CARD) {
             @Override
             public void handle(Object params[]) {
-                if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand))
+                if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer))
                     throw new IllegalArgumentException("Invalid parameters for DEAL_HIDDEN_CARD");
                 CardView cardView = CardView.getCardView((Card) params[0]);
-                Hand hand =  (Hand) params[1];
+                int id =  (int) params[1];
 
                 float duration = params.length >= 3 && params[2] instanceof Float ? (float)params[2] : 0.5f;
-                cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setSide(CardView.Side.BACK);
 
-                if (findActor(cardView.getCard().toString()) == null)
-                    addActor(cardView);
-                for (int index =0; index<mHands.size; ++index)
-                {
-                    if (mHands.get(index).getHand() == hand) {
-                        AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                        builder.setPause(true).setDescription("Dealing to a hand").setTable(TableView.this).setCard(cardView).setHandID(index)
-                                .setTweenCalculator(new CardAnimation.DealToHand()).build().Start();
-                        break;
-                    }
-                }
+                HandUtils.Reparent(TableView.this, cardView);
+                cardView.setPosition(mDeck.getX(), mDeck.getY());
+                cardView.setRotation(0.0f);
+
+                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(true).setDescription("Dealing to a hand").setTable(TableView.this).setCard(cardView).setHandID(id)
+                        .setTweenCalculator(new CardAnimation.DealToHand()).build().Start();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDealCardEventListener);
@@ -312,7 +324,7 @@ public class TableView extends Group implements Input.BoundObject {
                     if (s.getState(State.Names.SELECT_END_CARDS) != null || s.getState(State.Names.DRAW_PLAY_CARD) != null || s.getState(State.Names.DEAL) != null)
                         side = HandUtils.HandSide.SIDE_BOTTOM;
                     else if (s.getState(State.Names.PLAY) != null) {
-                        int id = getTable().getCurrentPlayer();
+                        int id = getTable().getCurrentPlayTurn();
                         side = getSideFromHand(id);
                     }
                     Vector2 pos = HandUtils.GetHandPosition(TableView.this, side);
@@ -364,6 +376,10 @@ public class TableView extends Group implements Input.BoundObject {
                 for (int i = 0; i< cards.size(); ++i) {
                     Card c = cards.get(i);
                     CardView cardView = CardView.getCardView(c);
+                    cardView.setSide(CardView.Side.BACK);
+                    HandUtils.Reparent(TableView.this, cardView);
+                    cardView.setPosition(mDeck.getX(), mDeck.getY());
+                    cardView.setRotation(0.0f);
                     final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     builder.setPause(true).setDescription("Drawing and End card").setTable(TableView.this).setCard(cardView).setHandID(id);
                     builder.setStartDelay(delay, new Runnable() {

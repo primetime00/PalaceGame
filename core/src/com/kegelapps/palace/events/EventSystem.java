@@ -48,13 +48,6 @@ public class EventSystem implements Disposable{
 
     public void RegisterEvent(EventListener evt) {
         if (mListeners.containsKey(evt.getType()) && !mListeners.get(evt.getType()).contains(evt, false)) {
-            for (Iterator it = mListeners.get(evt.getType()).iterator(); it.hasNext();) {
-                EventListener l = (EventListener) it.next();
-                if (l.getClass() == evt.getClass()) {
-                    it.remove();
-                    break;
-                }
-            }
             mListeners.get(evt.getType()).add(evt);
         }
         else if (!mListeners.containsKey(evt.getType())) {

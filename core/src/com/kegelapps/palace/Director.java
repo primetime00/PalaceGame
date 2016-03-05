@@ -19,10 +19,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.ShadowView;
-import com.kegelapps.palace.loaders.CardLoader;
-import com.kegelapps.palace.loaders.CoinLoader;
-import com.kegelapps.palace.loaders.FontLoader;
-import com.kegelapps.palace.loaders.ShadowLoader;
+import com.kegelapps.palace.loaders.*;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.scenes.Scene;
 import com.kegelapps.palace.scenes.UIScene;
@@ -30,6 +27,8 @@ import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
 import com.kegelapps.palace.tween.MessageBandAccessor;
+
+import java.util.ArrayList;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -45,6 +44,8 @@ public class Director implements Disposable{
 
     private AssetManager mAssetManager;
 
+    private ArrayList<Resettable> mResetList;
+
     public synchronized static Director instance()
     {
         if (instance == null)
@@ -58,6 +59,7 @@ public class Director implements Disposable{
     public Director()
     {
         mCurrentScene = null;
+        mResetList = new ArrayList<>();
 
         mEventSystem = new EventSystem();
         registerTweens();
@@ -180,6 +182,9 @@ public class Director implements Disposable{
         mAssetManager.setLoader(ShadowView.ShadowTexture.class, new ShadowLoader(new InternalFileHandleResolver()));
         mAssetManager.load("shadow", ShadowView.ShadowTexture.class);
 
+        mAssetManager.setLoader(MessageBandView.MessageBandTexture.class, new MessageBandLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("messageband", MessageBandView.MessageBandTexture.class);
+
 
         mAssetManager.finishLoading();
 
@@ -200,16 +205,27 @@ public class Director implements Disposable{
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESTART_GAME) {
             @Override
             public void handle(Object params[]) {
-                mGameScene.Restart();
+                for (Resettable r : mResetList) {
+                    r.Reset();
+                }
                 setScene(mGameScene);
             }
         });
+    }
 
+    public void addResetter(Resettable r) {
+        addResetter(r, mResetList.size());
+    }
+
+    public void addResetter(Resettable r, int position) {
+        if (!mResetList.contains(r))
+            mResetList.add(position, r);
     }
 
 
     @Override
     public void dispose() {
+        mResetList.clear();
         mAssetManager.dispose();
         mEventSystem.dispose();
         mUIScene.dispose();
@@ -220,6 +236,7 @@ public class Director implements Disposable{
         mCurrentScene = null;
         mUIScene = null;
         mGameScene = null;
+        mResetList = null;
         instance = null;
     }
 }

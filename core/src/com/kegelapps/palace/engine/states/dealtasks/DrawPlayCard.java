@@ -15,7 +15,6 @@ import com.kegelapps.palace.protos.StateProtos;
  */
 public class DrawPlayCard extends State {
 
-    private Deck mDeck;
     private Table mTable;
     private DrawState mState;
 
@@ -27,7 +26,6 @@ public class DrawPlayCard extends State {
     public DrawPlayCard(State parent, Table table) {
         super(parent);
         this.mTable = table;
-        mDeck = table.getDeck();
         mState = DrawState.DRAW;
     }
 
@@ -73,5 +71,11 @@ public class DrawPlayCard extends State {
         s = s.toBuilder().setExtension(StateProtos.DrawPlayCardState.state, builder.build()).build();
         return s;
 
+    }
+
+    @Override
+    public void Reset() {
+        mState = DrawState.DRAW;
+        super.Reset();
     }
 }

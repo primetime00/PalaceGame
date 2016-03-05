@@ -1,0 +1,4 @@
+End cards are re-positioned after OrganizeHand?
+Dealing hidden cards have incorrect z order
+PlayView is moving again
+Playview piles upwards instead of downwards

@@ -3,10 +3,8 @@ package com.kegelapps.palace.engine.states;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
-import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;
-import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**
@@ -26,9 +24,9 @@ public class Play extends State {
         mSingleTurnDone = new StateListener() {
             @Override
             public void onDoneState() {
-                boolean keepPlaying = mTable.NextTurn();
+                boolean keepPlaying = mTable.NextPlayTurn();
                 if (keepPlaying)
-                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayer()).getID());
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayTurn()).getID());
                 else {
                     if (mStateListener != null)
                         mStateListener.onDoneState();
@@ -47,8 +45,13 @@ public class Play extends State {
     }
 
     @Override
+    protected void OnFirstRun() {
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayTurn()).getID());
+    }
+
+    @Override
     protected boolean OnRun() {
-        int mCurrentPlayer = mTable.getCurrentPlayer();
+        int mCurrentPlayer = mTable.getCurrentPlayTurn();
         if (mTable.getHands().get(mCurrentPlayer).getType() == Hand.HandType.HUMAN)
             mChildrenStates.getState(Names.PLAY_HUMAN_TURN, mCurrentPlayer).Execute();
         else
@@ -74,6 +77,7 @@ public class Play extends State {
     public void ReadBuffer(Message msg) {
         super.ReadBuffer(msg);
         StateProtos.PlayState selectEndCardState = ((StateProtos.State) msg).getExtension(StateProtos.PlayState.state);
-        //mCurrentPlayer = selectEndCardState.getCurrentPlayer();
+        //mCurrentPlayer = selectEndCardState.getCurrentPlayTurn();
     }
+
 }

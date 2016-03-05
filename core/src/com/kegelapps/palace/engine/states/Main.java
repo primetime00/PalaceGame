@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;
@@ -10,7 +11,7 @@ import com.kegelapps.palace.protos.StateProtos;
 /**
  * Created by keg45397 on 1/18/2016.
  */
-public class Main extends State {
+public class Main extends State implements Resettable{
 
     enum GameState {
         START,
@@ -35,7 +36,7 @@ public class Main extends State {
         mDeck = mTable.getDeck();
 
         createStates();
-
+        Director.instance().addResetter(this);
     }
 
     public Main(StateProtos.State s, Table table) {
@@ -43,11 +44,13 @@ public class Main extends State {
         mTable = table;
         createStates();
         ReadBuffer(s);
+        Director.instance().addResetter(this);
     }
 
     public Main() {
         super();
         createStates();
+        Director.instance().addResetter(this);
     }
 
     private void createStates() {
@@ -137,5 +140,11 @@ public class Main extends State {
         if (getStatus() == Status.PAUSED)
             setStatus(Status.ACTIVE);
 
+    }
+
+    @Override
+    public void Reset() {
+        mState = GameState.START;
+        super.Reset();
     }
 }

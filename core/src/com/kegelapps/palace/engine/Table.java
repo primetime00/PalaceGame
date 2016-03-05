@@ -2,7 +2,8 @@ package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.engine.states.Play;
+import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * Created by keg45397 on 12/7/2015.
  */
-public class Table  implements Serializer{
+public class Table  implements Serializer, Resettable{
     private Deck mDeck; //the deck on the table
 
     InPlay mPlayCards;
@@ -22,8 +23,10 @@ public class Table  implements Serializer{
     //should the table have the hands?
     List<Hand> mHands;
 
-    private int mCurrentPlayer = 0;
+    private int mCurrentPlayTurn = 1;
+    private int mCurrentDealTurn = 0;
     private int mNumberOfCardsPlayed = 0;
+    private int mFirstDealHand;
 
     public interface TableListener {
         void onDealCard(Hand hand, Card c);
@@ -34,6 +37,8 @@ public class Table  implements Serializer{
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
         ReadBuffer(tableProto);
+        mFirstDealHand = 0;
+        Director.instance().addResetter(this);
     }
 
     public Table(Deck deck, int numberOfPlayers) {
@@ -45,6 +50,13 @@ public class Table  implements Serializer{
         for (int i=0; i<numberOfPlayers; ++i) {
             mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU));
         }
+        mFirstDealHand = 0;
+        Director.instance().addResetter(this);
+    }
+
+    public void Load(CardsProtos.Table tableProto) {
+        Reset();
+        ReadBuffer(tableProto);
     }
 
     public List<Hand> getHands() {
@@ -130,7 +142,11 @@ public class Table  implements Serializer{
             mHands.add(new Hand(handProto));
         }
         if (table.hasCurrentTurn())
-            mCurrentPlayer = table.getCurrentTurn();
+            mCurrentPlayTurn = table.getCurrentTurn();
+        if (table.hasCurrentDeal())
+            mCurrentDealTurn = table.getCurrentDeal();
+        if (table.hasFirstDeal())
+            mFirstDealHand = table.getFirstDeal();
     }
 
     @Override
@@ -141,13 +157,14 @@ public class Table  implements Serializer{
         for (Hand hand : mHands) {
             tableBuilder.addHands((CardsProtos.Hand) hand.WriteBuffer());
         }
-        tableBuilder.setCurrentTurn(mCurrentPlayer);
+        tableBuilder.setCurrentTurn(mCurrentPlayTurn);
+        tableBuilder.setCurrentDeal(mCurrentDealTurn);
+        tableBuilder.setFirstDeal(mFirstDealHand);
         return tableBuilder.build();
     }
 
-    public boolean NextTurn() {
+    public boolean NextPlayTurn() {
         mNumberOfCardsPlayed = 0;
-        int prevTurn = mCurrentPlayer;
         int numberOfPlayersLeft = getHands().size();
         for (Hand h : mHands) {
             if (!h.HasAnyCards())
@@ -156,17 +173,24 @@ public class Table  implements Serializer{
         if (numberOfPlayersLeft < 2)
             return false;
         do { //are we out of the game?
-            mCurrentPlayer++;
-            mCurrentPlayer %= getHands().size();
-        } while (!getHands().get(mCurrentPlayer).HasAnyCards());
-        if (prevTurn > mCurrentPlayer)
-            Logic.get().getStats().NextRound();
+            mCurrentPlayTurn++;
+            mCurrentPlayTurn %= getHands().size();
+            if (mCurrentPlayTurn == ( (mFirstDealHand+1)%mHands.size() ))
+                Logic.get().getStats().NextRound();
+        } while (!getHands().get(mCurrentPlayTurn).HasAnyCards());
         return true;
     }
 
-    public int getCurrentPlayer() {
-        return mCurrentPlayer;
+    public boolean NextDealTurn() {
+        mCurrentDealTurn++;
+        mCurrentDealTurn%=mHands.size();
+        return mCurrentDealTurn == mFirstDealHand;
     }
+
+    public int getCurrentPlayTurn() {
+        return mCurrentPlayTurn;
+    }
+    public int getCurrentDealTurn() { return mCurrentDealTurn; }
 
     public Hand GetHand(int id) {
         for (Hand h : getHands()) {
@@ -175,4 +199,22 @@ public class Table  implements Serializer{
         }
         return null;
     }
+
+    @Override
+    public void Reset() {
+        mPlayCards.Clear();
+        mBurntCards.clear();
+        for (Hand h : mHands) {
+            h.Reset();
+        }
+        mDeck.Reset();
+        mNumberOfCardsPlayed = 0;
+        mCurrentPlayTurn = 0;
+        mFirstDealHand++;
+        mFirstDealHand %= mHands.size();
+        mCurrentDealTurn = mFirstDealHand;
+        mCurrentPlayTurn = mFirstDealHand + 1;
+        mCurrentPlayTurn %= mHands.size();
+    }
+
 }
