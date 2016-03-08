@@ -1,4 +1,3 @@
 End cards are re-positioned after OrganizeHand?
 Dealing hidden cards have incorrect z order
-Playview piles upwards instead of downwards
 when failed to play with only end cards, Human doesn't get to pick an end card (Either human gets to play one or CPU doesn't!)

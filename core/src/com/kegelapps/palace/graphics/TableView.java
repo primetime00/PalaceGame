@@ -160,6 +160,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                             @Override
                             public void onEnd(Animation animation) {
                                 HandUtils.Reparent(mPlayView, cardView);
+                                mPlayView.OrganizeCards();
                                 //mPlayView.addActor(builder.getCard());
                             }
                         })
@@ -262,7 +263,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 Hand hand =  (Hand) params[1];
 
                 Card c = (Card) params[0];
-                final CardView cardView = CardView.getCardView(c);
+                CardView cardView = CardView.getCardView(c);
 
                 HandUtils.Reparent(TableView.this, cardView);
 
@@ -273,20 +274,36 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 builder.setPause(true).setDescription(String.format("Success card %s", c.toString())).setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
                 builder.killPreviousAnimation(cardView);
                 Animation cardAnimation = null, cameraZoomAnimation = null;
+                final int pending = hand.GetPlayCards().GetPendingCards().size();
+
+                mPlayView.CalculateNextPosition();
                 if (!isBurnPlay || !hand.HasAnyCards()) {
                     cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessCard()).build();
                     cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
                         public void onEnd(Animation animation) {
-                            HandUtils.Reparent(mPlayView, cardView);
+                            HandUtils.Reparent(mPlayView, builder.getCard());
                             builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
-                            mPlayView.OrganizeCards();
+                            if (pending == 0) {
+                                mPlayView.OrganizeCards();
+                            }
                         }
                     });
                     cardAnimation.Start();
                 }
                 else {
                     cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessBurnCard()).build();
+                    cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            HandUtils.Reparent(mPlayView, builder.getCard());
+                            if (pending == 0) {
+                                builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
+                                mPlayView.OrganizeCards();
+                            }
+                        }
+                    });
+
 
                     cameraZoomAnimation = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
                             setPause(true).setDescription("Zoom to play cards").setTable(TableView.this).setCamera(mCamera).
