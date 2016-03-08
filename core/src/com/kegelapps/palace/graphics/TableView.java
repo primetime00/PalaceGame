@@ -116,6 +116,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
         int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
         mPlayView.setPosition(mDeck.getX()+width+(width*mDeckToActiveGap), mDeck.getY());
+        mPlayView.setReferenceDeck(mDeck);
         Director.instance().addResetter(this);
 
     }
@@ -279,6 +280,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                         public void onEnd(Animation animation) {
                             HandUtils.Reparent(mPlayView, cardView);
                             builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
+                            mPlayView.OrganizeCards();
                         }
                     });
                     cardAnimation.Start();
@@ -469,6 +471,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                                 else
                                     cv.setSide(CardView.Side.BACK);
                                 handView.OrganizeCards(true, true, false, false, true);
+                                mPlayView.OrganizeCards();
                             }
                         });
                     } else {

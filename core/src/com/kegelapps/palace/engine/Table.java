@@ -95,8 +95,8 @@ public class Table  implements Serializer, Resettable{
                 if (mPlayCards.GetTopCard().getRank() != activeCard.getRank()) //we played a 2 first and then other cards
                     mNumberOfCardsPlayed = 0;
             }
-            mPlayCards.AddCard(activeCard);
             hand.RemoveCard(activeCard);
+            mPlayCards.AddCard(activeCard);
             mNumberOfCardsPlayed++;
             boolean isTenBurn = activeCard.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
             boolean isNumberCardsBurn = mNumberOfCardsPlayed == 4;

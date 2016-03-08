@@ -40,7 +40,9 @@ public class HighlightView {
         Color c = batch.getColor();
         batch.setColor(mColor.r,mColor.g,mColor.b,mAlpha);
         batch.draw(Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight(),
-                actor.getX()+pos, actor.getY()+pos,actor.getOriginX(),actor.getOriginY(),actor.getWidth(),actor.getHeight(),
+                actor.getX()+pos, actor.getY()+pos,
+                actor.getOriginX(),actor.getOriginY(),
+                actor.getWidth(),actor.getHeight(),
                 actor.getScaleX(),actor.getScaleY(),actor.getRotation(), 0, 0,
                 Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight().getWidth(),
                 Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardHighlight().getHeight(),
