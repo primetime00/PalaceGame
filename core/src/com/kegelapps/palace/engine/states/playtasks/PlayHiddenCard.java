@@ -87,11 +87,8 @@ public class PlayHiddenCard extends State {
         if (mPlayCard != null) { //we have a card to play!
             switch (mState) {
                 case ATTEMPT:
-                    if (mTable.getInPlay().GetTopCard() == null || mTable.getInPlay().GetTopCard().getRank() == Card.Rank.TWO) { //this isn't dramatic
-                        mState = HiddenState.SUCCESS;
-                        break;
-                    }
-                    Director.instance().getEventSystem().Fire(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY, mHand.getID(), mPlayCard);
+                    boolean dramatic = !(mTable.getInPlay().GetTopCard() == null || mTable.getInPlay().GetTopCard().getRank() == Card.Rank.TWO);
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY, mHand.getID(), mPlayCard, dramatic);
                     mState = HiddenState.CHECK;
                     break;
                 case CHECK:
@@ -99,7 +96,7 @@ public class PlayHiddenCard extends State {
                         Director.instance().getEventSystem().Fire(EventSystem.EventType.FAILED_HIDDEN_PLAY, mHand.getID(), mPlayCard);
                         mState = HiddenState.FAIL;
                     } else {
-                        Director.instance().getEventSystem().Fire(EventSystem.EventType.SUCCESS_HIDDEN_PLAY, mHand.getID(), mPlayCard);
+                        mTable.AddHiddenPlayCard(mHand, mPlayCard);
                         mState = HiddenState.SUCCESS;
                     }
                     break;
@@ -111,7 +108,6 @@ public class PlayHiddenCard extends State {
                         mStateListener.onDoneState(Logic.ChallengeResult.FAIL);
                     return true;
                 case SUCCESS:
-                    mTable.AddPlayCard(mHand, mPlayCard);
                     if (mStateListener != null)
                         mStateListener.onDoneState(Logic.get().ChallengeCard(mPlayCard));
                     return true;

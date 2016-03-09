@@ -99,7 +99,6 @@ public class State implements Serializer{
         if (mStatus == Status.NOT_STARTED || mStatus == Status.DONE) {
             mStatus = Status.ACTIVE;
             Director.instance().getEventSystem().Fire(EventSystem.EventType.STATE_CHANGE, this);
-            //System.out.print("State changed to " + this + "\n");
             if (mParent != null) {
                 mParent.addChild(this);
             }

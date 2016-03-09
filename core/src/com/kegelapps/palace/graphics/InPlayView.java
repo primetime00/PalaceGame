@@ -164,7 +164,7 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
     }
 
     public void CalculateNextPosition() {
-        int size = getChildren().size;
+        int size = mInPlayCards.GetCards().size();
         float width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
         int rows = (size/cardsHorizontal)+1;
         int lastCol = size % cardsHorizontal;

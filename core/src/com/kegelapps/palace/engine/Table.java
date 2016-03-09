@@ -112,6 +112,21 @@ public class Table  implements Serializer, Resettable{
         return res;
     }
 
+    public Logic.ChallengeResult AddHiddenPlayCard(Hand hand, Card activeCard) {
+        Logic.ChallengeResult res = Logic.get().ChallengeCard(activeCard);
+        hand.RemoveCard(activeCard);
+        mPlayCards.AddCard(activeCard);
+        boolean isTenBurn = activeCard.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
+        boolean isBurnPlay = isTenBurn;
+        Director.instance().getEventSystem().Fire(EventSystem.EventType.SUCCESS_HIDDEN_PLAY, hand.getID(), activeCard);
+        if (isBurnPlay)
+            res = Logic.ChallengeResult.SUCCESS_BURN;
+        if (res == Logic.ChallengeResult.SUCCESS_AGAIN && hand.HasAnyCards() == false)
+            return Logic.ChallengeResult.SUCCESS;
+        return res;
+    }
+
+
     public void Burn() {
         mPlayCards.Burn();
         mNumberOfCardsPlayed = 0;

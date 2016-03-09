@@ -68,7 +68,8 @@ public class PlayCPUTurn extends PlayTurn {
         List<Integer> res = new ArrayList<>();
         for (int i=0; i<mHand.GetHiddenCards().size(); ++i)
             res.add(i);
-        Collections.shuffle(res);
+        //Collections.shuffle(res);
+        Collections.reverse(res);
         return res;
     }
 

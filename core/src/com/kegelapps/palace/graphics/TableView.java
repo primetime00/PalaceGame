@@ -511,7 +511,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 2 || !(params[1] instanceof Card) || !(params[0] instanceof Integer)) {
+                if (params == null || params.length != 3 || !(params[0] instanceof Integer) || !(params[1] instanceof Card) || !(params[2] instanceof Boolean)) {
                     throw new IllegalArgumentException("Invalid parameters for ATTEMPT_HIDDEN_PLAY");
                 }
                 final float startDelay = 1.5f;
@@ -540,37 +540,43 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
                 //lets bring the hand zindex to the front.
                 mPlayView.toBack();
+                boolean dramatic = (boolean) params[2];
 
-                AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
-                zoomBuilder.setPause(true).setDescription("Zoom to hidden card").setTable(TableView.this).setCard(cardView).setHandID(id);
-                zoomBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
-                zoomBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(cardCenter.x, cardCenter.y, 0.6f, startDelay));
+                if (dramatic) {
+                    AnimationBuilder deckBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                    deckBuilder.setPause(true).setDescription("Zoom to in play").setTable(TableView.this).setCard(cardView).setHandID(id);
+                    deckBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
+                    deckBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(playCenter.x, playCenter.y, 0.6f, 1.5f));
 
-                AnimationBuilder deckBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
-                deckBuilder.setPause(true).setDescription("Zoom to in play").setTable(TableView.this).setCard(cardView).setHandID(id);
-                deckBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
-                deckBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(playCenter.x, playCenter.y, 0.6f, 1.5f));
+                    AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                    zoomBuilder.setPause(true).setDescription("Zoom to hidden card").setTable(TableView.this).setCard(cardView).setHandID(id);
+                    zoomBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
+                    zoomBuilder.setTweenCalculator(new CameraAnimation.MoveCamera(cardCenter.x, cardCenter.y, 0.6f, startDelay));
 
-                zoomBuilder.setNextAnimation(deckBuilder.build());
-                zoomBuilder.build().Start();
+                    zoomBuilder.setNextAnimation(deckBuilder.build());
+                    zoomBuilder.build().Start();
+                }
+
 
                 //lets bring the card to the table
                 HandUtils.Reparent(TableView.this, cardView);
 
                 final AnimationBuilder cardBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 cardBuilder.setPause(true).setDescription("Move card to play pile").setTable(TableView.this).setCard(cardView).setHandID(id);
-                cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(nextPos.x, nextPos.y, 1.5f, true));
-                cardBuilder.setStartDelay(startDelay);
-                cardBuilder.setEndDelay(0.5f).addStatusListener(new Animation.AnimationStatusListener() {
-                    @Override
-                    public void onEnd(Animation animation) {
-                        cardBuilder.getCard().setSide(CardView.Side.FRONT);
-                    }
-                });
+                if (dramatic) {
+                    cardBuilder.setTweenCalculator(new CardAnimation.MoveCard(nextPos.x, nextPos.y, 1.5f, true));
+                    cardBuilder.setStartDelay(startDelay);
+                    cardBuilder.setEndDelay(0.5f).addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            cardBuilder.getCard().setSide(CardView.Side.FRONT);
+                        }
+                    });
+                }
+                else {
+                    cardBuilder.setTweenCalculator(new CardAnimation.PlaySuccessCard());
+                }
                 cardBuilder.build().Start();
-
-
-
             }
         });
 
@@ -597,7 +603,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 CardView cardView = CardView.getCardView(card);
 
                 //lets place the card into the playview
-                HandUtils.Reparent(mPlayView, cardView);
+                mPlayView.OrganizeCards();
 
                 //display a message of some sort depending on how successful
                 if (mPlayView.mInPlayCards.GetTopCard().getRank() == card.getRank()) {
