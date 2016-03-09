@@ -1,12 +1,13 @@
 package com.kegelapps.palace.animations;
 
-import aurelienribon.tweenengine.BaseTween;
-import aurelienribon.tweenengine.Timeline;
-import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenCallback;
+import aurelienribon.tweenengine.*;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.tween.ActorAccessor;
 
 import java.util.List;
 
@@ -131,4 +132,20 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         builder.getStatusListeners().addAll(mStatusListeners);
         return builder;
     }
+
+    static public class PauseAnimation extends TweenProcessor {
+
+        protected float mDuration, mFlipDuration;
+
+        public PauseAnimation(float time) {
+            mDuration = time;
+        }
+
+        @Override
+        public BaseTween<Timeline> calculate(AnimationBuilder builder) {
+            mAnimation.pushPause(mDuration);
+            return mAnimation;
+        }
+    }
+
 }

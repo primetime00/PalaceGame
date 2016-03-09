@@ -6,6 +6,7 @@ import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class PlayCPUTurn extends PlayTurn {
         }
         // Logic challenge failed!
         mTable.PickUpStack(mHand.getID());
+        mPlayMode = CheckPlayMode();
         return false; //probably need to pick up!
     }
 
@@ -68,8 +70,8 @@ public class PlayCPUTurn extends PlayTurn {
         List<Integer> res = new ArrayList<>();
         for (int i=0; i<mHand.GetHiddenCards().size(); ++i)
             res.add(i);
-        //Collections.shuffle(res);
-        Collections.reverse(res);
+        Collections.shuffle(res);
+        //Collections.reverse(res);
         return res;
     }
 

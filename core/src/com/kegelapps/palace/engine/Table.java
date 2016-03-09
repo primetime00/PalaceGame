@@ -67,8 +67,8 @@ public class Table  implements Serializer, Resettable{
 
     public void DrawCard() {
         Card c = mDeck.Draw();
-        mPlayCards.AddCard(c);
         Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_PLAY_CARD, c);
+        mPlayCards.AddCard(c);
     }
 
     public Card GetTopPlayCard() {
@@ -96,7 +96,6 @@ public class Table  implements Serializer, Resettable{
                     mNumberOfCardsPlayed = 0;
             }
             hand.RemoveCard(activeCard);
-            mPlayCards.AddCard(activeCard);
             mNumberOfCardsPlayed++;
             boolean isTenBurn = activeCard.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
             boolean isNumberCardsBurn = mNumberOfCardsPlayed == 4;
@@ -104,6 +103,7 @@ public class Table  implements Serializer, Resettable{
                 mNumberOfCardsPlayed = 0;
             boolean isBurnPlay = isTenBurn || isNumberCardsBurn;
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand, isBurnPlay);
+            mPlayCards.AddCard(activeCard);
             if (res != Logic.ChallengeResult.SUCCESS_BURN && isBurnPlay)
                 res = Logic.ChallengeResult.SUCCESS_BURN;
         }
@@ -115,10 +115,10 @@ public class Table  implements Serializer, Resettable{
     public Logic.ChallengeResult AddHiddenPlayCard(Hand hand, Card activeCard) {
         Logic.ChallengeResult res = Logic.get().ChallengeCard(activeCard);
         hand.RemoveCard(activeCard);
-        mPlayCards.AddCard(activeCard);
         boolean isTenBurn = activeCard.getRank() == Card.Rank.TEN && hand.GetPlayCards().GetPendingCards().isEmpty();
         boolean isBurnPlay = isTenBurn;
         Director.instance().getEventSystem().Fire(EventSystem.EventType.SUCCESS_HIDDEN_PLAY, hand.getID(), activeCard);
+        mPlayCards.AddCard(activeCard);
         if (isBurnPlay)
             res = Logic.ChallengeResult.SUCCESS_BURN;
         if (res == Logic.ChallengeResult.SUCCESS_AGAIN && hand.HasAnyCards() == false)

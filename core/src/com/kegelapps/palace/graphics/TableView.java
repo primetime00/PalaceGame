@@ -159,9 +159,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                         .addStatusListener(new Animation.AnimationStatusListener() {
                             @Override
                             public void onEnd(Animation animation) {
-                                HandUtils.Reparent(mPlayView, cardView);
                                 mPlayView.OrganizeCards();
-                                //mPlayView.addActor(builder.getCard());
                             }
                         })
                         .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
@@ -276,14 +274,13 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 Animation cardAnimation = null, cameraZoomAnimation = null;
                 final int pending = hand.GetPlayCards().GetPendingCards().size();
 
-                mPlayView.CalculateNextPosition();
                 if (!isBurnPlay || !hand.HasAnyCards()) {
                     cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessCard()).build();
                     cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
                         public void onEnd(Animation animation) {
                             HandUtils.Reparent(mPlayView, builder.getCard());
-                            builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
+                            builder.getTable().getHand(builder.getHandID()).OrganizeCards(true, true, false, false);
                             if (pending == 0) {
                                 mPlayView.OrganizeCards();
                             }
@@ -536,7 +533,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 Vector2 cardCenter = hiddenRect.getCenter(new Vector2());
                 Vector2 pos = mPlayView.GetAbsoluteNextCardPosition();
                 Vector2 playCenter = new Rectangle(pos.x, pos.y, cardView.getWidth(), cardView.getHeight()).getCenter(new Vector2());
-                Vector2 nextPos = mPlayView.CalculateAbsolutePositionSizeForCard(mPlayView.getInPlay().GetCards().size());
+                Vector2 nextPos = mPlayView.GetAbsoluteNextCardPosition();
 
                 //lets bring the hand zindex to the front.
                 mPlayView.toBack();
@@ -575,6 +572,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 }
                 else {
                     cardBuilder.setTweenCalculator(new CardAnimation.PlaySuccessCard());
+                    cardBuilder.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                        }
+                    });
                 }
                 cardBuilder.build().Start();
             }
@@ -602,18 +604,16 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
                 CardView cardView = CardView.getCardView(card);
 
-                //lets place the card into the playview
-                mPlayView.OrganizeCards();
-
                 //display a message of some sort depending on how successful
-                if (mPlayView.mInPlayCards.GetTopCard().getRank() == card.getRank()) {
-                    ((GameScene)getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
-                }
-                else if (card.getRank() == Card.Rank.TWO) {
-                    ((GameScene)getStage()).ShowMessage("That's it!", startDelay, Color.GREEN);
-                }
-                else if (card.getRank() != Card.Rank.TEN) {
-                    ((GameScene)getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
+                if (!mPlayView.mInPlayCards.GetCards().isEmpty()) {
+                    Card top = mPlayView.mInPlayCards.GetTopCard();
+                    if (top.getRank() == card.getRank() && card.getRank() != Card.Rank.TWO) {
+                        ((GameScene) getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
+                    } else if (card.getRank() == Card.Rank.TWO) {
+                        ((GameScene) getStage()).ShowMessage("That's it!", startDelay, Color.GREEN);
+                    } else if (card.getRank() != Card.Rank.TEN && top.getRank() != Card.Rank.TWO) {
+                        ((GameScene) getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
+                    }
                 }
 
                 //no need to zoom back to turn if this is a burn!
@@ -622,18 +622,35 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                     return;
                 }
 
-                AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
-                zoomBuilder.setPause(true).setDescription("Zoom back to turn").setTable(TableView.this).setCard(cardView).setHandID(id);
-                zoomBuilder.setCamera(getCamera()).setCameraSide(HandUtils.HandSideToCamera(HandUtils.IDtoSide(id, TableView.this)));
-                zoomBuilder.setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 1.0f));
-                zoomBuilder.setStartDelay(startDelay);
-                zoomBuilder.addStatusListener(new Animation.AnimationStatusListener() {
-                    @Override
-                    public void onEnd(Animation animation) {
-                        mPlayView.toFront();
-                    }
-                });
-                zoomBuilder.build().Start();
+                if (!mPlayView.mInPlayCards.GetCards().isEmpty() && mPlayView.mInPlayCards.GetTopCard().getRank() != Card.Rank.TWO) {
+                    AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
+                    zoomBuilder.setPause(true).setDescription("Zoom back to turn").setTable(TableView.this).setCard(cardView).setHandID(id);
+                    zoomBuilder.setCamera(getCamera()).setCameraSide(HandUtils.HandSideToCamera(HandUtils.IDtoSide(id, TableView.this)));
+                    zoomBuilder.setTweenCalculator(new CameraAnimation.MoveToSide(1.0f, 1.0f));
+                    zoomBuilder.setStartDelay(startDelay);
+                    zoomBuilder.addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            mPlayView.OrganizeCards();
+                            mPlayView.toFront();
+                        }
+                    });
+                    zoomBuilder.build().Start();
+                }
+                else
+                {
+                    AnimationBuilder pauseBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.PAUSE);
+                    pauseBuilder.setTweenCalculator(new Animation.PauseAnimation(0.3f)).setPause(true).
+                    setDescription("Just pausing").
+                    addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            mPlayView.OrganizeCards();
+                            mPlayView.toFront();
+                        }
+                    });
+                    pauseBuilder.build().Start();
+                }
             }
         });
 

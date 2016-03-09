@@ -56,8 +56,8 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
                 super.tap(event, x, y, count, button);
                 if (count >= 2) {
                     if (button == 0) {
-                        Logic.get().Request(State.Names.TAP_DECK_START);
-                        Logic.get().Request(State.Names.PLAY_HUMAN_TURN);
+                        Logic.get().Request(State.Names.TAP_DECK_START, Logic.RequestType.SELECT_DECK);
+                        Logic.get().Request(State.Names.PLAY_HUMAN_TURN, Logic.RequestType.SELECT_DECK);
                     }
                     else if (button == 1)
                         Logic.get().SaveState();

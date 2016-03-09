@@ -158,11 +158,11 @@ public class PlayHumanTurn extends PlayTurn {
     }
 
     @Override
-    public void UserSignal() {
-        if (CheckForPossiblePlay() == false) {//we need to pick up
+    public void UserSignal(Logic.RequestType type) {
+        if (type == Logic.RequestType.SELECT_PLAYCARDS && CheckForPossiblePlay() == false) {//we need to pick up
             mPlayTapped = true;
         }
-        else if (mPlayCard != null) {
+        else if (type == Logic.RequestType.SELECT_DECK && mPlayCard != null) {
             mDeckTapped = true;
         }
     }

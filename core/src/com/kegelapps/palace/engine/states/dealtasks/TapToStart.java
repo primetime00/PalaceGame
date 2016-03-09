@@ -3,6 +3,7 @@ package com.kegelapps.palace.engine.states.dealtasks;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.protos.StateProtos;
@@ -53,8 +54,9 @@ public class TapToStart extends State {
     }
 
     @Override
-    public void UserSignal() {
-        mTapped = true;
+    public void UserSignal(Logic.RequestType type) {
+        if (type == Logic.RequestType.SELECT_DECK)
+            mTapped = true;
     }
 
     @Override

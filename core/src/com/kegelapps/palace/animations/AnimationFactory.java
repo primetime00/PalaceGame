@@ -1,5 +1,9 @@
 package com.kegelapps.palace.animations;
 
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 import com.kegelapps.palace.engine.Logic;
 
 /**
@@ -13,7 +17,9 @@ public class AnimationFactory implements AnimationStatus {
 
     public enum AnimationType {
         CARD,
-        COIN, CAMERA
+        COIN,
+        CAMERA,
+        PAUSE
     }
 
     private AnimationFactory () {

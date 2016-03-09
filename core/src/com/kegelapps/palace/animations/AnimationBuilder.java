@@ -184,6 +184,9 @@ public class AnimationBuilder {
                 break;
             case COIN:
                 ani = new CoinAnimation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation, mCoin, mHandID, mTable);
+                break;
+            case PAUSE:
+                ani = new Animation(mPauseLogic, mStatusListeners, mCalc.process(this), mChild, mDescription, mAnimationType, mKillPreviousAnimation);
             default:
                 break;
         }

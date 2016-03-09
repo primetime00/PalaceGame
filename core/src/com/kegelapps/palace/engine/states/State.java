@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Serializer;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
@@ -124,7 +125,7 @@ public class State implements Serializer{
 
     }
 
-    public void UserSignal() {
+    public void UserSignal(Logic.RequestType type) {
 
     }
 

@@ -31,6 +31,11 @@ public class Logic implements Serializer{
         SUCCESS_BURN
     }
 
+    public enum RequestType {
+        SELECT_DECK,
+        SELECT_PLAYCARDS
+    }
+
     private int mNumberOfPlayers = 0;
     private Stats mStats;
 
@@ -134,9 +139,9 @@ public class Logic implements Serializer{
         h.DeselectEndCard(c);
     }
 
-    public void Request(State.Names stateName) {
+    public void Request(State.Names stateName, RequestType type) {
         if (mMainState.containsState(stateName))
-            mMainState.getState(stateName).UserSignal();
+            mMainState.getState(stateName).UserSignal(type);
     }
 
     public boolean isFastDeal() {

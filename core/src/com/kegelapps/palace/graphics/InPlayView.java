@@ -33,7 +33,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
     final private int cardsHorizontal = 5;
     final private float overlapPercentX = 0.1f;
     final private float overlapPercentY = 0.15f;
-    Rectangle mTotalAreaRectangle;
     private DeckView mDeck;
 
     private int mCardWidth, mCardHeight;
@@ -59,7 +58,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
         mNextPosition = new Vector2();
         createGestures();
         createEvents();
-        debugAll();
     }
 
     public void setReferenceDeck(DeckView deck) {
@@ -74,7 +72,7 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
                 super.tap(event, x, y, count, button);
                 if (count >= 1) {
                     if (button == 0) {
-                        Logic.get().Request(State.Names.PLAY_HUMAN_TURN);
+                        Logic.get().Request(State.Names.PLAY_HUMAN_TURN, Logic.RequestType.SELECT_PLAYCARDS);
                     }
                 }
             }
@@ -86,9 +84,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.INPLAY_CARDS_CHANGED) {
             @Override
             public void handle(Object[] params) {
-                //CalculatePositionAndSize();
-                //OrganizeCards();
-                //CalculateNextPosition();
             }
         });
 
@@ -163,50 +158,23 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
 
     }
 
-    public void CalculateNextPosition() {
+    public Vector2 GetNextPosition() {
         int size = mInPlayCards.GetCards().size();
-        float width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        int width = mCardWidth;
         int rows = (size/cardsHorizontal)+1;
+        int currentRow = rows-1;
         int lastCol = size % cardsHorizontal;
-        float height = (width * overlapPercentY * (rows-1));
-        setHeight(height+mCardHeight);
-        if (size == 0) {
-            mNextPosition.set(0,0);
-            if (getChildren().size > 0) {
-                for (Actor a : getChildren())
-                    HandUtils.Reparent(getParent(), a);
-            }
-            getChildren().clear();
-            setWidth(mCardWidth);
-            setHeight(mCardHeight);
-            if (mDeck != null)
-                setY(mDeck.getY());
-            return;
-        }
-        float startY = getHeight() - mCardHeight;
-        int i = 0, x=0, y=0;
-        int col = 0;
-        startY-=(width * overlapPercentY * rows);
-        x = lastCol;
-        float nextX = 0.0f;
-        float nextY = 0.0f;
-        nextY = startY;
-        if (rows % 2 == 0)
-            nextX = width * overlapPercentX * x;
+        float height = (width * overlapPercentY * (currentRow));
+        if (size == 0)
+            return new Vector2(0,0);
+        float y = -currentRow*width*overlapPercentY;
+        float x;
+        if (currentRow %2 == 0)
+            x = width * overlapPercentX * lastCol;
         else
-            nextX = width * overlapPercentX * (cardsHorizontal-1-x);
-
-        mNextPosition.set(nextX, nextY);
-
-        if (rows-1 == 0)
-            setWidth(width + (width * overlapPercentX * lastCol-1));
-        else
-            setWidth(width + (width * overlapPercentX * (cardsHorizontal-1)));
-
-        //reposition
-        if (mDeck == null)
-            return;
-        setY(mDeck.getY() - (getHeight() - mCardHeight));
+            x = width * overlapPercentX * (cardsHorizontal-(lastCol+1));
+        y+=getHeight() - mCardHeight;
+        return new Vector2(x,y);
     }
 
     public void OrganizeCards() {
@@ -275,80 +243,11 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
         setY(mDeck.getY() - (getHeight() - mCardHeight));
     }
 
-
-    private void CalculatePositionAndSize() {
-        Vector2 res = CalculatePositionSizeForCard(mInPlayCards.GetCards().size()-1);
-        float x = res.x;
-        float y = res.y;
-        mTotalAreaRectangle = calculateTotalSize();
-        if (mTotalAreaRectangle != null) {
-            Vector2 pos = this.localToAscendantCoordinates(getParent(), new Vector2(mTotalAreaRectangle.x, mTotalAreaRectangle.y));
-            setWidth(mTotalAreaRectangle.getWidth());
-            setHeight(mTotalAreaRectangle.getHeight());
-            organizeCards();
-            }
-    }
-
-    private void organizeCards() {
-        if (getChildren().size == 0)
-            return;
-        float y = getChildren().get(0).getY();
-        float adj = y + getChildren().get(0).getHeight();
-        float width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
-        for (Actor a : getChildren()) {
-            if (a.getY() != y) {//we are on a new row
-                y = a.getY();
-                moveBy(0, -(width * overlapPercentY));
-            }
-            a.moveBy(0, getHeight() - (a.getY() + a.getHeight()) + a.getY());
-        }
-        //moveBy(0, 11.0f);
-    }
-
-    private Rectangle calculateTotalSize() {
-        Rectangle totalRect = null;
-        for (int i=mInPlayCards.GetCards().size(); i>0; i--) {
-            Vector2 pos = CalculatePositionSizeForCard(i);
-            if (i ==mInPlayCards.GetCards().size() )
-                totalRect = new Rectangle(pos.x, pos.y, mCardWidth, mCardHeight);
-            else
-                totalRect = totalRect.merge(new Rectangle(pos.x, pos.y, mCardWidth, mCardHeight));
-        }
-        return totalRect;
-    }
-    public Vector2 CalculateAbsolutePositionSizeForCard(int index) {
-        Vector2 v = CalculatePositionSizeForCard(index);
-        v.add(getX(), getY());
-        return v;
-    }
-
-    private Vector2 CalculatePositionSizeForCard(int index) {
-        Vector2 res = new Vector2();
-        float x = 0;
-        float y = 0;
-        int size = index;
-        int left = size % cardsHorizontal;
-        int down = size/cardsHorizontal;
-        int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
-        if (down % 2 == 0) //even
-            x = x + (width * overlapPercentX * left);
-        else //odd
-            x = x + (width * overlapPercentX * (cardsHorizontal-left));
-        y = y - (width * overlapPercentY * down);
-        res.set(x, y);
-        return res;
-    }
-
-    public Vector2 GetNextCardPosition() {
-     //   return CalculatePositionSizeForCard(mInPlayCards.GetCards().size());
-        return mNextPosition;
-    }
-
     public Vector2 GetAbsoluteNextCardPosition() {
+        Vector2 v = GetNextPosition();
         if (getParent() == null)
-            return GetNextCardPosition();
-        //Vector2 pos = localToAscendantCoordinates(getParent(), new Vector2(GetNextCardPosition()));
-        Vector2 pos = localToAscendantCoordinates(getParent(), new Vector2(mNextPosition));
+            return v;
+        Vector2 pos = localToAscendantCoordinates(getParent(), new Vector2(v));
         return pos;
     }
 
@@ -367,17 +266,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
 
     @Override
     public void ReparentAllViews() {
-/*        int i = 0;
-        for (Actor c : getChildren()) {
-            c.remove();
-        }
-        for (Card c : mInPlayCards.GetCards()) {
-            CardView cv = CardView.getCardView(c);
-            addActor(cv);
-            Vector2 pos = CalculatePositionSizeForCard(i++);
-            cv.setPosition(pos.x, pos.y);
-        }
-        CalculatePositionAndSize();*/
         OrganizeCards();
     }
 

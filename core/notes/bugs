@@ -1,3 +1,2 @@
 End cards are re-positioned after OrganizeHand?
 Dealing hidden cards have incorrect z order
-when failed to play with only end cards, Human doesn't get to pick an end card (Either human gets to play one or CPU doesn't!)
