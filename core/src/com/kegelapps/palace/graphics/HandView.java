@@ -167,15 +167,13 @@ public class HandView extends Group implements ReparentViews, Resettable {
                     cardView.setSide(CardView.Side.BACK);
                     cardView.setPosition(mHiddenPositions[0].getX(), mHiddenPositions[0].getY());
                 }
-                cardView.remove();
-                addActor(cardView);
+                HandUtils.Reparent(HandView.this, cardView);
 
                 if (getParent() instanceof TableView) {
                     AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     builder.setPause(false).setDescription(String.format("Lining up hidden card %s", cardView.getCard().toString())).setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID())
                             .setTweenCalculator(new CardAnimation.LineUpHiddenCards(pos)).build().Start();
                 }
-                cardView.setZIndex(0);
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mLayoutHiddenCardEventListener);

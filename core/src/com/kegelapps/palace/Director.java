@@ -195,6 +195,14 @@ public class Director implements Disposable{
     }
 
     private void createEvents() {
+
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.OPTIONS) {
+            @Override
+            public void handle(Object params[]) {
+                setScene(mUIScene);
+            }
+        });
+
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.GAME_OVER) {
             @Override
             public void handle(Object params[]) {

@@ -75,7 +75,7 @@ public class GameStatsDialog extends FrameView {
         LogicProtos.Placement p2 = Logic.get().getStats().GetStats(CoinResource.CoinType.SILVER);
         LogicProtos.Placement p3 = Logic.get().getStats().GetStats(CoinResource.CoinType.BRONZE);
 
-        titleTable.add(new Label("Game Over!", style)).top().expand();
+        titleTable.add(new Label(mTitle, style)).top().expand();
         add(titleTable).prefHeight(Value.percentHeight(0.2f, this));
         row();
         if (p1.getHandID() >= 0) {

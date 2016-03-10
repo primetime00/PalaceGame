@@ -13,6 +13,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.GameStatsDialog;
+import com.kegelapps.palace.graphics.ui.OptionsDialog;
 
 /**
  * Created by keg45397 on 3/3/2016.
@@ -20,6 +21,7 @@ import com.kegelapps.palace.graphics.ui.GameStatsDialog;
 public class UIScene extends Scene {
 
     private GameStatsDialog mGameStatsDialog;
+    private OptionsDialog mOptionsDialog;
 
     public UIScene() {
         super();
@@ -33,6 +35,7 @@ public class UIScene extends Scene {
 
     private void init() {
         mGameStatsDialog = new GameStatsDialog("Game Over!");
+        mOptionsDialog = new OptionsDialog("Options");
         createEvents();
     }
 
@@ -52,7 +55,17 @@ public class UIScene extends Scene {
                 mGameStatsDialog.setPosition(x,y);
                 addActor(mGameStatsDialog);
             }
+        });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.OPTIONS) {
+            @Override
+            public void handle(Object params[]) {
+                clearScene();
+                float x = (getViewport().getScreenWidth() - mOptionsDialog.getWidth()) / 2.0f;
+                float y = (getViewport().getScreenHeight() - mOptionsDialog.getHeight()) / 2.0f;
+                mOptionsDialog.setPosition(x,y);
+                addActor(mOptionsDialog);
+            }
         });
 
     }

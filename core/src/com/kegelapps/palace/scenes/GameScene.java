@@ -1,6 +1,8 @@
 package com.kegelapps.palace.scenes;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
@@ -42,6 +44,17 @@ public class GameScene extends Scene {
         getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
         Director.instance().addResetter(this, 0);
+
+        addListener(new InputListener() {
+            @Override
+            public boolean keyUp(InputEvent event, int keycode) {
+                if (keycode == 131) {//ESC pressed
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.OPTIONS);
+                }
+                return super.keyUp(event, keycode);
+            }
+        });
+
     }
 
     private void createEvents() {
