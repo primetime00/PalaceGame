@@ -8,21 +8,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 
 /**
  * Created by Ryan on 3/14/2016.
  */
 public class MainTable extends Table {
 
-    private enum OptionNames {
-        NEW,
-        OPTIONS,
-        ACKNOWLEDGEMENTS,
-    };
-
     private ChangeListener onChange;
 
-    private ObjectMap<OptionNames, String> mNameMap;
     private TextButton.TextButtonStyle buttonStyle;
 
     public MainTable() {
@@ -30,10 +25,16 @@ public class MainTable extends Table {
         onChange = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                if (actor.getName().equals(StringMap.getString("new_game")))
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.MAIN_NEW_GAME);
+                else if (actor.getName().equals(StringMap.getString("options")))
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.MAIN_OPTIONS);
+                else if (actor.getName().equals(StringMap.getString("acknowledgements")))
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.SHOW_ACKNOWLEDGEMENTS);
+
             }
         };
 
-        createNames();
         createButtons();
     }
 
@@ -46,25 +47,18 @@ public class MainTable extends Table {
         float maxWidth = 0.0f;
 
         TextButton btn;
-        btn = new TextButton(mNameMap.get(OptionNames.NEW), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn = new TextButton(StringMap.getString("new_game"), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn.setName(StringMap.getString("new_game"));
         btn.addListener(onChange);
         add(btn).width(maxWidth).row();
-        btn = new TextButton(mNameMap.get(OptionNames.OPTIONS), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn = new TextButton(StringMap.getString("options"), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn.setName(StringMap.getString("options"));
         btn.addListener(onChange);
         add(btn).width(maxWidth).row();
-        btn = new TextButton(mNameMap.get(OptionNames.ACKNOWLEDGEMENTS), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn = new TextButton(StringMap.getString("acknowledgements"), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn.setName(StringMap.getString("acknowledgements"));
         btn.addListener(onChange);
         add(btn).width(maxWidth).row();
-
-        setWidth(maxWidth);
-
-    }
-
-    private void createNames() {
-        mNameMap= new ObjectMap<>();
-        mNameMap.put(OptionNames.NEW, "New Game");
-        mNameMap.put(OptionNames.OPTIONS, "Options");
-        mNameMap.put(OptionNames.ACKNOWLEDGEMENTS, "Acknowledgements");
 
     }
 }

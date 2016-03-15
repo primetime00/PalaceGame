@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
@@ -178,12 +179,18 @@ public class Director implements Disposable{
     public void loadAssets() {
         mAssetManager = new AssetManager();
 
+        //load strings
+        mAssetManager.setLoader(ObjectMap.class, new StringXmlLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("strings.xml", ObjectMap.class);
+
+
         //lets load out font first
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
-
         FontLoader.FontParams fontParam = new FontLoader.FontParams();
         fontParam.filename = "FatCow.ttf";
-        mAssetManager.load("default_font", BitmapFont.class);
+        fontParam.size = 50;
+        fontParam.border = 2;
+        mAssetManager.load("default_font", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
         fontParam.size = 175;
@@ -241,6 +248,13 @@ public class Director implements Disposable{
             @Override
             public void handle(Object params[]) {
                 setScene(mGameScene);
+            }
+        });
+
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.QUIT_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                setScene(mIntroScene);
             }
         });
 

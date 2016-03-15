@@ -24,6 +24,7 @@ public class Scene extends Stage implements Resettable {
         this.inputMultiplexer = new InputMultiplexer(this);
         mTweenManager = new TweenManager();
         mBackgroundColor = Color.BLACK;
+        getBatch().setColor(1,1,1,1);
     }
 
     public Scene(Viewport viewport) {

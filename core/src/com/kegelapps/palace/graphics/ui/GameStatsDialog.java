@@ -16,6 +16,7 @@ import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.FrameView;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**
@@ -79,30 +80,39 @@ public class GameStatsDialog extends FrameView {
         add(titleTable).prefHeight(Value.percentHeight(0.2f, this));
         row();
         if (p1.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("Player %d", p1.getHandID()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
-            statsTable.add(new Label("1st", style)).maxWidth(Value.percentWidth(0.2f, this)).expandX();
-            statsTable.add(new Label(String.format("%d Turns", p1.getRounds()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p1.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
+            statsTable.add(new Label(StringMap.getString("1st"), style)).maxWidth(Value.percentWidth(0.2f, this))
+                    .expandX();
+            statsTable.add(new Label(String.format("%d %s", p1.getRounds(), StringMap.getString("turns")), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
             statsTable.row();
         }
         if (p2.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("Player %d", p2.getHandID()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
-            statsTable.add(new Label("2nd", style)).maxWidth(Value.percentWidth(0.2f, this)).expandX();
-            statsTable.add(new Label(String.format("%d Turns", p2.getRounds()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p2.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
+            statsTable.add(new Label(StringMap.getString("2nd"), style)).maxWidth(Value.percentWidth(0.2f, this))
+                    .expandX();
+            statsTable.add(new Label(String.format("%d %s", p2.getRounds(), StringMap.getString("turns")), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
             statsTable.row();
         }
         if (p3.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("Player %d", p3.getHandID()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
-            statsTable.add(new Label("3rd", style)).maxWidth(Value.percentWidth(0.2f, this)).expandX();
-            statsTable.add(new Label(String.format("%d Turns", p3.getRounds()), style)).maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p3.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
+            statsTable.add(new Label(StringMap.getString("3rd"), style)).maxWidth(Value.percentWidth(0.2f, this))
+                    .expandX();
+            statsTable.add(new Label(String.format("%d %s", p3.getRounds(), StringMap.getString("turns")), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
         }
 
         add(statsTable).expandX().fillX().prefHeight(Value.percentHeight(0.6f, this)).center();
         row();
         Table btnTable = new Table();
-        TextButton tbRematch = new TextButton("Rematch", btnStyle);
+        TextButton tbRematch = new TextButton(StringMap.getString("rematch"), btnStyle);
         tbRematch.getLabel().setFontScale(0.75f);
         tbRematch.addListener(mRematchListener);
-        TextButton tbQuit = new TextButton("Quit", btnStyle);
+        TextButton tbQuit = new TextButton(StringMap.getString("quit"), btnStyle);
         tbQuit.getLabel().setFontScale(0.75f);
         tbQuit.addListener(mQuitListener);
         btnTable.add(tbRematch).prefWidth(100).height(36);

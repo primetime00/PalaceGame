@@ -11,6 +11,7 @@ import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
+import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.scenes.Scene;
 
@@ -21,6 +22,7 @@ public class GameScene extends Scene {
 
     private Logic logic;
     private TableView tableView;
+    private ShadowView mShadow;
 
     private MessageStage mMessageStage;
 
@@ -40,6 +42,9 @@ public class GameScene extends Scene {
         logic.Initialize();
         tableView = new TableView(logic.GetTable(), getCardCamera());
         mMessageStage = new MessageStage(new ScreenViewport());
+        mShadow = new ShadowView();
+        mShadow.setColor(Color.BLACK, 1.0f);
+        mShadow.shadowEntireScreen(1.0f);
         addActor(tableView);
         getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
@@ -124,5 +129,6 @@ public class GameScene extends Scene {
         super.Reset();
         logic.Initialize();
         addActor(tableView);
+        addActor(mShadow);
     }
 }

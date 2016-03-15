@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.FrameView;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.protos.OptionProtos;
 
 /**
@@ -25,21 +26,10 @@ public class OptionsDialog extends FrameView {
     private Table actionsTable;
     private Label.LabelStyle style;
     private TextButton.TextButtonStyle buttonStyle;
-    private String options[] = {"Resume Game"};
 
     private Label soundStatus, musicStatus;
 
     private ChangeListener onChange;
-
-    private enum OptionNames {
-        RESUME,
-        MUSIC,
-        SOUND,
-        RESTART,
-        QUIT
-    };
-
-    private ObjectMap<OptionNames, String> mNameMap;
 
 
     public OptionsDialog(String title) {
@@ -59,8 +49,6 @@ public class OptionsDialog extends FrameView {
         setHeight(Director.instance().getScreenHeight() * 0.8f);
 
         createActions();
-
-        createNames();
 
         createTitle();
 
@@ -83,21 +71,22 @@ public class OptionsDialog extends FrameView {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 OptionProtos.Options opt = Director.instance().getOptions();
-                if (actor.getName().equals(mNameMap.get(OptionNames.RESUME))) {
+                if (actor.getName().equals(StringMap.getString("resume"))) {
                     Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESUME_GAME);
                 }
-                else if (actor.getName().equals(mNameMap.get(OptionNames.MUSIC))) {
+                else if (actor.getName().equals(StringMap.getString("music"))) {
                     Director.instance().setOptions(opt.toBuilder().setMusic(!opt.getMusic()));
                     mark();
                 }
-                else if (actor.getName().equals(mNameMap.get(OptionNames.SOUND))) {
+                else if (actor.getName().equals(StringMap.getString("sound"))) {
                     Director.instance().setOptions(opt.toBuilder().setSound(!opt.getSound()));
                     mark();
                 }
-                else if (actor.getName().equals(mNameMap.get(OptionNames.RESTART))) {
+                else if (actor.getName().equals(StringMap.getString("restart"))) {
                     Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
                 }
-                else if (actor.getName().equals(mNameMap.get(OptionNames.QUIT))) {
+                else if (actor.getName().equals(StringMap.getString("quit"))) {
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME);
                 }
             }
         };
@@ -105,15 +94,6 @@ public class OptionsDialog extends FrameView {
 
     private void createTitle() {
         titleTable.add(new Label(mTitle, style)).top().expand();
-    }
-
-    private void createNames() {
-        mNameMap= new ObjectMap<>();
-        mNameMap.put(OptionNames.RESUME, "Resume");
-        mNameMap.put(OptionNames.MUSIC, "Music");
-        mNameMap.put(OptionNames.SOUND, "Sound FX");
-        mNameMap.put(OptionNames.RESTART, "Restart");
-        mNameMap.put(OptionNames.QUIT, "Quit");
     }
 
     private void createButtons() {
@@ -126,10 +106,10 @@ public class OptionsDialog extends FrameView {
 
 
 
-        mus = new TextButton(mNameMap.get(OptionNames.MUSIC), buttonStyle);
-        mus.setName(mNameMap.get(OptionNames.MUSIC));
-        snd = new TextButton(mNameMap.get(OptionNames.SOUND), buttonStyle);
-        snd.setName(mNameMap.get(OptionNames.SOUND));
+        mus = new TextButton(StringMap.getString("music"), buttonStyle);
+        mus.setName(StringMap.getString("music"));
+        snd = new TextButton(StringMap.getString("sound"), buttonStyle);
+        snd.setName(StringMap.getString("sound"));
 
         Table t = new Table();
         t.add(mus).expandX().left();
@@ -144,26 +124,26 @@ public class OptionsDialog extends FrameView {
         snd.addListener(onChange);
 
 
-        btn = new TextButton(mNameMap.get(OptionNames.RESUME), buttonStyle);
-        btn.setName(mNameMap.get(OptionNames.RESUME));
+        btn = new TextButton(StringMap.getString("resume"), buttonStyle);
+        btn.setName(StringMap.getString("resume"));
         actionsTable.add(btn).width(Value.percentWidth(0.33f, this)).expandY().bottom();
         btn.addListener(onChange);
 
-        btn = new TextButton(mNameMap.get(OptionNames.RESTART), buttonStyle);
-        btn.setName(mNameMap.get(OptionNames.RESTART));
+        btn = new TextButton(StringMap.getString("restart"), buttonStyle);
+        btn.setName(StringMap.getString("restart"));
         actionsTable.add(btn).width(Value.percentWidth(0.33f, this)).bottom();
         btn.addListener(onChange);
 
-        btn = new TextButton(mNameMap.get(OptionNames.QUIT), buttonStyle);
-        btn.setName(mNameMap.get(OptionNames.QUIT));
+        btn = new TextButton(StringMap.getString("quit"), buttonStyle);
+        btn.setName(StringMap.getString("quit"));
         actionsTable.add(btn).width(Value.percentWidth(0.33f, this)).bottom().row();
         btn.addListener(onChange);
     }
 
     @Override
     public void update() {
-        soundStatus.setText(Director.instance().getOptions().getSound() ? "On" : "Off");
-        musicStatus.setText(Director.instance().getOptions().getMusic()== false ? "On" : "Off");
+        soundStatus.setText(Director.instance().getOptions().getSound() ? StringMap.getString("on") : StringMap.getString("off"));
+        musicStatus.setText(Director.instance().getOptions().getMusic()== false ? StringMap.getString("quit") : StringMap.getString("off"));
 
     }
 }

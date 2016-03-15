@@ -72,7 +72,12 @@ public class FrameView extends Table{
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        Color c = new Color(batch.getColor());
+        Color current = getColor();
+        parentAlpha = current.a;
+        batch.setColor(current);
         super.draw(batch, parentAlpha);
+        batch.setColor(c);
     }
 
     @Override

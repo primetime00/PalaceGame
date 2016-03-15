@@ -26,8 +26,10 @@ public class ShadowView extends Actor {
     }
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        Color c = batch.getColor();
-        batch.setColor(getColor());
+        Color c = new Color(batch.getColor());
+        Color current = getColor();
+        current.a *= c.a;
+        batch.setColor(current);
         batch.draw(mShadow, getX(), getY(), getWidth(), getHeight());
         batch.setColor(c);
     }
@@ -74,6 +76,12 @@ public class ShadowView extends Actor {
     public void shadowBottomRight(float amount, Actor a) {
         shadowBottom(amount, a);
         setX(getX()+amount);
+    }
+
+    public void shadowEntireScreen(float amount) {
+        setPosition(0,0);
+        setWidth(Director.instance().getScreenWidth());
+        setHeight(Director.instance().getScreenHeight());
     }
 
     public void setAlpha(float value) {

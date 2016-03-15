@@ -1,23 +1,27 @@
 package com.kegelapps.palace.scenes;
 
 import aurelienribon.tweenengine.*;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
+import com.kegelapps.palace.graphics.ClipView;
+import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.graphics.TextView;
+import com.kegelapps.palace.graphics.ui.AcknowledgementDialog;
 import com.kegelapps.palace.graphics.ui.MainTable;
+import com.kegelapps.palace.graphics.ui.OptionsTable;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.tween.ActorAccessor;
-
-import javax.naming.TimeLimitExceededException;
 
 /**
  * Created by Ryan on 3/14/2016.
@@ -28,7 +32,18 @@ public class IntroScene extends Scene {
     private TweenCallback mCallback;
     private Timeline mDropAnimation, mFlyAnimation;
     private TextView mTitle;
-    private MainTable mOptionTable;
+
+    private ClipView mClipFrame;
+    private MainTable mMainTable;
+    private OptionsTable mOptionTable;
+    private ShadowView mShadow;
+    private boolean mShownAnimation;
+
+    private AcknowledgementDialog mAckDialog;
+
+    private final float titleFadeTime = 1.0f;
+    private final float screenFadeTime = 1.0f;
+    private final float initialAnimationDelayTime = 1.0f;
 
 
     public IntroScene(Viewport viewport) {
@@ -50,7 +65,6 @@ public class IntroScene extends Scene {
             prevCards[i] = current;
             cards[i] = new CardView(current, true);
             cards[i].setSide(CardView.Side.FRONT);
-            addActor(cards[i]);
             i++;
         }
         mBackgroundColor = new Color(0.2f, 0.2f, 0.2f, 1);
@@ -65,32 +79,153 @@ public class IntroScene extends Scene {
                 }
             }
         };
+        createEvents();
+
+        mShadow = new ShadowView();
+        mShadow.shadowEntireScreen(0);
 
         mTitle = new TextView(Director.instance().getAssets().get("title_font_large", BitmapFont.class));
         mTitle.setText("Palace");
+        mTitle.setFudge(0.25f);
         mTitle.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
-        Vector3 pos = getCamera().unproject(new Vector3( (getCamera().viewportWidth-mTitle.getWidth())/2.0f, (getCamera().viewportHeight-mTitle.getHeight())/3.0f, 0));
+        Vector2 pos = new Vector2();
+        pos.x = (getCamera().viewportWidth - mTitle.getWidth())/2.0f;
+        pos.y = (getCamera().viewportHeight - mTitle.getHeight())*3/4.0f;
         mTitle.setPosition(pos.x, pos.y);
 
-        mOptionTable = new MainTable();
+        mClipFrame = new ClipView();
+        mMainTable = new MainTable();
+        mOptionTable = new OptionsTable();
+        mMainTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
         mOptionTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
+        //mShownAnimation = false;
+        mShownAnimation = true;
 
     }
 
-    private void showTitle() {
-        addActor(mTitle);
-        addActor(mOptionTable);
+    private void createEvents() {
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.MAIN_NEW_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                fadeOutToNewGame();
+            }
+        });
 
-        float x = mTitle.getX() + (mTitle.getWidth() - mOptionTable.getWidth()) /2.0f;
-        float y = mTitle.getY() - mTitle.getHeight()*2;
-        mOptionTable.setPosition(x, y);
-        mOptionTable.align(Align.center);
-        mOptionTable.debugAll();
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.MAIN_OPTIONS) {
+            @Override
+            public void handle(Object params[]) {
+                showOptions();
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.OPTIONS_BACK) {
+            @Override
+            public void handle(Object params[]) {
+                showMain();
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.SHOW_ACKNOWLEDGEMENTS) {
+            @Override
+            public void handle(Object params[]) {
+                showAcknowledgements();
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.DISMISS_ACKNOWLEDGEMENTS) {
+            @Override
+            public void handle(Object params[]) {
+                if (mAckDialog != null)
+                    hideAcknowledgements();
+            }
+        });
+
+    }
+
+    private void hideAcknowledgements() {
+        Tween.to(mAckDialog, ActorAccessor.ALPHA, 0.35f).target(0.0f).
+                setCallbackTriggers(TweenCallback.END).
+                setCallback(new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        if (type == END)
+                            mAckDialog.remove();
+                    }
+                }).
+                start(getTweenManager());
+    }
+
+    private void showAcknowledgements() {
+        if (mAckDialog == null)
+            mAckDialog = new AcknowledgementDialog(StringMap.getString("acknowledgements"));
+        mAckDialog.setColor(1,1,1,0);
+        mAckDialog.setX( (Director.instance().getScreenWidth() - mAckDialog.getWidth()) / 2.0f);
+        mAckDialog.setY( (Director.instance().getScreenHeight() - mAckDialog.getHeight()) / 2.0f);
+        addActor(mAckDialog);
+        Tween.to(mAckDialog, ActorAccessor.ALPHA, 0.35f).target(1.0f).start(getTweenManager());
+    }
+
+    private void showMain() {
+        getTweenManager().killTarget(mOptionTable);
+        getTweenManager().killTarget(mMainTable);
+        Timeline ani = Timeline.createParallel();
+        ani.push(Tween.to(mOptionTable, ActorAccessor.POSITION_X, 0.75f).target(mClipFrame.getWidth()).ease(TweenEquations.easeOutQuad));
+        ani.push(Tween.to(mMainTable, ActorAccessor.POSITION_X, 0.75f).target(0).ease(TweenEquations.easeOutQuad));
+        ani.start(getTweenManager());
+    }
+
+    private void showOptions() {
+        getTweenManager().killTarget(mOptionTable);
+        getTweenManager().killTarget(mMainTable);
+        Timeline ani = Timeline.createParallel();
+        ani.push(Tween.to(mMainTable, ActorAccessor.POSITION_X, 0.75f).target(-mClipFrame.getWidth()).ease(TweenEquations.easeOutQuad));
+        ani.push(Tween.to(mOptionTable, ActorAccessor.POSITION_X, 0.75f).target(0).ease(TweenEquations.easeOutQuad));
+        ani.start(getTweenManager());
+    }
+
+    private void fadeOutToNewGame() {
+        addActor(mShadow);
+        mShadow.setColor(Color.BLACK, 0);
+        Tween alpha = Tween.to(mShadow, ActorAccessor.ALPHA, screenFadeTime).target(1);
+        alpha.setCallbackTriggers(TweenCallback.END);
+        alpha.setCallback(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                if (type == TweenCallback.END)
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+            }
+        });
+        alpha.start(getTweenManager());
+    }
+
+    private void showTitle() {
+        mTitle.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
+        mMainTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
+        mOptionTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 1.0f);
+        addActor(mTitle);
+
+        mClipFrame.setWidth(Director.instance().getScreenWidth() * 0.4f);
+        mClipFrame.setHeight(200);
+
+
+        mClipFrame.addActor(mMainTable);
+        mClipFrame.addActor(mOptionTable);
+        mMainTable.setFillParent(true);
+        mOptionTable.setFillParent(true);
+
+        mMainTable.setPosition(0, 0);
+        mOptionTable.setPosition(mClipFrame.getWidth(), 0);
+
+        addActor(mClipFrame);
+
+        float x = mTitle.getX() + (mTitle.getWidth() - mClipFrame.getWidth()) /2.0f;
+        float y = mTitle.getY() - mClipFrame.getHeight();
+        mClipFrame.setPosition(x, y);
 
 
         Timeline alpha = Timeline.createParallel();
-        alpha.push(Tween.to(mTitle, ActorAccessor.ALPHA, 0.75f).target(1.0f).ease(TweenEquations.easeOutQuad));
-        alpha.push(Tween.to(mOptionTable, ActorAccessor.ALPHA, 0.75f).target(1.0f).ease(TweenEquations.easeOutQuad));
+        alpha.push(Tween.to(mTitle, ActorAccessor.ALPHA, titleFadeTime).target(1.0f).ease(TweenEquations.easeOutQuad));
+        alpha.push(Tween.to(mMainTable, ActorAccessor.ALPHA, titleFadeTime).target(1.0f).ease(TweenEquations.easeOutQuad));
         alpha.start(getTweenManager());
     }
 
@@ -99,12 +234,15 @@ public class IntroScene extends Scene {
         //left
         pos = getCamera().unproject(new Vector3(-cards[0].getWidth(), ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
         cards[0].setPosition(pos.x, pos.y);
+        addActor(cards[0]);
         //bottom
         pos = getCamera().unproject(new Vector3 ((getCamera().viewportWidth-cards[0].getWidth())/2.0f, getCamera().viewportHeight + cards[0].getHeight(), 0));
         cards[1].setPosition(pos.x, pos.y);
+        addActor(cards[1]);
         //right
         pos = getCamera().unproject(new Vector3(getCamera().viewportWidth, ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
         cards[2].setPosition(pos.x, pos.y);
+        addActor(cards[2]);
     }
 
     private boolean previousContains(Card[] cards, Card.Suit s, Card.Rank r) {
@@ -119,19 +257,31 @@ public class IntroScene extends Scene {
     @Override
     public void enter() {
         super.enter();
-        placeCards();
-        //createAnimations();
-        startDropAnimation();
-        //showTitle();
+        getTweenManager().killAll();
+        setupScene();
+        if (!mShownAnimation)
+            createAnimations();
+        else
+            startDropAnimation();
     }
+
+    private void setupScene() {
+        SnapshotArray<Actor> children = new SnapshotArray<>(getRoot().getChildren());
+        for (Actor a : children) {
+            a.remove();
+        }
+        placeCards();
+    }
+
 
     private void createAnimations() {
         final float duration = 1.00f;
         final float gap = 0.5f;
-        final float firstDelay = 0.75f;
+        final float firstDelay = initialAnimationDelayTime;
         final float secondDelay = firstDelay + 0.25f + duration;
         final float thirdDelay = secondDelay + 0.25f + duration;
         Vector3 pos1, pos2, pos3;
+        mShownAnimation = true;
         //left to right
         Timeline c1 = Timeline.createSequence();
         c1.pushPause(firstDelay);
@@ -171,11 +321,8 @@ public class IntroScene extends Scene {
         Vector3 pos;
         float w = cards[0].getWidth();
         float h = cards[0].getHeight();
-        final float gap = cards[0].getWidth() * -0.5f;
         final float duration = 1.0f;
-        float topEnd = mTitle.getY() - mTitle.getHeight() /2.0f;
-        // mTitle.getY() + mTitle.getHeight();
-        //cards[0].getHeight() * 2;
+        float topEnd = mTitle.getY() + mTitle.getHeight() /2.0f;
 
         float angle1 = 55;
         float angle2 = 30;
@@ -209,12 +356,24 @@ public class IntroScene extends Scene {
 
     }
 
-
     @Override
     public void dispose() {
         super.dispose();
         for (int i=0; i<cards.length; ++i) {
             cards[i] = null;
         }
+        SnapshotArray<Actor> children = new SnapshotArray<>(getRoot().getChildren());
+        for (Actor a : children) {
+            a.remove();
+        }
+        mShadow = null;
+        mCallback = null;
+        mDropAnimation = null;
+        mFlyAnimation = null;
+        mTitle = null;
+        mMainTable.reset();
+        mMainTable = null;
+        mOptionTable.reset();
+        mOptionTable = null;
     }
 }

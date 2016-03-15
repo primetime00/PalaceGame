@@ -16,6 +16,7 @@ public class TextView extends Actor{
     private BitmapFont mFont;
     private GlyphLayout mLayout;
     private boolean mBorder;
+    private float mFudge = 0.0f;
 
 
     public TextView(BitmapFont fnt) {
@@ -25,6 +26,10 @@ public class TextView extends Actor{
     public TextView(BitmapFont fnt, boolean border) {
         mFont = fnt;
         mBorder = border;
+    }
+
+    public void setFudge(float percent) {
+        mFudge = percent;
     }
 
     public void setText(String txt) {
@@ -51,13 +56,16 @@ public class TextView extends Actor{
             mFont.draw(batch, mText, getX(), getY() + 2);
         }
         mFont.setColor(getColor());
-        mFont.draw(batch, mText, getX(), getY()+(getHeight()/4.0f));
+        mFont.draw(batch, mText, getX(), getY() + mLayout.height + (mLayout.height * mFudge));
     }
 
     @Override
     public void drawDebug(ShapeRenderer shapes) {
-        //super.drawDebug(shapes);
         shapes.setColor(Color.BLUE);
-        shapes.rect(getX(), getY(), getWidth(), -getHeight());
+        super.drawDebug(shapes);
+        shapes.setColor(Color.GREEN);
+        shapes.set(ShapeRenderer.ShapeType.Filled);
+        shapes.circle(getX(), getY(), 10);
+        shapes.set(ShapeRenderer.ShapeType.Line);
     }
 }
