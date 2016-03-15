@@ -35,7 +35,7 @@ public class EventSystem implements Disposable{
         ATTEMPT_HIDDEN_PLAY,
         FAILED_HIDDEN_PLAY,
         SUCCESS_HIDDEN_PLAY,
-        SHOW_MESSAGE, CARDS_GONE, GAME_OVER, RESTART_GAME, OPTIONS,
+        SHOW_MESSAGE, CARDS_GONE, GAME_OVER, RESTART_GAME, OPTIONS, RESUME_GAME,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;

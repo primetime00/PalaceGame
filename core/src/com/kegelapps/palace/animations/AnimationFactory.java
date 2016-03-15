@@ -4,12 +4,14 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.Logic;
 
 /**
  * Created by Ryan on 2/1/2016.
  */
-public class AnimationFactory implements AnimationStatus {
+public class AnimationFactory implements AnimationStatus, Resettable {
 
     private static AnimationFactory instance;
 
@@ -25,6 +27,7 @@ public class AnimationFactory implements AnimationStatus {
     private AnimationFactory () {
         instance = this;
         mPauseCount = 0;
+        Director.instance().addResetter(this);
     }
 
     public static AnimationFactory get() {
@@ -69,4 +72,10 @@ public class AnimationFactory implements AnimationStatus {
             pauseDecrement();
         }
     }
+
+    @Override
+    public void Reset() {
+        mPauseCount = 0;
+    }
+
 }

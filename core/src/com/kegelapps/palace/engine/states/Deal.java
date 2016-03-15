@@ -44,7 +44,8 @@ public class Deal extends State{
 
     @Override
     protected void OnFirstRun() {
-        System.out.print("Dealing cards...");
+        System.out.print("Dealing cards...\n");
+        System.out.print(String.format("Dealer: %d\n", mTable.getCurrentDealTurn()));
     }
 
     @Override

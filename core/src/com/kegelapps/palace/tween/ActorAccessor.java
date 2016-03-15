@@ -1,6 +1,7 @@
 package com.kegelapps.palace.tween;
 
 import aurelienribon.tweenengine.TweenAccessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.graphics.CardView;
 
@@ -13,6 +14,7 @@ public class ActorAccessor implements TweenAccessor<Actor>{
     public static final int POSITION_Y = 2;
     public static final int POSITION_XY = 3;
     public static final int ROTATION = 4;
+    public static final int ALPHA = 5;
 
     @Override
     public int getValues(Actor target, int tweenType, float[] returnValues) {
@@ -25,6 +27,10 @@ public class ActorAccessor implements TweenAccessor<Actor>{
                 return 2;
             case ROTATION:
                 returnValues[0] = target.getRotation();
+                return 1;
+            case ALPHA:
+                Color c = target.getColor();
+                returnValues[0] = c.a;
                 return 1;
             default: assert false; return -1;
         }
@@ -42,6 +48,9 @@ public class ActorAccessor implements TweenAccessor<Actor>{
             case ROTATION:
                 target.setRotation(newValues[0]);
                 break;
+            case ALPHA:
+                Color c = target.getColor();
+                target.setColor(c.r, c.g, c.b, newValues[0]);
             default: assert false; break;
         }
     }

@@ -31,27 +31,35 @@ public class CardView extends Actor {
     public CardView(Card.Suit suit, Card.Rank rank) {
         super();
         mCard = Card.GetCard(suit, rank);
-        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
-        setSide(Side.FRONT);
-        init();
+        init(false);
     }
 
     public CardView(Card card) {
         super();
         assert(card == null);
         mCard = card;
-        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
-        setSide(Side.FRONT);
-        init();
+        init(false);
     }
 
-    private void init() {
+    public CardView(Card card, boolean newInstance) {
+        super();
+        assert(card == null);
+        mCard = card;
+        init(newInstance);
+    }
+
+
+    private void init(boolean newInstance) {
+        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
+        setSide(Side.FRONT);
         setBounds(0,0,mCardRegion.originalWidth, mCardRegion.originalHeight);
         setOrigin(mCardRegion.originalWidth/2.0f, mCardRegion.originalHeight/2.0f);
         mMaxCardSize = new Vector2(mCardRegion.originalWidth, mCardRegion.originalHeight).len();
-        if (mCardMap == null)
-            mCardMap = new OrderedMap<>();
-        mCardMap.put(mCard, this);
+        if (!newInstance) {
+            if (mCardMap == null)
+                mCardMap = new OrderedMap<>();
+            mCardMap.put(mCard, this);
+        }
         mHighlightView = new HighlightView();
     }
 

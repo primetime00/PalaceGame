@@ -2,6 +2,7 @@ package com.kegelapps.palace.scenes;
 
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.SnapshotArray;
@@ -16,11 +17,13 @@ public class Scene extends Stage implements Resettable {
 
     private InputMultiplexer inputMultiplexer;
     protected TweenManager mTweenManager;
+    protected Color mBackgroundColor;
 
     public Scene() {
         super();
         this.inputMultiplexer = new InputMultiplexer(this);
         mTweenManager = new TweenManager();
+        mBackgroundColor = Color.BLACK;
     }
 
     public Scene(Viewport viewport) {
@@ -29,8 +32,15 @@ public class Scene extends Stage implements Resettable {
         viewport.apply(true);
         this.inputMultiplexer = new InputMultiplexer(this);
         mTweenManager = new TweenManager();
+        mBackgroundColor = Color.BLACK;
     }
 
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        mTweenManager.update(delta);
+    }
 
     public CardCamera getCardCamera() {
         return (CardCamera) getCamera();
@@ -44,6 +54,9 @@ public class Scene extends Stage implements Resettable {
 
     }
 
+    public Color getBackgroundColor() {
+        return mBackgroundColor;
+    }
 
     protected void clearScene() {
         SnapshotArray<Actor> actors = new SnapshotArray<Actor>(getActors());

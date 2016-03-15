@@ -50,7 +50,7 @@ public class MessageBandView extends Actor implements TweenCallback{
         mTexture = Director.instance().getAssets().get("messageband");
         mShadow = new ShadowView();
         mShadow.setColor(Color.BLACK, 0.5f);
-        mText = new TextView(Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class));
+        mText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
 
         setWindowX(0);
         setWindowY((Director.instance().getScreenHeight() + getHeight())/2.0f);

@@ -97,7 +97,6 @@ public class GameScene extends Scene {
     @Override
     public void act(float delta) {
         super.act(delta);
-        mTweenManager.update(delta);
         logic.Poll();
     }
 

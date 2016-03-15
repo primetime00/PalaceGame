@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -75,7 +76,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
     }
 
     private void init() {
-        mHelperText = new TextView(Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class));
+        mHelperText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
         mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
         mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
@@ -127,6 +128,12 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
     public void Reset() {
         float x = mCamera.viewportWidth / 2.0f;
         float y = mCamera.viewportHeight / 2.0f;
+
+        for (Actor c : getChildren()) {
+            if (c instanceof CardView)
+                c.remove();
+        }
+
         mCamera.SetPosition(new Vector2(x, y), 1.0f, CardCamera.CameraSide.CENTER);
         for (HandView h : mHands) {
             h.Reset();

@@ -1,0 +1,9 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "OptionProtos";
+
+message Options {
+    optional bool sound = 1 [default=true];
+    optional bool music = 2 [default=true];
+}

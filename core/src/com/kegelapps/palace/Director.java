@@ -20,7 +20,9 @@ import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.loaders.*;
+import com.kegelapps.palace.protos.OptionProtos;
 import com.kegelapps.palace.scenes.GameScene;
+import com.kegelapps.palace.scenes.IntroScene;
 import com.kegelapps.palace.scenes.Scene;
 import com.kegelapps.palace.scenes.UIScene;
 import com.kegelapps.palace.tween.CameraAccessor;
@@ -38,6 +40,8 @@ public class Director implements Disposable{
 
     private GameScene mGameScene;
     private UIScene mUIScene;
+    private IntroScene mIntroScene;
+    private OptionProtos.Options mOptions;
 
     private Scene mCurrentScene;
     private EventSystem mEventSystem;
@@ -69,6 +73,7 @@ public class Director implements Disposable{
     private void createScenes() {
         mGameScene = new GameScene(new ExtendViewport(800,480));
         mUIScene = new UIScene(new ExtendViewport(800,480));
+        mIntroScene = new IntroScene(new ExtendViewport(800,480));
     }
 
     private void registerTweens() {
@@ -94,10 +99,15 @@ public class Director implements Disposable{
         }
         if (mGameScene == null) {
             createScenes();
-            restart();
+            setScene(mIntroScene);
         }
         // Update View
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        //Gdx.gl.glClearColor(0, 0, 0, 1);
+        Color c = mCurrentScene.getBackgroundColor();
+        if (c != null)
+            Gdx.gl.glClearColor(c.r, c.g, c.b, c.a);
+        else
+            Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mEventSystem.ProcessWaitingEvents();
@@ -167,9 +177,26 @@ public class Director implements Disposable{
 
     public void loadAssets() {
         mAssetManager = new AssetManager();
+
         //lets load out font first
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
-        mAssetManager.load("FatCow.ttf", BitmapFont.class);
+
+        FontLoader.FontParams fontParam = new FontLoader.FontParams();
+        fontParam.filename = "FatCow.ttf";
+        mAssetManager.load("default_font", BitmapFont.class);
+
+        fontParam = new FontLoader.FontParams();
+        fontParam.size = 175;
+        fontParam.border = 5;
+        fontParam.filename = "title_font.ttf";
+        mAssetManager.load("title_font_large", BitmapFont.class, fontParam);
+
+        fontParam = new FontLoader.FontParams();
+        fontParam.size = 45;
+        fontParam.border = 1;
+        fontParam.filename = "title_font.ttf";
+        mAssetManager.load("title_font_small", BitmapFont.class, fontParam);
+
 
         mAssetManager.setLoader(CardResource.class, new CardLoader(new InternalFileHandleResolver()));
         mAssetManager.load("cards_tiny.pack", CardResource.class);
@@ -210,6 +237,14 @@ public class Director implements Disposable{
             }
         });
 
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESUME_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                setScene(mGameScene);
+            }
+        });
+
+
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESTART_GAME) {
             @Override
             public void handle(Object params[]) {
@@ -230,8 +265,16 @@ public class Director implements Disposable{
             mResetList.add(position, r);
     }
 
+    public OptionProtos.Options getOptions() {
+        if (mOptions == null)
+            mOptions = OptionProtos.Options.getDefaultInstance();
+        return mOptions;
+    }
 
-    @Override
+    public void setOptions(OptionProtos.Options.Builder val) {
+        mOptions = val.build();
+    }
+
     public void dispose() {
         mResetList.clear();
         mAssetManager.dispose();

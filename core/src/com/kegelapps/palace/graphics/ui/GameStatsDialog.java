@@ -36,7 +36,7 @@ public class GameStatsDialog extends FrameView {
         style = new Label.LabelStyle();
         style.background = null;
         style.fontColor = Color.WHITE;
-        style.font = Director.instance().getAssets().get("FatCow.ttf", BitmapFont.class);
+        style.font = Director.instance().getAssets().get("default_font", BitmapFont.class);
         titleTable  = new Table();
         statsTable = new Table();
         mTitle = title;
