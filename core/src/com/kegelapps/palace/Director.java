@@ -179,6 +179,10 @@ public class Director implements Disposable{
         mAssetManager.setLoader(ObjectMap.class, new StringXmlLoader(new InternalFileHandleResolver()));
         mAssetManager.load("strings.xml", ObjectMap.class);
 
+        //load players
+        mAssetManager.setLoader(ObjectMap.class, new PlayerLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("players.dat", ObjectMap.class);
+
 
         //lets load out font first
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));

@@ -1,0 +1,12 @@
+package palaceProtos;
+
+option java_package = "com.kegelapps.palace.protos";
+option java_outer_classname = "PlayersProto";
+
+message AllPlayers {
+    repeated Player players = 1;
+}
+
+message Player {
+    required string name = 1;
+}

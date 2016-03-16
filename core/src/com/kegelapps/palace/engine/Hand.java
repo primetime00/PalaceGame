@@ -21,6 +21,8 @@ public class Hand implements Serializer, Resettable{
     private int mID;
     private HandType mType;
 
+    private String mName;
+
     private Card mHiddenCards[];
     private Card mEndCards[];
     private List<Card> mActiveCards;

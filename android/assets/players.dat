@@ -1,0 +1,15 @@
+players {
+    name: "Bob"
+}
+players {
+    name: "Sarah"
+}
+players {
+    name: "Adam"
+}
+players {
+    name: "Linda"
+}
+players {
+    name: "Jesse"
+}
