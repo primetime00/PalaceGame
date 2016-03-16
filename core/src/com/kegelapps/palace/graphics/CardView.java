@@ -38,14 +38,14 @@ public class CardView extends Actor {
 
     public CardView(Card card) {
         super();
-        assert(card == null);
+        assert(card != null);
         mCard = card;
         init(false);
     }
 
     public CardView(Card card, boolean newInstance) {
         super();
-        assert(card == null);
+        assert(card != null);
         mCard = card;
         init(newInstance);
     }
@@ -94,7 +94,7 @@ public class CardView extends Actor {
             }
             return cv;
         }
-        return null;
+        throw new RuntimeException("The cardview map needs to be created first.");
     }
 
 

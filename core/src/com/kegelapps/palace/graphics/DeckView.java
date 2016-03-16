@@ -34,7 +34,7 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
 
     public DeckView(Deck deck) {
         super();
-        assert (deck == null);
+        assert (deck != null);
         mDeck = deck;
         init();
     }
@@ -140,7 +140,7 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
     }
 
     private void CheckLowDeck() {
-        if (mDeck.GetCards().size() <= 4 && mDeckLow == false) { //we just hit 4 cards
+        if (mDeck.GetCards().size() <= 4 && !mDeckLow) { //we just hit 4 cards
             mDeckLow = true;
             int cascade = 0;
             for (int i = mDeck.GetCards().size() - 1; i >= 0; --i) {

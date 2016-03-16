@@ -5,6 +5,7 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
@@ -87,11 +88,11 @@ public class Card implements Comparable<Card>, Serializer {
 
     static public String getSuitString(Card.Suit suit) {
         switch (suit) {
-            case HEART: return "Heart";
-            case DIAMOND: return "Diamond";
-            case SPADE: return "Spade";
+            case HEART: return StringMap.getString("heart");
+            case DIAMOND: return StringMap.getString("diamond");
+            case SPADE: return StringMap.getString("spade");
             default:
-            case CLUB: return "Club";
+            case CLUB: return StringMap.getString("club");
         }
     }
 
@@ -141,11 +142,11 @@ public class Card implements Comparable<Card>, Serializer {
             case EIGHT: return "8";
             case NINE: return "9";
             case TEN: return "10";
-            case JACK: return "Jack";
-            case KING: return "King";
-            case QUEEN: return "Queen";
+            case JACK: return StringMap.getString("jack");
+            case KING: return StringMap.getString("king");
+            case QUEEN: return StringMap.getString("queen");
             default:
-            case ACE: return "Ace";
+            case ACE: return StringMap.getString("ace");
         }
     }
 

@@ -19,6 +19,35 @@
     <string name="turns">Turns</string>
     <string name="rematch">Rematch</string>
 
+    <string name="heart">Heart</string>
+    <string name="diamond">Diamond</string>
+    <string name="club">Club</string>
+    <string name="spade">Spade</string>
+    <string name="jack">Jack</string>
+    <string name="queen">Queen</string>
+    <string name="king">King</string>
+    <string name="ace">Ace</string>
+
+    <string name="you_win">You Win!</string>
+    <string name="2nd_place">2nd Place!</string>
+    <string name="3rd_place">3rd Place!</string>
+
+    <string name="dramatic_burn">THAT'S A BURN!</string>
+    <string name="burn">BURN!</string>
+    <string name="4_burn">4 IN A ROW BURN!</string>
+
+    <string name="lucky">Lucky!</string>
+    <string name="thats_it">That's it!</string>
+    <string name="whew">Whew!</string>
+    <string name="oh_no">Oh No!</string>
+
+    <string name="game_over">Game Over!</string>
+
+
+    <string name="tap_start">Double tap deck to start!</string>
+    <string name="select_end_cards">Select 3 End Cards!</string>
+
+
     <string name="all_acknowledgements">Palace created by Ryan Kegel\nMusic from teknoaxe Royalty Free Music (teknoaxe.com)\nFonts from 1001fonts.com</string>
 
 </resources>

@@ -12,6 +12,7 @@ import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
@@ -39,7 +40,7 @@ public class HandView extends Group implements ReparentViews, Resettable {
 
     public HandView(Hand hand) {
         super();
-        assert(hand == null);
+        assert(hand != null);
         mHand = hand;
 
         init();
@@ -337,9 +338,9 @@ public class HandView extends Group implements ReparentViews, Resettable {
                     public void onEnd(Animation animation) {
                         HandUtils.Reparent(HandView.this, builder.getCoin());
                         switch (builder.getCoin().getType()) {
-                            case GOLD: ((GameScene)getStage()).ShowMessage("You Win!", 1.0f, Color.GOLD, true); break;
-                            case SILVER: ((GameScene)getStage()).ShowMessage("2nd Place!", 1.0f, Color.GRAY, true); break;
-                            case BRONZE: ((GameScene)getStage()).ShowMessage("3rd Place!", 1.0f, Color.BROWN, true); break;
+                            case GOLD: ((GameScene)getStage()).ShowMessage(StringMap.getString("you_win"), 1.0f, Color.GOLD, true); break;
+                            case SILVER: ((GameScene)getStage()).ShowMessage(StringMap.getString("2nd_place"), 1.0f, Color.GRAY, true); break;
+                            case BRONZE: ((GameScene)getStage()).ShowMessage(StringMap.getString("3rd_place"), 1.0f, Color.BROWN, true); break;
                         }
                     }
                 });
@@ -524,14 +525,12 @@ public class HandView extends Group implements ReparentViews, Resettable {
     @Override
     public Actor hit(float x, float y, boolean touchable) {
         if (getActivePosition().contains(x,y)) {
-            Actor a = super.hit(x,y,touchable);
-            return a;
+            return super.hit(x,y,touchable);
         }
         for (int i=0; i<3; i++) {
             Rectangle r = getHiddenPosition(i);
             if (r.contains(x,y)) {
-                Actor a = super.hit(x,y,touchable);
-                return a;
+                return super.hit(x,y,touchable);
             }
         }
         return null;

@@ -14,6 +14,7 @@ import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.GameStatsDialog;
 import com.kegelapps.palace.graphics.ui.OptionsDialog;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 
 /**
  * Created by keg45397 on 3/3/2016.
@@ -34,8 +35,8 @@ public class UIScene extends Scene {
     }
 
     private void init() {
-        mGameStatsDialog = new GameStatsDialog("Game Over!");
-        mOptionsDialog = new OptionsDialog("Options");
+        mGameStatsDialog = new GameStatsDialog(StringMap.getString("game_over"));
+        mOptionsDialog = new OptionsDialog(StringMap.getString("options"));
         createEvents();
     }
 

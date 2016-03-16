@@ -52,17 +52,17 @@ public class GameStatsDialog extends FrameView {
         mRematchListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+                Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, true);
             }
         };
 
         mQuitListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                int i = 5;
-                i++;
+                Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, false);
             }
         };
+        setWidth(Director.instance().getScreenWidth()*0.8f);
     }
 
     @Override
@@ -80,28 +80,28 @@ public class GameStatsDialog extends FrameView {
         add(titleTable).prefHeight(Value.percentHeight(0.2f, this));
         row();
         if (p1.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p1.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
             statsTable.add(new Label(StringMap.getString("1st"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX();
+                    .expandX().left();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p1.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
             statsTable.add(new Label(String.format("%d %s", p1.getRounds(), StringMap.getString("turns")), style))
                     .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
             statsTable.row();
         }
         if (p2.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p2.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
             statsTable.add(new Label(StringMap.getString("2nd"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX();
+                    .expandX().left();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p2.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
             statsTable.add(new Label(String.format("%d %s", p2.getRounds(), StringMap.getString("turns")), style))
                     .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
             statsTable.row();
         }
         if (p3.getHandID() >= 0) {
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p3.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().left();
             statsTable.add(new Label(StringMap.getString("3rd"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX();
+                    .expandX().left();
+            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p3.getHandID()), style))
+                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
             statsTable.add(new Label(String.format("%d %s", p3.getRounds(), StringMap.getString("turns")), style))
                     .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
         }

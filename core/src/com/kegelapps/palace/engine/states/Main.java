@@ -113,6 +113,7 @@ public class Main extends State implements Resettable{
                 break;
             case GAME_OVER:
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.GAME_OVER);
+                mPaused = true;
                 break;
         }
         return false;
@@ -144,6 +145,7 @@ public class Main extends State implements Resettable{
 
     @Override
     public void Reset() {
+        mPaused = false;
         mState = GameState.START;
         super.Reset();
     }

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -85,8 +84,8 @@ public class IntroScene extends Scene {
         mShadow.shadowEntireScreen(0);
 
         mTitle = new TextView(Director.instance().getAssets().get("title_font_large", BitmapFont.class));
-        mTitle.setText("Palace");
-        mTitle.setFudge(0.25f);
+        mTitle.setText(StringMap.getString("palace"));
+        mTitle.setVerticalOffsetPercent(0.25f);
         mTitle.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
         Vector2 pos = new Vector2();
         pos.x = (getCamera().viewportWidth - mTitle.getWidth())/2.0f;

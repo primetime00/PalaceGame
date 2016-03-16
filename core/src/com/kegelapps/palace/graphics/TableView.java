@@ -6,16 +6,16 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.Array;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.*;
@@ -77,6 +77,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
     private void init() {
         mHelperText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
+        mHelperText.setVerticalPadPercent(0.5f);
+
         mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
         mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
@@ -130,7 +132,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
         float y = mCamera.viewportHeight / 2.0f;
 
         for (Actor c : getChildren()) {
-            if (c instanceof CardView)
+            if (c instanceof CardView || c instanceof CoinView)
                 c.remove();
         }
 
@@ -617,11 +619,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 if (!mPlayView.mInPlayCards.GetCards().isEmpty()) {
                     Card top = mPlayView.mInPlayCards.GetTopCard();
                     if (top.getRank() == card.getRank() && card.getRank() != Card.Rank.TWO) {
-                        ((GameScene) getStage()).ShowMessage("Lucky!", startDelay, Color.GREEN);
+                        ((GameScene) getStage()).ShowMessage(StringMap.getString("lucky"), startDelay, Color.GREEN);
                     } else if (card.getRank() == Card.Rank.TWO) {
-                        ((GameScene) getStage()).ShowMessage("That's it!", startDelay, Color.GREEN);
+                        ((GameScene) getStage()).ShowMessage(StringMap.getString("thats_it"), startDelay, Color.GREEN);
                     } else if (card.getRank() != Card.Rank.TEN && top.getRank() != Card.Rank.TWO) {
-                        ((GameScene) getStage()).ShowMessage("Whew!", startDelay, Color.GREEN);
+                        ((GameScene) getStage()).ShowMessage(StringMap.getString("whew"), startDelay, Color.GREEN);
                     }
                 }
 
@@ -683,7 +685,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 if (hand == null)
                     return;
                 //display a message of failure
-                ((GameScene)getStage()).ShowMessage("Oh No!", startDelay, Color.RED);
+                ((GameScene)getStage()).ShowMessage(StringMap.getString("oh_no"), startDelay, Color.RED);
 
                 CardView cardView = CardView.getCardView(card);
                 AnimationBuilder zoomBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
@@ -716,6 +718,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
         float x = -(mBackground.getWidth()/2.0f - (mDeck.getX() + mDeck.getWidth()/2.0f));
         float y = -(mBackground.getHeight()/2.0f - (mDeck.getY() + mDeck.getHeight()/2.0f));
         batch.draw(mBackground, x,y);
@@ -765,9 +768,9 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
     private void TapDeckToStart(boolean enable) {
         if (enable) {
-            mHelperText.setText("Double Tap Deck To Start!");
+            mHelperText.setText(StringMap.getString("tap_start"));
             float x = mDeck.getX() - (mHelperText.getWidth() + mDeck.getWidth()) / 4.0f;
-            float y = mDeck.getY() - (mDeck.getHeight() * 0.05f);
+            float y = mDeck.getY() - mHelperText.getHeight() - (mDeck.getHeight() * 0.05f);
             mHelperText.setX(x);
             mHelperText.setY(y);
             mHelperText.setColor(Color.RED);
@@ -812,5 +815,13 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
                 return h;
         }
         return null;
+    }
+
+    @Override
+    public void drawDebug(ShapeRenderer shapes) {
+        super.drawDebug(shapes);
+        if (mHelperText.getText().length() > 0)
+            mHelperText.drawDebug(shapes);
+
     }
 }

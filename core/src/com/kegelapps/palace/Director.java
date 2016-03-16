@@ -14,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.kegelapps.palace.engine.states.SelectEndCards;
-import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
@@ -29,7 +27,6 @@ import com.kegelapps.palace.scenes.UIScene;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
-import com.kegelapps.palace.tween.MessageBandAccessor;
 
 import java.util.ArrayList;
 
@@ -84,8 +81,6 @@ public class Director implements Disposable{
         Tween.registerAccessor(Actor.class, new ActorAccessor());
         //create highlight tweens
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
-        //create message band tweens
-        Tween.registerAccessor(MessageBandView.class, new MessageBandAccessor());
     }
 
     public TweenManager getTweenManager() {
@@ -100,7 +95,8 @@ public class Director implements Disposable{
         }
         if (mGameScene == null) {
             createScenes();
-            setScene(mIntroScene);
+            setScene(mGameScene);
+            //setScene(mIntroScene);
         }
         // Update View
         //Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -187,10 +183,17 @@ public class Director implements Disposable{
         //lets load out font first
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
         FontLoader.FontParams fontParam = new FontLoader.FontParams();
-        fontParam.filename = "FatCow.ttf";
-        fontParam.size = 50;
+        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.size = 45;
         fontParam.border = 2;
         mAssetManager.load("default_font", BitmapFont.class, fontParam);
+
+        fontParam = new FontLoader.FontParams();
+        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.size = 55;
+        fontParam.border = 3;
+        mAssetManager.load("message_font", BitmapFont.class, fontParam);
+
 
         fontParam = new FontLoader.FontParams();
         fontParam.size = 175;
@@ -252,6 +255,13 @@ public class Director implements Disposable{
         });
 
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.QUIT_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                setScene(mGameScene);
+            }
+        });
+
+        getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.MAIN_SCREEN) {
             @Override
             public void handle(Object params[]) {
                 setScene(mIntroScene);

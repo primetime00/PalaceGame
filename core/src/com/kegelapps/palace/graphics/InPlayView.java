@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Align;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
@@ -131,12 +132,12 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
                         burnBuilder.setNextAnimation(cameraBuilder.build());
                     }
                     //lets show the burn message!
-                    String message = "THAT'S A BURN!";
+                    String message = StringMap.getString("dramatic_burn");
                     if (topCard != null) {
                         if (topCard.getRank() == Card.Rank.TEN)
-                            message = "BURN!";
+                            message = StringMap.getString("burn");
                         else
-                            message = "4 IN A ROW BURN!";
+                            message = StringMap.getString("4_burn");
                     }
                     stage.ShowMessage(message, 1.0f, Color.FIREBRICK);
 
@@ -247,8 +248,7 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
         Vector2 v = GetNextPosition();
         if (getParent() == null)
             return v;
-        Vector2 pos = localToAscendantCoordinates(getParent(), new Vector2(v));
-        return pos;
+        return localToAscendantCoordinates(getParent(), new Vector2(v));
     }
 
     @Override

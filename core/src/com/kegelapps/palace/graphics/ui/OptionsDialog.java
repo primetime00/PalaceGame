@@ -42,8 +42,10 @@ public class OptionsDialog extends FrameView {
         actionsTable = new Table();
         mTitle = title;
 
-        soundStatus = new Label(Director.instance().getOptions().getSound() ? "On" : "Off", style);
-        musicStatus = new Label(Director.instance().getOptions().getMusic() ==false ? "On" : "Off", style);
+        soundStatus = new Label(Director.instance().getOptions().getSound() ?
+                StringMap.getString("on") : StringMap.getString("off"), style);
+        musicStatus = new Label(Director.instance().getOptions().getMusic() ?
+                StringMap.getString("on") : StringMap.getString("off"), style);
 
         setWidth(Director.instance().getScreenWidth() * 0.8f);
         setHeight(Director.instance().getScreenHeight() * 0.8f);
@@ -83,10 +85,10 @@ public class OptionsDialog extends FrameView {
                     mark();
                 }
                 else if (actor.getName().equals(StringMap.getString("restart"))) {
-                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, true);
                 }
                 else if (actor.getName().equals(StringMap.getString("quit"))) {
-                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME);
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, false);
                 }
             }
         };
@@ -143,7 +145,7 @@ public class OptionsDialog extends FrameView {
     @Override
     public void update() {
         soundStatus.setText(Director.instance().getOptions().getSound() ? StringMap.getString("on") : StringMap.getString("off"));
-        musicStatus.setText(Director.instance().getOptions().getMusic()== false ? StringMap.getString("quit") : StringMap.getString("off"));
+        musicStatus.setText(Director.instance().getOptions().getMusic() ? StringMap.getString("on") : StringMap.getString("off"));
 
     }
 }

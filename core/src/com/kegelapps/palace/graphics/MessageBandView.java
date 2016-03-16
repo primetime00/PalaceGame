@@ -7,29 +7,24 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.animations.Animation;
 import com.kegelapps.palace.animations.AnimationFactory;
-import com.kegelapps.palace.tween.MessageBandAccessor;
+import com.kegelapps.palace.tween.ActorAccessor;
 
 /**
  * Created by Ryan on 1/19/2016.
  */
-public class MessageBandView extends Actor implements TweenCallback{
+public class MessageBandView extends Group implements TweenCallback{
 
-    private Texture mTexture, mShadowTex;
-
-    private float mAlpha;
+    private Image mBand;
 
     private Timeline mAnimation;
 
     private TextView mText;
-    private Vector3 mCenter, mConvert;
-    private float mWindowX, mWindowY;
-    private boolean mChanged = false;
 
     private ShadowView mShadow;
 
@@ -47,34 +42,18 @@ public class MessageBandView extends Actor implements TweenCallback{
         int width = Director.instance().getScreenWidth();
         setWidth(width);
         setHeight(height);
-        mTexture = Director.instance().getAssets().get("messageband");
+        mBand = new Image(Director.instance().getAssets().get("messageband", MessageBandView.MessageBandTexture.class));
+        mBand.setWidth(width);
+        mBand.setHeight(height);
         mShadow = new ShadowView();
         mShadow.setColor(Color.BLACK, 0.5f);
-        mText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
+        mText = new TextView(Director.instance().getAssets().get("message_font", BitmapFont.class));
 
-        setWindowX(0);
-        setWindowY((Director.instance().getScreenHeight() + getHeight())/2.0f);
-        mCenter = new Vector3();
-        mConvert = new Vector3();
-        setAlpha(1.0f);
-    }
+        addActor(mShadow);
+        addActor(mBand);
+        addActor(mText);
 
-    public float getWindowX() {
-        return mWindowX;
-    }
-
-    public void setWindowX(float mWindowX) {
-        this.mWindowX = mWindowX;
-        mChanged = true;
-    }
-
-    public float getWindowY() {
-        return mWindowY;
-    }
-
-    public void setWindowY(float mWindowY) {
-        this.mWindowY = mWindowY;
-        mChanged = true;
+        mShadow.shadowBottomRight(getHeight() * 0.1f, mBand);
     }
 
     @Override
@@ -82,29 +61,13 @@ public class MessageBandView extends Actor implements TweenCallback{
         Camera cam = this.getStage().getCamera();
         if (cam == null)
             throw new RuntimeException("MessageBandView has a null camera!");
-        if (mChanged) {
-            mChanged = false;
-            mCenter.set(mWindowX, mWindowY, 0);
-            mConvert.set(mCenter);
-        }
-        Vector3 pos = cam.unproject(mCenter);
-        setX(pos.x);
-        setY(pos.y);
-        mCenter.set(mConvert);
         super.draw(batch, parentAlpha);
-        mShadow.shadowBottomRight(getHeight() * 0.1f, this);
-        mShadow.draw(batch, parentAlpha);
-        batch.setColor(getColor().r, getColor().g, getColor().b, mAlpha);
-        batch.draw(mTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation(), 0, 0, mTexture.getWidth(), mTexture.getHeight(), false, false);
-        if (mText.getText().length() > 0) {
-            mText.setX((getWidth() - mText.getWidth())/2.0f + getX());
-            mText.setY((getY() + mText.getHeight()) + (( getHeight() - mText.getHeight())/2.0f));
-            mText.draw(batch, mAlpha);
-        }
     }
 
     public void setText(String text) {
         mText.setText(text);
+        mText.setX((getWidth() - mText.getWidth()) / 2.0f);
+        mText.setY( (getHeight() - mText.getHeight()) / 2.0f );
     }
 
     public void setTextColor(Color c) {
@@ -113,14 +76,6 @@ public class MessageBandView extends Actor implements TweenCallback{
 
     public String getText() {
         return mText.getText();
-    }
-
-    public float getAlpha() {
-        return mAlpha;
-    }
-
-    public void setAlpha(float val) {
-        mAlpha = val;
     }
 
     public void showMessage(String message, float length, Color textColor, final boolean pause) {
@@ -133,13 +88,14 @@ public class MessageBandView extends Actor implements TweenCallback{
                 }
             };
         }
-        setWindowX(Director.instance().getScreenWidth());
+        setX(Director.instance().getScreenWidth()-30);
+        setY((Director.instance().getScreenHeight() - getHeight()) / 2.0f);
         setText(message);
         setTextColor(textColor);
         TweenEquation eq = TweenEquations.easeInOutQuart;
-        mAnimation = Timeline.createSequence().push(Tween.to(this, MessageBandAccessor.POS_X, 0.7f).target(0).ease(eq));
+        mAnimation = Timeline.createSequence().push(Tween.to(this, ActorAccessor.POSITION_X, 0.7f).target(0).ease(eq));
         mAnimation.pushPause(length);
-        mAnimation.push(Tween.to(this, MessageBandAccessor.POS_X, 0.7f).target(-Director.instance().getScreenWidth()).ease(eq));
+        mAnimation.push(Tween.to(this, ActorAccessor.POSITION_X, 0.7f).target(-Director.instance().getScreenWidth()).ease(eq));
 
         mAnimation.setCallback(this);
         mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );

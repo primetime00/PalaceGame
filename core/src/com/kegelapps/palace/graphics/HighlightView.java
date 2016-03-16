@@ -35,7 +35,7 @@ public class HighlightView {
     }
 
     public void draw(Batch batch, Actor actor) {
-        assert (actor == null);
+        assert (actor != null);
         float pos = (actor.getWidth() * 0.05f)/2.0f;
         Color c = batch.getColor();
         batch.setColor(mColor.r,mColor.g,mColor.b,mAlpha);

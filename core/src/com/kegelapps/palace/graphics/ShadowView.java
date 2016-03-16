@@ -27,7 +27,7 @@ public class ShadowView extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         Color c = new Color(batch.getColor());
-        Color current = getColor();
+        Color current = new Color(getColor());
         current.a *= c.a;
         batch.setColor(current);
         batch.draw(mShadow, getX(), getY(), getWidth(), getHeight());

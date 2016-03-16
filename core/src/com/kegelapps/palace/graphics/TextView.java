@@ -17,6 +17,7 @@ public class TextView extends Actor{
     private GlyphLayout mLayout;
     private boolean mBorder;
     private float mFudge = 0.0f;
+    private float mVerticalPad = 0.0f;
 
 
     public TextView(BitmapFont fnt) {
@@ -28,8 +29,14 @@ public class TextView extends Actor{
         mBorder = border;
     }
 
-    public void setFudge(float percent) {
+    public void setVerticalOffsetPercent(float percent) {
         mFudge = percent;
+    }
+
+    public void setVerticalPadPercent(float percent) {
+        mVerticalPad = percent;
+        if (mLayout != null)
+            setHeight(mLayout.height + (mLayout.height * (mVerticalPad/1.0f)));
     }
 
     public void setText(String txt) {
@@ -39,7 +46,7 @@ public class TextView extends Actor{
         if (mLayout == null)
             mLayout = new GlyphLayout();
         mLayout.setText(mFont, txt);
-        setHeight(mLayout.height);
+        setHeight(mLayout.height + (mLayout.height * (mVerticalPad/1.0f)));
         setWidth(mLayout.width);
     }
 
@@ -56,14 +63,20 @@ public class TextView extends Actor{
             mFont.draw(batch, mText, getX(), getY() + 2);
         }
         mFont.setColor(getColor());
-        mFont.draw(batch, mText, getX(), getY() + mLayout.height + (mLayout.height * mFudge));
+        float pad = (mLayout.height * (mVerticalPad/2.0f));
+        float offset = (mLayout.height * mFudge);
+        float y = getY() + mLayout.height + pad + offset;
+
+        mFont.draw(batch, mText, getX(), y);
+        //mFont.draw(batch, mText, getX(), getY() + mLayout.height + (mLayout.height * mFudge) + (mLayout.height * (mVerticalPad/2.0f)));
     }
 
     @Override
     public void drawDebug(ShapeRenderer shapes) {
-        shapes.setColor(Color.BLUE);
-        super.drawDebug(shapes);
-        shapes.setColor(Color.GREEN);
+        shapes.set(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(Color.RED);
+        shapes.rect(getX(), getY(), getWidth(), getHeight());
+        shapes.setColor(Color.GOLDENROD);
         shapes.set(ShapeRenderer.ShapeType.Filled);
         shapes.circle(getX(), getY(), 10);
         shapes.set(ShapeRenderer.ShapeType.Line);

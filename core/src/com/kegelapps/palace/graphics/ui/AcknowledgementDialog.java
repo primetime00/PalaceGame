@@ -26,7 +26,6 @@ public class AcknowledgementDialog extends FrameView {
     private Table textTable;
     private Table actionsTable;
     private Label.LabelStyle style;
-    private TextButton.TextButtonStyle buttonStyle;
 
     private ChangeListener onChange;
 
@@ -88,7 +87,7 @@ public class AcknowledgementDialog extends FrameView {
     }
 
     private void createButtons() {
-        buttonStyle = new TextButton.TextButtonStyle();
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.downFontColor = Color.YELLOW;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.font = style.font;

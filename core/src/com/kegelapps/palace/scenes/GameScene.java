@@ -1,5 +1,9 @@
 package com.kegelapps.palace.scenes;
 
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -13,7 +17,9 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.graphics.TableView;
+import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.Scene;
+import com.kegelapps.palace.tween.ActorAccessor;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -22,7 +28,7 @@ public class GameScene extends Scene {
 
     private Logic logic;
     private TableView tableView;
-    private ShadowView mShadow;
+    private boolean runLogic;
 
     private MessageStage mMessageStage;
 
@@ -42,10 +48,8 @@ public class GameScene extends Scene {
         logic.Initialize();
         tableView = new TableView(logic.GetTable(), getCardCamera());
         mMessageStage = new MessageStage(new ScreenViewport());
-        mShadow = new ShadowView();
-        mShadow.setColor(Color.BLACK, 1.0f);
-        mShadow.shadowEntireScreen(1.0f);
         addActor(tableView);
+
         getInputMultiplexer().addProcessor(mMessageStage);
         createEvents();
         Director.instance().addResetter(this, 0);
@@ -59,7 +63,7 @@ public class GameScene extends Scene {
                 return super.keyUp(event, keycode);
             }
         });
-
+        runLogic = false;
     }
 
     private void createEvents() {
@@ -70,7 +74,7 @@ public class GameScene extends Scene {
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
                 if ((params[0] instanceof SelectEndCards)) {
-                    ShowMessage("Select 3 End Cards!", 2.0f, Color.CHARTREUSE, false);
+                    ShowMessage(StringMap.getString("select_end_cards"), 2.0f, Color.CHARTREUSE, false);
                 }
             }
 
@@ -89,6 +93,35 @@ public class GameScene extends Scene {
 
         });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.QUIT_GAME) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Boolean)) {
+                    throw new IllegalArgumentException("Invalid parameters for QUIT_GAME");
+                }
+                final boolean restart = (boolean) params[0];
+                runLogic = false;
+                Timeline ani = Timeline.createParallel();
+                ani.push(Tween.to(getRoot(), ActorAccessor.ALPHA, 0.75f).target(0));
+                ani.push(Tween.to(mMessageStage.getRoot(), ActorAccessor.ALPHA, 0.75f).target(0));
+                ani.setCallbackTriggers(TweenCallback.END);
+                ani.setCallback(new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        if (type == END) {
+                            if (!restart)
+                                Director.instance().getEventSystem().FireLater(EventSystem.EventType.MAIN_SCREEN);
+                            else
+                                Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+                        }
+                    }
+                });
+                ani.start(getTweenManager());
+            }
+
+        });
+
+
     }
 
     public void ShowMessage(String message, float duration, Color color) {
@@ -102,7 +135,8 @@ public class GameScene extends Scene {
     @Override
     public void act(float delta) {
         super.act(delta);
-        logic.Poll();
+        if (runLogic)
+            logic.Poll();
     }
 
     @Override
@@ -127,8 +161,31 @@ public class GameScene extends Scene {
     @Override
     public void Reset() {
         super.Reset();
+        getTweenManager().killAll();
         logic.Initialize();
         addActor(tableView);
-        addActor(mShadow);
+        mMessageStage.getMessageBand().setText("");
+        getRoot().setColor(1,1,1,0);
+        mMessageStage.getRoot().setColor(1,1,1,1);
     }
+
+    @Override
+    public void enter() {
+        super.enter();
+        if (runLogic == false) {
+            getRoot().setColor(1, 1, 1, 0);
+            mMessageStage.getRoot().setColor(1,1,1,1);
+            Tween ani = Tween.to(getRoot(), ActorAccessor.ALPHA, 0.75f).target(1);
+            ani.setCallbackTriggers(TweenCallback.END).setCallback(new TweenCallback() {
+                @Override
+                public void onEvent(int type, BaseTween<?> source) {
+                    if (type == END)
+                        runLogic = true;
+                }
+            });
+            ani.start(getTweenManager());
+        }
+    }
+
+
 }
