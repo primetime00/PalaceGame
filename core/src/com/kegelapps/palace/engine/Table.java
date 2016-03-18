@@ -5,9 +5,13 @@ import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
+import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.CardsProtos;
+import com.kegelapps.palace.protos.PlayersProto;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,11 +51,19 @@ public class Table  implements Serializer, Resettable{
         mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
         mHands = new ArrayList<>();
-        for (int i=0; i<numberOfPlayers; ++i) {
-            mHands.add(new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU));
-        }
+        createHands(numberOfPlayers);
         mFirstDealHand = 0;
         Director.instance().addResetter(this);
+    }
+
+    private void createHands(int numberOfPlayers) {
+        List<Integer> ids = Director.instance().getAssets().get("players", PlayerMap.class).getRandomIDs();
+        for (int i=0; i<numberOfPlayers; ++i) {
+            Hand hand = new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU);
+            if (hand.getType() == Hand.HandType.CPU)
+                hand.setIdentity(new Identity(ids.get(i)));
+            mHands.add(hand);
+        }
     }
 
     public void Load(CardsProtos.Table tableProto) {

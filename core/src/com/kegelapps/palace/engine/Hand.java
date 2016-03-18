@@ -21,7 +21,7 @@ public class Hand implements Serializer, Resettable{
     private int mID;
     private HandType mType;
 
-    private String mName;
+    private Identity mIdentity;
 
     private Card mHiddenCards[];
     private Card mEndCards[];
@@ -380,6 +380,12 @@ public class Hand implements Serializer, Resettable{
 
     }
 
+    public void setIdentity(Identity id) {
+        mIdentity = id;
+    }
+
+    public Identity getIdentity() {return mIdentity;}
+
     @Override
     public void Reset() {
         Arrays.fill(mHiddenCards, null);
@@ -400,6 +406,8 @@ public class Hand implements Serializer, Resettable{
         GetPlayCards().Clear();
         mID = hand.getId();
         mType = HandType.values()[hand.getType()];
+        if (mType == HandType.CPU)
+            mIdentity = new Identity(hand.getIdentity());
         for (CardsProtos.Card protoCard : hand.getActiveCardsList()) {
             GetActiveCards().add(Card.GetCard(protoCard));
         }
@@ -446,6 +454,8 @@ public class Hand implements Serializer, Resettable{
         }
         builder.setId(getID());
         builder.setType(getType().ordinal());
+        if (getType() == HandType.CPU)
+            builder.setIdentity(mIdentity.get().getId());
         return builder.build();
     }
 }

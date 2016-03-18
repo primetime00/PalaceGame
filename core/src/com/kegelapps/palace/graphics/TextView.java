@@ -1,11 +1,15 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 /**
  * Created by keg45397 on 1/14/2016.
@@ -18,6 +22,10 @@ public class TextView extends Actor{
     private boolean mBorder;
     private float mFudge = 0.0f;
     private float mVerticalPad = 0.0f;
+
+
+    private FrameBuffer mFrameBuffer;
+    private TextureRegion mRegion;
 
 
     public TextView(BitmapFont fnt) {
@@ -48,12 +56,32 @@ public class TextView extends Actor{
         mLayout.setText(mFont, txt);
         setHeight(mLayout.height + (mLayout.height * (mVerticalPad/1.0f)));
         setWidth(mLayout.width);
+        debug();
     }
 
     public String getText() { return mText; }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
+    public void setRotation(float degrees) {
+        super.setRotation(degrees);
+        float w = getWidth();
+        float h = getHeight();
+        int max = Math.round(Math.max(w, h));
+        mFrameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, 800, 480, false);
+        mRegion = new TextureRegion(mFrameBuffer.getColorBufferTexture());
+        mRegion.flip(false, true);
+        SpriteBatch batch = new SpriteBatch();
+        mFrameBuffer.begin();
+        batch.begin();
+        float pad = (mLayout.height * (mVerticalPad/2.0f));
+        float offset = (mLayout.height * mFudge);
+        float y = getY() + mLayout.height + pad + offset;
+        mFont.draw(batch, mText, 0, y);
+        batch.end();
+        mFrameBuffer.end();
+    }
+
+    public void doDraw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         if (mBorder) {
             mFont.setColor(Color.BLACK);
@@ -69,6 +97,19 @@ public class TextView extends Actor{
 
         mFont.draw(batch, mText, getX(), y);
         //mFont.draw(batch, mText, getX(), getY() + mLayout.height + (mLayout.height * mFudge) + (mLayout.height * (mVerticalPad/2.0f)));
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        if (getRotation() == 0)
+            doDraw(batch, parentAlpha);
+        else {
+            float pad = (mLayout.height * (mVerticalPad/2.0f));
+            float offset = (mLayout.height * mFudge);
+            float y = getY() + mLayout.height + pad + offset;
+            TextureRegion r = new TextureRegion(mRegion, 0, 0, (int)getWidth(), (int)getHeight());
+            batch.draw(r, getX(), getY(), getOriginX(), getOriginY(), r.getRegionWidth(), r.getRegionHeight(), 1, 1, getRotation());
+        }
     }
 
     @Override

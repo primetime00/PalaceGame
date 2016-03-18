@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <player id="0">
+        <name>Bob</name>
+    </player>
+    <player id="1">
+        <name>Sarah</name>
+    </player>
+    <player id="2">
+        <name>Adam</name>
+    </player>
+    <player id="3">
+        <name>Linda</name>
+    </player>
+    <player id="4">
+        <name>Jesse</name>
+    </player>
+</resources>

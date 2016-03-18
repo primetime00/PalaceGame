@@ -19,6 +19,8 @@ import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
 import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.loaders.*;
+import com.kegelapps.palace.loaders.types.PlayerMap;
+import com.kegelapps.palace.loaders.types.StringStringMap;
 import com.kegelapps.palace.protos.OptionProtos;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.scenes.IntroScene;
@@ -176,12 +178,12 @@ public class Director implements Disposable{
         mAssetManager = new AssetManager();
 
         //load strings
-        mAssetManager.setLoader(ObjectMap.class, new StringXmlLoader(new InternalFileHandleResolver()));
-        mAssetManager.load("strings.xml", ObjectMap.class);
+        mAssetManager.setLoader(StringStringMap.class, new StringXmlLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("strings.xml", StringStringMap.class);
 
         //load players
-        mAssetManager.setLoader(ObjectMap.class, new PlayerLoader(new InternalFileHandleResolver()));
-        mAssetManager.load("players.dat", ObjectMap.class);
+        mAssetManager.setLoader(PlayerMap.class, new PlayerLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("players", PlayerMap.class);
 
 
         //lets load out font first

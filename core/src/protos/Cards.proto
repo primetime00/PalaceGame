@@ -26,6 +26,7 @@ message Hand {
     repeated Card playCards = 6;
     repeated Card discarCards = 7;
     optional bool playCardsCommitted = 8;
+    optional int32 identity = 9 [default=0];
 }
 message Table {
     optional Deck deck = 1;

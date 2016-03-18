@@ -1,12 +1,15 @@
 package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.CoinResource;
@@ -30,6 +33,8 @@ public class HandView extends Group implements ReparentViews, Resettable {
     private Hand mHand;
     private Rectangle mHiddenPositions[];
     private Rectangle mActivePosition;
+
+    private TextView mPlayerName;
 
     private int mCardWidth, mCardHeight;
 
@@ -61,6 +66,33 @@ public class HandView extends Group implements ReparentViews, Resettable {
 
 
         createHandEvents();
+
+        if (getHand().getType() == Hand.HandType.CPU) {
+            mPlayerName = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
+            mPlayerName.setText(getHand().getIdentity().get().getName());
+            addActor(mPlayerName);
+            mPlayerName.setOrigin(Align.center);
+            switch (mHand.getID()) {
+                default:
+                case 0: //bottom
+                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getWidth());
+                    mPlayerName.setY(mHiddenPositions[1].getY());
+                    break;
+                case 1: //left
+                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getWidth());
+                    mPlayerName.setY(mHiddenPositions[1].getY());
+                    mPlayerName.setRotation(45);
+                    break;
+                case 2: //top
+                    mPlayerName.setX(mHiddenPositions[1].getX());
+                    mPlayerName.setY(mHiddenPositions[1].getY() - (mPlayerName.getHeight() + (mCardHeight * 0.1f)));
+                    break;
+                case 3: //right
+                    mPlayerName.setX(mHiddenPositions[1].getX() - mCardWidth - mPlayerName.getWidth());
+                    mPlayerName.setY(mHiddenPositions[1].getY());
+                    break;
+            }
+        }
 
         if (getHand().getType() == Hand.HandType.HUMAN)
             addListener(new CardGestureListener(this));

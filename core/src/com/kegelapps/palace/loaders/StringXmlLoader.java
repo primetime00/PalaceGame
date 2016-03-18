@@ -7,16 +7,15 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader;
-import com.kegelapps.palace.CoinResource;
+import com.kegelapps.palace.loaders.types.StringStringMap;
 
 import java.io.IOException;
 
 /**
  * Created by keg45397 on 3/15/2016.
  */
-public class StringXmlLoader extends SynchronousAssetLoader<ObjectMap, StringXmlLoader.StringParam> {
+public class StringXmlLoader extends SynchronousAssetLoader<StringStringMap, StringXmlLoader.StringParam> {
 
     public StringXmlLoader(FileHandleResolver resolver) {
         super(resolver);
@@ -28,10 +27,10 @@ public class StringXmlLoader extends SynchronousAssetLoader<ObjectMap, StringXml
     }
 
     @Override
-    public ObjectMap<String, String> load(AssetManager assetManager, String fileName, FileHandle file, StringParam parameter) {
+    public StringStringMap load(AssetManager assetManager, String fileName, FileHandle file, StringParam parameter) {
         if (parameter == null)
             parameter = new StringParam();
-        ObjectMap<String, String> mStringMap = new ObjectMap<>();
+        StringStringMap mStringMap = new StringStringMap();
         XmlReader reader = new XmlReader();
         XmlReader.Element root;
         try {
@@ -48,7 +47,7 @@ public class StringXmlLoader extends SynchronousAssetLoader<ObjectMap, StringXml
         return mStringMap;
     }
 
-    static public class StringParam extends AssetLoaderParameters<ObjectMap> {
+    static public class StringParam extends AssetLoaderParameters<StringStringMap> {
     }
 
 }
