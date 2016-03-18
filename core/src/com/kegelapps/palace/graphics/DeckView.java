@@ -191,7 +191,7 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         for (Actor a : getChildren()) {
             a.remove();
         }

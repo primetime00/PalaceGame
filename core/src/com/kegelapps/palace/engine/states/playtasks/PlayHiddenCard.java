@@ -67,13 +67,7 @@ public class PlayHiddenCard extends State {
         mState = HiddenState.ATTEMPT;
         mPlayCard = null;
         if (mCPUTurn != null) {//we are the cpu, we will pick a random card!
-            for (int i : mCPUTurn.RandomCardList()) { //here we pick a random card
-                Card c = mHand.GetHiddenCards().get(i);
-                if (c == null)
-                    continue;
-                mPlayCard = c;
-                break;
-            }
+            mPlayCard = mCPUTurn.SelectHiddenCard();
         }
     }
 

@@ -15,10 +15,8 @@ import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
-import com.kegelapps.palace.graphics.ShadowView;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
-import com.kegelapps.palace.scenes.Scene;
 import com.kegelapps.palace.tween.ActorAccessor;
 
 /**
@@ -112,7 +110,7 @@ public class GameScene extends Scene {
                             if (!restart)
                                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.MAIN_SCREEN);
                             else
-                                Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+                                Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME, false);
                         }
                     }
                 });
@@ -154,15 +152,18 @@ public class GameScene extends Scene {
     @Override
     public void dispose() {
         super.dispose();
+        if (tableView != null) {
+            tableView.dispose();
+        }
         mMessageStage.dispose();
         mMessageStage = null;
     }
 
     @Override
-    public void Reset() {
-        super.Reset();
+    public void Reset(boolean newGame) {
+        super.Reset(newGame);
         getTweenManager().killAll();
-        logic.Initialize();
+        logic.Reset(newGame);
         addActor(tableView);
         mMessageStage.getMessageBand().setText("");
         getRoot().setColor(1,1,1,0);

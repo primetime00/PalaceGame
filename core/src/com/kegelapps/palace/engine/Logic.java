@@ -4,6 +4,7 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.states.Main;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateFactory;
@@ -20,7 +21,7 @@ import java.io.IOException;
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Logic implements Serializer{
+public class Logic implements Serializer, Resettable{
 
     private static Logic mLogic;
 
@@ -65,7 +66,7 @@ public class Logic implements Serializer{
         if (mMainState == null)
             mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
         else
-            mMainState.Reset();
+            mMainState.Reset(false);
         StateFactory.get().ParseState(s.getMainState(), GetMainState());
         ReadBuffer(s.getLogic());
     }
@@ -186,7 +187,7 @@ public class Logic implements Serializer{
 
     public void Initialize() {
         if (mStats != null)
-            mStats.Reset();
+            mStats.Reset(false);
         //if we are rematching, don't load save
         if (mTable == null && mMainState == null)
             CheckForSave();
@@ -242,5 +243,11 @@ public class Logic implements Serializer{
         return logicBuilder.build();
     }
 
+    @Override
+    public void Reset(boolean newGame) {
+        Initialize();
+        if (newGame)
+            mTable.generateNewIdentities();
+    }
 
 }

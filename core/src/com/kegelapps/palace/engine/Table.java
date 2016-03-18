@@ -3,15 +3,11 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
-import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.CardsProtos;
-import com.kegelapps.palace.protos.PlayersProto;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,8 +62,19 @@ public class Table  implements Serializer, Resettable{
         }
     }
 
+    public void generateNewIdentities() {
+        List<Integer> ids = Director.instance().getAssets().get("players", PlayerMap.class).getRandomIDs();
+        int i=0;
+        for (Hand hand : mHands) {
+            if (hand.getType() == Hand.HandType.CPU) {
+                hand.setIdentity(new Identity(ids.get(i)));
+                ++i;
+            }
+        }
+    }
+
     public void Load(CardsProtos.Table tableProto) {
-        Reset();
+        Reset(false);
         ReadBuffer(tableProto);
     }
 
@@ -228,13 +235,13 @@ public class Table  implements Serializer, Resettable{
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         mPlayCards.Clear();
         mBurntCards.clear();
         for (Hand h : mHands) {
-            h.Reset();
+            h.Reset(newGame);
         }
-        mDeck.Reset();
+        mDeck.Reset(newGame);
         mNumberOfCardsPlayed = 0;
         mCurrentPlayTurn = 0;
         mFirstDealHand++;
@@ -242,6 +249,9 @@ public class Table  implements Serializer, Resettable{
         mCurrentDealTurn = mFirstDealHand;
         mCurrentPlayTurn = mFirstDealHand + 1;
         mCurrentPlayTurn %= mHands.size();
+
+        if (newGame)
+            generateNewIdentities();
     }
 
 }

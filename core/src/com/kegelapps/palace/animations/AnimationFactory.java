@@ -1,9 +1,5 @@
 package com.kegelapps.palace.animations;
 
-import aurelienribon.tweenengine.BaseTween;
-import aurelienribon.tweenengine.Timeline;
-import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenCallback;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.Logic;
@@ -74,7 +70,7 @@ public class AnimationFactory implements AnimationStatus, Resettable {
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         mPauseCount = 0;
     }
 

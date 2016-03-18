@@ -68,7 +68,7 @@ public class DealCard extends State {
             default:
             case DEALING:
                 mCard = mDeck.Draw();
-                System.out.print(String.format("Dealing card: %s\n", mCard.toString()));
+                //System.out.print(String.format("Dealing card: %s\n", mCard.toString()));
                 Director.instance().getEventSystem().Fire(EventSystem.EventType.DEAL_CARD, mCard, mHand.getID()); //triggers a deal animation
                 mCardState = CardState.ACCEPTING;
                 return false;

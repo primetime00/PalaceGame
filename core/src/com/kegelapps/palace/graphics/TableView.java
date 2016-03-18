@@ -2,16 +2,17 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
@@ -37,7 +38,7 @@ import java.util.Map;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class TableView extends Group implements Input.BoundObject, Resettable {
+public class TableView extends Group implements Input.BoundObject, Resettable, Disposable {
 
     private Table mTable;
     private DeckView mDeck;
@@ -49,8 +50,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
     private Array<CardView> mCards;
 
-    private Pixmap mPixmap;
-    private Texture mBackground;
+    private TiledDrawable mBackground;
 
     final private float mDeckToActiveGap = 0.15f;
 
@@ -77,15 +77,13 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
     private void init() {
         mHelperText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
-        mHelperText.setVerticalPadPercent(0.5f);
+        mHelperText.setVerticalPadPercent(0.6f);
 
         mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
         mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
-        mPixmap = new Pixmap(Director.instance().getVirtualWidth(),Director.instance().getVirtualHeight(), Pixmap.Format.RGB888);
-        mPixmap.setColor(Color.GREEN);
-        mPixmap.fillRectangle(0, 0, mPixmap.getWidth(), mPixmap.getHeight());
-        mBackground = new Texture(mPixmap);
+        mBackground = new TiledDrawable(((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("tabletop"));
+
         onScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         for (HandView hView : mHands){
             addActor(hView);
@@ -127,7 +125,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         float x = mCamera.viewportWidth / 2.0f;
         float y = mCamera.viewportHeight / 2.0f;
 
@@ -138,10 +136,10 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
 
         mCamera.SetPosition(new Vector2(x, y), 1.0f, CardCamera.CameraSide.CENTER);
         for (HandView h : mHands) {
-            h.Reset();
+            h.Reset(false);
         }
-        mPlayView.Reset();
-        mDeck.Reset();
+        mPlayView.Reset(false);
+        mDeck.Reset(false);
 
     }
 
@@ -712,20 +710,17 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
     }
 
     @Override
-    public void act(float delta) {
-        super.act(delta);
-    }
-
-    @Override
     public void draw(Batch batch, float parentAlpha) {
         batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
-        float x = -(mBackground.getWidth()/2.0f - (mDeck.getX() + mDeck.getWidth()/2.0f));
-        float y = -(mBackground.getHeight()/2.0f - (mDeck.getY() + mDeck.getHeight()/2.0f));
-        batch.draw(mBackground, x,y);
+        float x = -(Director.instance().getVirtualWidth()/2.0f - (mDeck.getX() + mDeck.getWidth()/2.0f));
+        float y = -(Director.instance().getVirtualHeight()/2.0f - (mDeck.getY() + mDeck.getHeight()/2.0f));
+        mBackground.draw(batch,x, y, Director.instance().getVirtualWidth(), Director.instance().getVirtualHeight());
         super.draw(batch, parentAlpha);
         if (mHelperText.getText().length() > 0)
             mHelperText.draw(batch, parentAlpha);
     }
+
+
 
 
 
@@ -823,5 +818,12 @@ public class TableView extends Group implements Input.BoundObject, Resettable {
         if (mHelperText.getText().length() > 0)
             mHelperText.drawDebug(shapes);
 
+    }
+
+    @Override
+    public void dispose() {
+        for (HandView h : getHands()) {
+            h.dispose();
+        }
     }
 }

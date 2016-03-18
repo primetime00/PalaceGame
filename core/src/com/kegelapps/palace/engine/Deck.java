@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.Random;
 /**
  * Created by Ryan on 12/5/2015.
  */
-public class Deck implements Serializer{
+public class Deck implements Serializer, Resettable{
 
     private List<Card> mCards;
 
@@ -24,7 +25,7 @@ public class Deck implements Serializer{
         //mDebugRanks.add(Card.Rank.FIVE);
         mCards = new ArrayList<>();
 
-        Reset();
+        Reset(false);
 
     }
 
@@ -74,7 +75,8 @@ public class Deck implements Serializer{
         }
     }
 
-    public void Reset() {
+    @Override
+    public void Reset(boolean newGame) {
         mCards.clear();
         if (mDebugRanks != null && mDebugRanks.size() > 0) { //this is debug mode
             for (Card.Suit s : Card.Suit.values()) {

@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
@@ -278,8 +278,12 @@ public class Director implements Disposable{
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESTART_GAME) {
             @Override
             public void handle(Object params[]) {
+                if (params == null || params.length != 1 || !(params[0] instanceof Boolean)) {
+                    throw new IllegalArgumentException("Invalid parameters for RESTART_GAME");
+                }
+                boolean newGame = (boolean) params[0];
                 for (Resettable r : mResetList) {
-                    r.Reset();
+                    r.Reset(newGame);
                 }
                 setScene(mGameScene);
             }

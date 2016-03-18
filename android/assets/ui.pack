@@ -5,21 +5,28 @@ filter: Nearest,Nearest
 repeat: none
 card-board-small
   rotate: false
-  xy: 1, 67
+  xy: 1, 235
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
+tabletop
+  rotate: false
+  xy: 1, 67
+  size: 166, 166
+  orig: 166, 166
+  offset: 0, 0
+  index: -1
 button
   rotate: false
-  xy: 1, 1
+  xy: 259, 427
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 button_down
   rotate: false
-  xy: 259, 259
+  xy: 1, 1
   size: 64, 64
   orig: 64, 64
   offset: 0, 0

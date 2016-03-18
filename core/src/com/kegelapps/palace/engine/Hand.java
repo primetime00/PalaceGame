@@ -387,7 +387,7 @@ public class Hand implements Serializer, Resettable{
     public Identity getIdentity() {return mIdentity;}
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         Arrays.fill(mHiddenCards, null);
         Arrays.fill(mEndCards, null);
         mActiveCards.clear();

@@ -84,6 +84,7 @@ public class IntroScene extends Scene {
         mShadow.shadowEntireScreen(0);
 
         mTitle = new TextView(Director.instance().getAssets().get("title_font_large", BitmapFont.class));
+        mTitle.setVerticalPadPercent(0.6f);
         mTitle.setText(StringMap.getString("palace"));
         mTitle.setVerticalOffsetPercent(0.25f);
         mTitle.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
@@ -191,7 +192,7 @@ public class IntroScene extends Scene {
             @Override
             public void onEvent(int type, BaseTween<?> source) {
                 if (type == TweenCallback.END)
-                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME);
+                    Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME, true);
             }
         });
         alpha.start(getTweenManager());

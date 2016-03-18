@@ -1,25 +1,25 @@
 players {
     id: 0
     play_multiple: 0.9
-    end_order: 0
+    hidden_order: 0
 }
 players {
     id: 1
     play_multiple: 1.0
-    end_order: 0
+    hidden_order: 0
 }
 players {
     id: 2
     play_multiple: 0.8
-    end_order: 1
+    hidden_order: 1
 }
 players {
     id: 3
     play_multiple: 0.7
-    end_order: 0
+    hidden_order: 0
 }
 players {
     id: 4
     play_multiple: 0.85
-    end_order: -1
+    hidden_order: -1
 }

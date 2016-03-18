@@ -144,7 +144,7 @@ public class Main extends State implements Resettable{
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         mPaused = false;
         mState = GameState.START;
         super.Reset();

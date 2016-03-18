@@ -77,7 +77,7 @@ public class Stats implements Serializer, Resettable{
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         mStats = mStats.toBuilder().setTotalRounds(0)
                 .setGoldHand(LogicProtos.Placement.newBuilder().setHandID(-1).setRounds(0).build())
                 .setSilverHand(LogicProtos.Placement.newBuilder().setHandID(-1).setRounds(0).build())

@@ -2,14 +2,15 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.CoinResource;
@@ -28,7 +29,7 @@ import com.kegelapps.palace.input.CardGestureListener;
 /**
  * Created by keg45397 on 12/9/2015.
  */
-public class HandView extends Group implements ReparentViews, Resettable {
+public class HandView extends Group implements ReparentViews, Resettable, Disposable {
 
     private Hand mHand;
     private Rectangle mHiddenPositions[];
@@ -67,35 +68,44 @@ public class HandView extends Group implements ReparentViews, Resettable {
 
         createHandEvents();
 
+
+        setupName();
+
+        if (getHand().getType() == Hand.HandType.HUMAN)
+            addListener(new CardGestureListener(this));
+    }
+
+    private void setupName() {
         if (getHand().getType() == Hand.HandType.CPU) {
-            mPlayerName = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
+            if (mPlayerName == null)
+                mPlayerName = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
+            mPlayerName.setColor(1,1,1,0.7f);
+            mPlayerName.setScale(0.8f);
             mPlayerName.setText(getHand().getIdentity().get().getName());
             addActor(mPlayerName);
             mPlayerName.setOrigin(Align.center);
             switch (mHand.getID()) {
                 default:
                 case 0: //bottom
-                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getWidth());
+                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getOriginX() + mPlayerName.getHeight());
                     mPlayerName.setY(mHiddenPositions[1].getY());
                     break;
                 case 1: //left
-                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getWidth());
-                    mPlayerName.setY(mHiddenPositions[1].getY());
-                    mPlayerName.setRotation(45);
+                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getHeight());
+                    mPlayerName.setY(mHiddenPositions[1].getY() - mPlayerName.getHeight() /2.0f + mCardWidth/2.0f );
+                    mPlayerName.setRotation(-90);
                     break;
                 case 2: //top
-                    mPlayerName.setX(mHiddenPositions[1].getX());
+                    mPlayerName.setX(mHiddenPositions[1].getX() + (mCardWidth - mPlayerName.getWidth()) /2.0f);
                     mPlayerName.setY(mHiddenPositions[1].getY() - (mPlayerName.getHeight() + (mCardHeight * 0.1f)));
                     break;
                 case 3: //right
-                    mPlayerName.setX(mHiddenPositions[1].getX() - mCardWidth - mPlayerName.getWidth());
-                    mPlayerName.setY(mHiddenPositions[1].getY());
+                    mPlayerName.setX(mHiddenPositions[1].getX() - mPlayerName.getOriginX() - mPlayerName.getHeight());
+                    mPlayerName.setY(mHiddenPositions[1].getY() - mPlayerName.getHeight() /2.0f + mCardWidth/2.0f );
+                    mPlayerName.setRotation(90);
                     break;
             }
         }
-
-        if (getHand().getType() == Hand.HandType.HUMAN)
-            addListener(new CardGestureListener(this));
     }
 
     public float getCardOverlapPercent() {
@@ -579,6 +589,8 @@ public class HandView extends Group implements ReparentViews, Resettable {
             c.remove();
         }
 
+        setupName();
+
         CoinView coin = createCoin();
         if (coin != null) {
             addActor(coin);
@@ -622,11 +634,30 @@ public class HandView extends Group implements ReparentViews, Resettable {
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         SnapshotArray<Actor> mSnap = new SnapshotArray<>(getChildren());
         for (Actor c : mSnap) {
             c.remove();
         }
         mSnap.clear();
+        setupName();
+    }
+
+    @Override
+    public void drawDebug(ShapeRenderer shapes) {
+        super.drawDebug(shapes);
+/*        shapes.set(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(Color.RED);
+        shapes.circle(mHiddenPositions[1].getX(), mHiddenPositions[1].getY(), 10);
+        shapes.setColor(Color.BLUE);
+        shapes.circle(mHiddenPositions[1].getX(), mHiddenPositions[1].getY() + mHiddenPositions[1].getHeight(), 10);
+        shapes.set(ShapeRenderer.ShapeType.Line);*/
+
+    }
+
+    @Override
+    public void dispose() {
+        if (mPlayerName != null)
+            mPlayerName.dispose();
     }
 }

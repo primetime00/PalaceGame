@@ -84,7 +84,7 @@ public class Scene extends Stage implements Resettable {
     }
 
     @Override
-    public void Reset() {
+    public void Reset(boolean newGame) {
         clearScene();
         mTweenManager.killAll();
     }

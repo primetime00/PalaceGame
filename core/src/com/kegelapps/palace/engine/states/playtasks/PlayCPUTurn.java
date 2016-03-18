@@ -66,13 +66,34 @@ public class PlayCPUTurn extends PlayTurn {
         return false; //probably need to pick up!
     }
 
-    public List<Integer> RandomCardList() {
+
+    public Card SelectHiddenCard() {
         List<Integer> res = new ArrayList<>();
         for (int i=0; i<mHand.GetHiddenCards().size(); ++i)
             res.add(i);
-        Collections.shuffle(res);
-        //Collections.reverse(res);
-        return res;
+        if (mHand.getIdentity() == null) {
+            Collections.shuffle(res);
+            return selectFirstCard(res);
+        }
+        switch (mHand.getIdentity().get().getHiddenOrder()) {
+            case -1: //stars from the back;
+                Collections.reverse(res); break;
+            case 0: // random
+                Collections.shuffle(res); break;
+            default: //reg order
+                break;
+        }
+        return selectFirstCard(res);
+    }
+
+    private Card selectFirstCard(List<Integer> list) {
+        for (int i : list) { //here we pick a random card
+            Card c = mHand.GetHiddenCards().get(i);
+            if (c == null)
+                continue;
+            return c;
+        }
+        return null;
     }
 
     @Override

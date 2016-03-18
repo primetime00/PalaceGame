@@ -48,6 +48,7 @@ public class MessageBandView extends Group implements TweenCallback{
         mShadow = new ShadowView();
         mShadow.setColor(Color.BLACK, 0.5f);
         mText = new TextView(Director.instance().getAssets().get("message_font", BitmapFont.class));
+        mText.setVerticalPadPercent(0.6f);
 
         addActor(mShadow);
         addActor(mBand);
