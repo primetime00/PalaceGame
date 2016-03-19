@@ -378,11 +378,17 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 builder.addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
                     public void onEnd(Animation animation) {
+                        String name = mHand.getIdentity() != null ? mHand.getIdentity().get().getName() : StringMap.getString("you");
                         HandUtils.Reparent(HandView.this, builder.getCoin());
                         switch (builder.getCoin().getType()) {
-                            case GOLD: ((GameScene)getStage()).ShowMessage(StringMap.getString("you_win"), 1.0f, Color.GOLD, true); break;
-                            case SILVER: ((GameScene)getStage()).ShowMessage(StringMap.getString("2nd_place"), 1.0f, Color.GRAY, true); break;
-                            case BRONZE: ((GameScene)getStage()).ShowMessage(StringMap.getString("3rd_place"), 1.0f, Color.BROWN, true); break;
+                            case GOLD:
+                                if (mHand.getType() == Hand.HandType.CPU)
+                                    ((GameScene)getStage()).ShowMessage(String.format("%s %s", mHand.getIdentity().get().getName(), StringMap.getString("wins")), 1.0f, Color.GOLD, true);
+                                else
+                                    ((GameScene)getStage()).ShowMessage(StringMap.getString("you_win"), 1.0f, Color.GOLD, true);
+                                break;
+                            case SILVER: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("2nd_place"), name), 1.0f, Color.GRAY, true); break;
+                            case BRONZE: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("3rd_place"), name), 1.0f, Color.BROWN, true); break;
                         }
                     }
                 });

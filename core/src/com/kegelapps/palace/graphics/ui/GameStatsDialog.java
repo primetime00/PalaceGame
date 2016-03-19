@@ -17,6 +17,7 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.FrameView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
+import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**
@@ -72,40 +73,34 @@ public class GameStatsDialog extends FrameView {
         titleTable.reset();
         statsTable.reset();
         //lets get out stats
-        LogicProtos.Placement p1 = Logic.get().getStats().GetStats(CoinResource.CoinType.GOLD);
-        LogicProtos.Placement p2 = Logic.get().getStats().GetStats(CoinResource.CoinType.SILVER);
-        LogicProtos.Placement p3 = Logic.get().getStats().GetStats(CoinResource.CoinType.BRONZE);
+
+        LogicProtos.Placement places[] = {
+                Logic.get().getStats().GetStats(CoinResource.CoinType.GOLD),
+                Logic.get().getStats().GetStats(CoinResource.CoinType.SILVER),
+                Logic.get().getStats().GetStats(CoinResource.CoinType.BRONZE)
+        };
+
+        String placeStrings[] = { StringMap.getString("1st"), StringMap.getString("2nd"), StringMap.getString("3rd")};
 
         titleTable.add(new Label(mTitle, style)).top().expand();
         add(titleTable).prefHeight(Value.percentHeight(0.2f, this));
         row();
-        if (p1.getHandID() >= 0) {
-            statsTable.add(new Label(StringMap.getString("1st"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX().left();
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p1.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
-            statsTable.add(new Label(String.format("%d %s", p1.getRounds(), StringMap.getString("turns")), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
-            statsTable.row();
-        }
-        if (p2.getHandID() >= 0) {
-            statsTable.add(new Label(StringMap.getString("2nd"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX().left();
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p2.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
-            statsTable.add(new Label(String.format("%d %s", p2.getRounds(), StringMap.getString("turns")), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
-            statsTable.row();
-        }
-        if (p3.getHandID() >= 0) {
-            statsTable.add(new Label(StringMap.getString("3rd"), style)).maxWidth(Value.percentWidth(0.2f, this))
-                    .expandX().left();
-            statsTable.add(new Label(String.format("%s %d", StringMap.getString("player"), p3.getHandID()), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX();
-            statsTable.add(new Label(String.format("%d %s", p3.getRounds(), StringMap.getString("turns")), style))
-                    .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
-        }
 
+        for (int i=0; i<placeStrings.length; ++i) {
+            LogicProtos.Placement place = places[i];
+            String name = StringMap.getString("you");
+            if (place.getHandID() >= 0) {
+                statsTable.add(new Label(placeStrings[i], style)).maxWidth(Value.percentWidth(0.2f, this))
+                        .expandX().left();
+                if (Logic.get().GetTable().GetHand(place.getHandID()).getIdentity() != null)
+                    name = Logic.get().GetTable().GetHand(place.getHandID()).getIdentity().get().getName();
+                statsTable.add(new Label(name, style))
+                        .maxWidth(Value.percentWidth(0.4f, this)).expandX();
+                statsTable.add(new Label(String.format("%d %s", place.getRounds(), StringMap.getString("turns")), style))
+                        .maxWidth(Value.percentWidth(0.4f, this)).expandX().right();
+                statsTable.row();
+            }
+        }
         add(statsTable).expandX().fillX().prefHeight(Value.percentHeight(0.6f, this)).center();
         row();
         Table btnTable = new Table();

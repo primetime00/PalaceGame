@@ -68,6 +68,14 @@ message PlayTurnState {
     required int32 turnState = 1;
 }
 
+message PlayCPUTurnState {
+    extend State {
+        optional PlayCPUTurnState state = 111;
+    }
+    optional bool playMultiple = 1;
+}
+
+
 message PlayHumanTurnState {
     extend State {
         optional PlayHumanTurnState state = 107;

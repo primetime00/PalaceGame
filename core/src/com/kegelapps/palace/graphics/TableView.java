@@ -165,12 +165,13 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Drawing from deck to active").setTable(TableView.this).setCard(cardView)
+                        /*
                         .addStatusListener(new Animation.AnimationStatusListener() {
                             @Override
                             public void onEnd(Animation animation) {
-                                mPlayView.OrganizeCards();
+                                //mPlayView.OrganizeCards();
                             }
-                        })
+                        })*/
                         .setTweenCalculator(new CardAnimation.DrawToActive()).build().Start();
 
             }
@@ -227,6 +228,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
                 }
                 TapDeckToStart((params[0] instanceof TapToStart));
+                mPlayView.OrganizeCards();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
@@ -291,7 +293,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             HandUtils.Reparent(mPlayView, builder.getCard());
                             builder.getTable().getHand(builder.getHandID()).OrganizeCards(true, true, false, false);
                             if (pending == 0) {
-                                mPlayView.OrganizeCards();
+                                //mPlayView.OrganizeCards();
                             }
                         }
                     });
@@ -305,7 +307,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             HandUtils.Reparent(mPlayView, builder.getCard());
                             if (pending == 0) {
                                 builder.getTable().getHand(builder.getHandID()).OrganizeCards(true);
-                                mPlayView.OrganizeCards();
+                                //mPlayView.OrganizeCards();
                             }
                         }
                     });
@@ -494,7 +496,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                                 else
                                     cv.setSide(CardView.Side.BACK);
                                 handView.OrganizeCards(true, true, false, false, true);
-                                mPlayView.OrganizeCards();
+                                //mPlayView.OrganizeCards();
                             }
                         });
                     } else {
@@ -611,14 +613,14 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 if (hand == null)
                     return;
 
-                CardView cardView = CardView.getCardView(card);
+                final CardView cardView = CardView.getCardView(card);
 
                 //display a message of some sort depending on how successful
                 if (!mPlayView.mInPlayCards.GetCards().isEmpty()) {
                     Card top = mPlayView.mInPlayCards.GetTopCard();
                     if (top.getRank() == card.getRank() && card.getRank() != Card.Rank.TWO) {
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("lucky"), startDelay, Color.GREEN);
-                    } else if (card.getRank() == Card.Rank.TWO) {
+                    } else if (card.getRank() == Card.Rank.TWO && top.getRank() != Card.Rank.TWO) {
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("thats_it"), startDelay, Color.GREEN);
                     } else if (card.getRank() != Card.Rank.TEN && top.getRank() != Card.Rank.TWO) {
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("whew"), startDelay, Color.GREEN);
@@ -627,7 +629,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                 //no need to zoom back to turn if this is a burn!
                 if (card.getRank() == Card.Rank.TEN) {
-                    mPlayView.toFront();
+                    //mPlayView.toFront();
                     return;
                 }
 
@@ -641,7 +643,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                         @Override
                         public void onEnd(Animation animation) {
                             mPlayView.OrganizeCards();
-                            mPlayView.toFront();
+                            //mPlayView.toFront();
                         }
                     });
                     zoomBuilder.build().Start();
@@ -654,8 +656,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
                         public void onEnd(Animation animation) {
-                            mPlayView.OrganizeCards();
-                            mPlayView.toFront();
+                           HandUtils.Reparent(mPlayView, cardView);
+                            //mPlayView.toFront();
                         }
                     });
                     pauseBuilder.build().Start();

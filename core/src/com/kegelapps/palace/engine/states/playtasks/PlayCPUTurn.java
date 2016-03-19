@@ -1,9 +1,11 @@
 package com.kegelapps.palace.engine.states.playtasks;
 
+import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +18,7 @@ import java.util.List;
 public class PlayCPUTurn extends PlayTurn {
 
     private long mTime;
+    private boolean mPlayMultiple;
 
 
     public PlayCPUTurn(State parent, Table table) {
@@ -103,7 +106,7 @@ public class PlayCPUTurn extends PlayTurn {
         switch (res) {
             case SUCCESS:
                 if (mHand.ContainsRank(card.getRank())) { //we could play another one...
-                    if (Math.random() > 0.0f)
+                    if (mPlayMultiple)
                         return PlayCard(mHand.FindRank(card.getRank()));
                     return true;
                 }
@@ -122,6 +125,8 @@ public class PlayCPUTurn extends PlayTurn {
     protected void OnFirstRun() {
         super.OnFirstRun();
         mTime = System.currentTimeMillis();
+        mPlayMultiple = Math.random() >= 1-mHand.getIdentity().get().getPlayMultiple();
+        System.out.print(String.format("Player %d %s\n", mHand.getID(), mPlayMultiple ? "Will play multiple" : "Will not play multiple"));
     }
 
     @Override
@@ -133,5 +138,22 @@ public class PlayCPUTurn extends PlayTurn {
     public Names getStateName() {
         return Names.PLAY_CPU_TURN;
     }
+
+    @Override
+    public Message WriteBuffer() {
+        StateProtos.State s = (StateProtos.State) super.WriteBuffer();
+        StateProtos.PlayCPUTurnState.Builder builder = StateProtos.PlayCPUTurnState.newBuilder();
+        builder.setPlayMultiple(mPlayMultiple);
+        s = s.toBuilder().setExtension(StateProtos.PlayCPUTurnState.state, builder.build()).build();
+        return s;
+    }
+
+    @Override
+    public void ReadBuffer(Message msg) {
+        super.ReadBuffer(msg);
+        StateProtos.PlayCPUTurnState playState = ((StateProtos.State) msg).getExtension(StateProtos.PlayCPUTurnState.state);
+        mPlayMultiple = playState.getPlayMultiple();
+    }
+
 
 }

@@ -29,8 +29,12 @@
     <string name="ace">Ace</string>
 
     <string name="you_win">You Win!</string>
-    <string name="2nd_place">2nd Place!</string>
-    <string name="3rd_place">3rd Place!</string>
+    <string name="2nd_place">2nd Place</string>
+    <string name="3rd_place">3rd Place</string>
+
+    <string name="you">You</string>
+    <string name="wins">Wins</string>
+
 
     <string name="dramatic_burn">THAT'S A BURN!</string>
     <string name="burn">BURN!</string>

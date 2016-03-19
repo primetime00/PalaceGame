@@ -36,6 +36,7 @@ public class StateFactory {
         mRegistry.add(StateProtos.PlaceEndCardState.state);
         mRegistry.add(StateProtos.PlayTurnState.state);
         mRegistry.add(StateProtos.PlayHumanTurnState.state);
+        mRegistry.add(StateProtos.PlayCPUTurnState.state);
         mRegistry.add(StateProtos.TapToStartState.state);
         mRegistry.add(StateProtos.PlayHiddenAttemptState.state);
         mRegistry.add(StateProtos.DrawPlayCardState.state);

@@ -15,7 +15,7 @@ players {
 }
 players {
     id: 3
-    play_multiple: 0.7
+    play_multiple: 0.8
     hidden_order: 0
 }
 players {
