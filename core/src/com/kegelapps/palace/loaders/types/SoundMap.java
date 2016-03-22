@@ -1,4 +1,4 @@
-package com.kegelapps.palace.audio;
+package com.kegelapps.palace.loaders.types;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;

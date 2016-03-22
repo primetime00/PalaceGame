@@ -51,6 +51,12 @@
     <sounds category="fail">
         <sound filename="keydown.ogg"></sound>
     </sounds>
+    <sounds category="coin">
+        <sound filename="ting.ogg"></sound>
+    </sounds>
+    <sounds category="button">
+        <sound filename="button.ogg"></sound>
+    </sounds>
 
 
 

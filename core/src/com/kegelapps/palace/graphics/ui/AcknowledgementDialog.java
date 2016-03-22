@@ -1,7 +1,6 @@
 package com.kegelapps.palace.graphics.ui;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -12,10 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.FrameView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
-import com.kegelapps.palace.protos.OptionProtos;
 
 /**
  * Created by keg45397 on 3/15/2016.
@@ -75,6 +75,7 @@ public class AcknowledgementDialog extends FrameView {
         onChange = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("button"), 0.0f));
                 if (actor.getName().equals(StringMap.getString("back"))) {
                     Director.instance().getEventSystem().FireLater(EventSystem.EventType.DISMISS_ACKNOWLEDGEMENTS);
                 }

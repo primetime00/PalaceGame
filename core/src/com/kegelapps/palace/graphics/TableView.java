@@ -17,7 +17,7 @@ import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.audio.SoundEvent;
-import com.kegelapps.palace.audio.SoundMap;
+import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.Input;

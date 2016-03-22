@@ -13,11 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.FrameView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
-import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**
@@ -53,6 +54,7 @@ public class GameStatsDialog extends FrameView {
         mRematchListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("button"), 0.0f));
                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, true);
             }
         };
@@ -60,6 +62,7 @@ public class GameStatsDialog extends FrameView {
         mQuitListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("button"), 0.0f));
                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, false);
             }
         };

@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.kegelapps.palace.audio.AudioIDList;
 import com.kegelapps.palace.audio.AudioManager;
-import com.kegelapps.palace.audio.SoundMap;
-import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.loaders.types.MusicMap;
+import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
 import com.kegelapps.palace.graphics.MessageBandView;
@@ -248,6 +248,10 @@ public class Director implements Disposable{
         mAssetManager.setLoader(SoundMap.class, new SoundLoader(new InternalFileHandleResolver()));
         mAssetManager.load("sounds", SoundMap.class);
 
+        mAssetManager.setLoader(MusicMap.class, new MusicLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("music", MusicMap.class);
+
+
 
         mAssetManager.finishLoading();
 
@@ -262,7 +266,13 @@ public class Director implements Disposable{
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.OPTIONS) {
             @Override
             public void handle(Object params[]) {
-                getAudioManager().FadeOutSound(null);
+                getAudioManager().FadeOutSound(new Runnable() {
+                    @Override
+                    public void run() {
+                        getAudioManager().Reset();
+                        getAudioManager().SetMasterVolume(1.0f);
+                    }
+                });
                 setScene(mUIScene);
             }
         });
@@ -307,6 +317,8 @@ public class Director implements Disposable{
                 for (Resettable r : mResetList) {
                     r.Reset(newGame);
                 }
+                getAudioManager().SetMasterVolume(1.0f);
+                getAudioManager().Reset();
                 setScene(mGameScene);
             }
         });

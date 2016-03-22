@@ -107,10 +107,19 @@ public class GameScene extends Scene {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
                         if (type == END) {
-                            if (!restart)
+                            Director.instance().getAudioManager().FadeOutSound(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Director.instance().getAudioManager().Reset();
+                                    Director.instance().getAudioManager().SetMasterVolume(1.0f);
+                                }
+                            });
+                            if (!restart) {
                                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.MAIN_SCREEN);
-                            else
+                            }
+                            else {
                                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.RESTART_GAME, false);
+                            }
                         }
                     }
                 });
@@ -173,6 +182,7 @@ public class GameScene extends Scene {
     @Override
     public void enter() {
         super.enter();
+        Director.instance().getAudioManager().PlayMusic();
         if (runLogic == false) {
             getRoot().setColor(1, 1, 1, 0);
             mMessageStage.getRoot().setColor(1,1,1,1);

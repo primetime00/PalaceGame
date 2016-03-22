@@ -1,5 +1,7 @@
 package com.kegelapps.palace.audio;
 
+import com.kegelapps.palace.Director;
+import com.kegelapps.palace.loaders.types.MusicMap;
 import com.kegelapps.palace.scenes.Scene;
 
 /**
@@ -34,4 +36,18 @@ public class AudioManager {
         }
         mSoundList.playLater(evt.getSound(), evt.getDelay());
     }
+
+    public void PlayMusic() {
+        String title = Director.instance().getAssets().get("music", MusicMap.class).getSongTitle();
+        Director.instance().getAssets().get("music", MusicMap.class).getSong(title).play();
+    }
+
+    public void SetMasterVolume(float v) {
+        mSoundList.setMasterVolume(v);
+    }
+
+    public void Reset() {
+        mSoundList.Reset();
+    }
+
 }

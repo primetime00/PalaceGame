@@ -17,7 +17,7 @@ import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.audio.SoundEvent;
-import com.kegelapps.palace.audio.SoundMap;
+import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
@@ -28,7 +28,6 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
-import sun.rmi.runtime.Log;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -378,13 +377,14 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                         break;
                 }
                 table.addActor(cv);
-
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("coin"),0.4f));
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.COIN);
                 builder.setTable(table).setCamera(table.getCamera()).setPause(true).setCoin(cv).setDescription("Flying in coin.");
                 builder.setHandID(id).setTweenCalculator(new CoinAnimation.FlyInCoin(1.5f, true));
                 builder.addStatusListener(new Animation.AnimationStatusListener() {
                     @Override
                     public void onEnd(Animation animation) {
+                        Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("applause"),0.0f));
                         String name = mHand.getIdentity() != null ? mHand.getIdentity().get().getName() : StringMap.getString("you");
                         HandUtils.Reparent(HandView.this, builder.getCoin());
                         switch (builder.getCoin().getType()) {

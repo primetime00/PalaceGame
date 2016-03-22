@@ -63,30 +63,40 @@ public class AudioIDList {
 
     public void fadeOut(final Runnable done) {
         Tween fade = Tween.to(this, AudioAccessor.VOLUME, 1.0f).target(0.0f);
-        if (done != null) {
-            fade.setCallbackTriggers(TweenCallback.END);
-            fade.setCallback(new TweenCallback() {
-                @Override
-                public void onEvent(int type, BaseTween<?> source) {
+        fade.setCallbackTriggers(TweenCallback.END);
+        fade.setCallback(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                stopAllSounds();
+                if (done != null)
                     done.run();
-                }
-            });
-        }
+            }
+        });
         fade.start(mTweenManager);
+    }
+
+    private void stopAllSounds() {
+        for (Iterator<AudioItem> it = mList.iterator(); it.hasNext();) {
+            AudioItem item = it.next();
+            item.getSound().stop(item.getID());
+            it.remove();
+        }
     }
 
     public void fadeIn(final Runnable done) {
         Tween fade = Tween.to(this, AudioAccessor.VOLUME, 1.0f).target(1.0f);
-        if (done != null) {
-            fade.setCallbackTriggers(TweenCallback.END);
-            fade.setCallback(new TweenCallback() {
-                @Override
-                public void onEvent(int type, BaseTween<?> source) {
+        fade.setCallbackTriggers(TweenCallback.END);
+        fade.setCallback(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                if (done != null)
                     done.run();
-                }
-            });
-        }
+            }
+        });
         fade.start(mTweenManager);
     }
 
+    public void Reset() {
+        stopAllSounds();
+    }
 }
