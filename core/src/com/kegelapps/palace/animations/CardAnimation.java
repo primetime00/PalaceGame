@@ -251,6 +251,7 @@ public class CardAnimation extends Animation {
 
             float duration = 0.1f;
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(pos.x, pos.y));
             mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(pos.z));

@@ -16,6 +16,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.audio.SoundMap;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.Input;
@@ -163,6 +165,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     cameraZoomAnimation.Start();
                 }
 
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlideFirstDraw"), 0.35f));
+
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Drawing from deck to active").setTable(TableView.this).setCard(cardView)
                         /*
@@ -197,6 +201,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Dealing to a hand").setTable(TableView.this).setCard(cardView).setHandID(id)
                         .setTweenCalculator(new CardAnimation.DealToHand()).build().Start();
+
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.02f));
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mDealCardEventListener);
@@ -297,6 +303,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             }
                         }
                     });
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.1f));
                     cardAnimation.Start();
                 }
                 else {
@@ -318,6 +325,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             setCameraSide(CardCamera.CameraSide.UNKNOWN).setTweenCalculator(new CameraAnimation.ZoomToPlayCards(0.75f, 1.0f)).build();
 
                     cameraZoomAnimation.Start();
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.45f));
                     cardAnimation.Start();
                 }
             }
@@ -413,21 +421,21 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                         @Override
                         public void run() {
                             CardView cv = builder.getCard();
-                            cv.remove();
+                            HandUtils.Reparent(TableView.this, cv);
                             cv.setSide(CardView.Side.BACK);
                             addActor(cv);
                         }
                     });
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardPlace"), delay+0.0f));
                     delay+=0.4f; //add a delay of 0.4 seconds before the next card is dealt
                     if (i == cards.size()-1) { //last card
                         builder.addStatusListener(new Animation.AnimationStatusListener() {
                             @Override
                             public void onEnd(Animation animation) {
                                 CardView cv = builder.getCard();
-                                cv.remove();
                                 if (handView.getHand().getType() == Hand.HandType.HUMAN)
                                     cv.setSide(CardView.Side.FRONT);
-                                handView.addActor(cv);
+                                HandUtils.Reparent(handView, cv);
                                 handView.OrganizeCards(true, true, false, false);
                             }
                         });
@@ -436,10 +444,9 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             @Override
                             public void onEnd(Animation animation) {
                                 CardView cv = builder.getCard();
-                                cv.remove();
                                 if (handView.getHand().getType() == Hand.HandType.HUMAN)
                                     cv.setSide(CardView.Side.FRONT);
-                                handView.addActor(cv);
+                                HandUtils.Reparent(handView, cv);
                             }
                         });
                     }
@@ -472,6 +479,9 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                 List<Card> cards = (List<Card>) params[1];
                 //Collections.reverse(cards);
+                if (cards.size() > 4) {
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("pickup"), 0.2f));
+                }
                 for (int i = 0; i< cards.size(); ++i) {
                     Card c = cards.get(i);
                     CardView cardView = CardView.getCardView(c);
@@ -484,6 +494,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                             HandUtils.Reparent(TableView.this, cv);
                         }
                     });
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), delay+0.1f));
                     delay+=0.1f; //add a delay of 0.1 seconds before the next card is dealt
                     if (i == cards.size()-1) { //last card
                         builder.addStatusListener(new Animation.AnimationStatusListener() {
@@ -551,6 +562,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 boolean dramatic = (boolean) params[2];
 
                 if (dramatic) {
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("drama"),0.3f));
                     AnimationBuilder deckBuilder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA);
                     deckBuilder.setPause(true).setDescription("Zoom to in play").setTable(TableView.this).setCard(cardView).setHandID(id);
                     deckBuilder.setCamera(getCamera()).setCameraSide(CardCamera.CameraSide.UNKNOWN);
@@ -582,6 +594,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     });
                 }
                 else {
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.02f));
                     cardBuilder.setTweenCalculator(new CardAnimation.PlaySuccessCard());
                     cardBuilder.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
@@ -619,10 +632,13 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 if (!mPlayView.mInPlayCards.GetCards().isEmpty()) {
                     Card top = mPlayView.mInPlayCards.GetTopCard();
                     if (top.getRank() == card.getRank() && card.getRank() != Card.Rank.TWO) {
+                        Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("success"),0.0f));
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("lucky"), startDelay, Color.GREEN);
                     } else if (card.getRank() == Card.Rank.TWO && top.getRank() != Card.Rank.TWO) {
+                        Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("success"),0.0f));
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("thats_it"), startDelay, Color.GREEN);
                     } else if (card.getRank() != Card.Rank.TEN && top.getRank() != Card.Rank.TWO) {
+                        Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("success"),0.0f));
                         ((GameScene) getStage()).ShowMessage(StringMap.getString("whew"), startDelay, Color.GREEN);
                     }
                 }
@@ -685,6 +701,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 if (hand == null)
                     return;
                 //display a message of failure
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("fail"),0.0f));
                 ((GameScene)getStage()).ShowMessage(StringMap.getString("oh_no"), startDelay, Color.RED);
 
                 CardView cardView = CardView.getCardView(card);

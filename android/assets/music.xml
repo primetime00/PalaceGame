@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources directory="music">
+    <music name="dance" file="Dance_Above_the_Clouds_down.ogg"/>
+    <music name="doctor" file="Doctor_Fraud_and_his_Quack_Medicine.ogg"/>
+    <music name="grade" file="Grade_A_Chamber_Music.ogg"/>
+    <music name="rainy" file="Rainy_November.ogg"/>
+</resources>

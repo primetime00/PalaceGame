@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.audio.SoundMap;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
@@ -138,9 +140,10 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
                             message = StringMap.getString("4_burn");
                     }
                     stage.ShowMessage(message, 1.0f, Color.FIREBRICK);
-
                     burnBuilder.build().Start();
                 }
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("burn_voice"), 0.3f));
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("burn"), 0.2f));
             }
         });
 

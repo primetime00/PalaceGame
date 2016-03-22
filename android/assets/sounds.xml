@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources directory="sounds">
+    <sounds category="cardSlide">
+        <sound filename="cardSlide4.ogg"></sound>
+        <sound filename="cardSlide5.ogg"></sound>
+        <sound filename="cardSlide6.ogg"></sound>
+    </sounds>
+    <sounds category="cardSlideFirstDraw">
+        <sound filename="cardSlide7.ogg"></sound>
+        <sound filename="cardSlide8.ogg"></sound>
+    </sounds>
+    <sounds category="cardSlideOrig">
+        <sound filename="cardSlide1.ogg"></sound>
+        <sound filename="cardSlide2.ogg"></sound>
+        <sound filename="cardSlide3.ogg"></sound>
+        <sound filename="cardSlide4.ogg"></sound>
+        <sound filename="cardSlide5.ogg"></sound>
+        <sound filename="cardSlide6.ogg"></sound>
+        <sound filename="cardSlide7.ogg"></sound>
+        <sound filename="cardSlide8.ogg"></sound>
+    </sounds>
+    <sounds category="cardPlace">
+        <sound filename="cardPlace1.ogg"></sound>
+        <sound filename="cardPlace2.ogg"></sound>
+        <sound filename="cardPlace3.ogg"></sound>
+        <sound filename="cardPlace4.ogg"></sound>
+    </sounds>
+    <sounds category="cardShuffle">
+        <sound filename="cardFan1.ogg"></sound>
+        <sound filename="cardFan2.ogg"></sound>
+    </sounds>
+    <sounds category="applause">
+        <sound filename="applause.ogg"></sound>
+    </sounds>
+    <sounds category="burn_voice">
+        <sound filename="burn_voice1.ogg"></sound>
+        <sound filename="burn_voice2.ogg"></sound>
+    </sounds>
+    <sounds category="burn">
+        <sound filename="fireball.ogg"></sound>
+    </sounds>
+    <sounds category="pickup">
+        <sound filename="crowd_groan.ogg"></sound>
+    </sounds>
+    <sounds category="drama">
+        <sound filename="heart.ogg"></sound>
+    </sounds>
+    <sounds category="success">
+        <sound filename="keyup.ogg"></sound>
+    </sounds>
+    <sounds category="fail">
+        <sound filename="keydown.ogg"></sound>
+    </sounds>
+
+
+
+</resources>

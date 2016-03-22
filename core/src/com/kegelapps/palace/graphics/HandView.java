@@ -16,6 +16,9 @@ import com.kegelapps.palace.CardResource;
 import com.kegelapps.palace.CoinResource;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.audio.SoundMap;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.animations.*;
@@ -25,6 +28,7 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
+import sun.rmi.runtime.Log;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -238,6 +242,8 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 HandUtils.Reparent(HandView.this, cardView);
                 cardView.setSide(mHand.getType() == Hand.HandType.HUMAN ? CardView.Side.FRONT : CardView.Side.BACK);
                 //OrganizeCards(true);
+                if (Logic.get().GetMainState().containsState(State.Names.SELECT_END_CARDS) && mHand.getType() == Hand.HandType.HUMAN)
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlideFirstDraw"), 0.0f));
                 OrganizeCards(true, true, false, false, true);
             }
         };
@@ -275,6 +281,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                     });
 
                     builder.setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
+                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlideFirstDraw"), 0.00f));
 
                 }
 

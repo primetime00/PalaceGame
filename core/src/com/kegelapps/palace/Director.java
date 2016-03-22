@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.kegelapps.palace.audio.AudioIDList;
+import com.kegelapps.palace.audio.AudioManager;
+import com.kegelapps.palace.audio.SoundMap;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.HighlightView;
@@ -26,6 +29,7 @@ import com.kegelapps.palace.scenes.GameScene;
 import com.kegelapps.palace.scenes.IntroScene;
 import com.kegelapps.palace.scenes.Scene;
 import com.kegelapps.palace.scenes.UIScene;
+import com.kegelapps.palace.tween.AudioAccessor;
 import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
@@ -42,6 +46,8 @@ public class Director implements Disposable{
     private UIScene mUIScene;
     private IntroScene mIntroScene;
     private OptionProtos.Options mOptions;
+
+    private AudioManager mAudioManager;
 
     private Scene mCurrentScene;
     private EventSystem mEventSystem;
@@ -68,6 +74,8 @@ public class Director implements Disposable{
         mEventSystem = new EventSystem();
         registerTweens();
         createEvents();
+
+        mAudioManager = new AudioManager();
     }
 
     private void createScenes() {
@@ -83,6 +91,10 @@ public class Director implements Disposable{
         Tween.registerAccessor(Actor.class, new ActorAccessor());
         //create highlight tweens
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
+
+        //create audio tweens
+        Tween.registerAccessor(AudioIDList.class, new AudioAccessor());
+
     }
 
     public TweenManager getTweenManager() {
@@ -110,6 +122,7 @@ public class Director implements Disposable{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mEventSystem.ProcessWaitingEvents();
+        mAudioManager.update(Gdx.graphics.getDeltaTime());
         if (mCurrentScene != null)
         {
             mCurrentScene.act(Gdx.graphics.getDeltaTime());
@@ -170,6 +183,10 @@ public class Director implements Disposable{
         return mCurrentScene;
     }
 
+    public AudioManager getAudioManager() {
+        return mAudioManager;
+    }
+
     public AssetManager getAssets() {
         return mAssetManager;
     }
@@ -228,6 +245,9 @@ public class Director implements Disposable{
         mAssetManager.setLoader(MessageBandView.MessageBandTexture.class, new MessageBandLoader(new InternalFileHandleResolver()));
         mAssetManager.load("messageband", MessageBandView.MessageBandTexture.class);
 
+        mAssetManager.setLoader(SoundMap.class, new SoundLoader(new InternalFileHandleResolver()));
+        mAssetManager.load("sounds", SoundMap.class);
+
 
         mAssetManager.finishLoading();
 
@@ -242,6 +262,7 @@ public class Director implements Disposable{
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.OPTIONS) {
             @Override
             public void handle(Object params[]) {
+                getAudioManager().FadeOutSound(null);
                 setScene(mUIScene);
             }
         });
@@ -256,6 +277,7 @@ public class Director implements Disposable{
         getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.RESUME_GAME) {
             @Override
             public void handle(Object params[]) {
+                getAudioManager().FadeInSound(null);
                 setScene(mGameScene);
             }
         });

@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.graphics.CardCamera;
 
 /**

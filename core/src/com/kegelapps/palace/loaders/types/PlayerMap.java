@@ -1,5 +1,6 @@
 package com.kegelapps.palace.loaders.types;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.kegelapps.palace.protos.PlayersProto;
 
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Created by keg45397 on 3/17/2016.
  */
-public class PlayerMap extends ObjectMap<Integer, PlayersProto.Player> {
+public class PlayerMap extends ObjectMap<Integer, PlayersProto.Player> implements Disposable {
 
     public List<Integer> getIDs() {
         List<Integer> ids = new ArrayList<>();
@@ -24,5 +25,10 @@ public class PlayerMap extends ObjectMap<Integer, PlayersProto.Player> {
         List<Integer> ids = getIDs();
         Collections.shuffle(ids);
         return ids;
+    }
+
+    @Override
+    public void dispose() {
+        clear();
     }
 }
