@@ -162,6 +162,16 @@ public class Logic implements Serializer, Resettable{
         }
     }
 
+    public ChallengeResult TestCard(Card card1, Card card2) {
+        Card top = card2;
+        switch (card1.getRank()) {
+            case TWO: return ChallengeResult.SUCCESS_AGAIN; //this card wins all the time and you get to go again!
+            case TEN: return ChallengeResult.SUCCESS_BURN; //you burn the pile and get to go again!
+            default:  return (top == null || top.getRank() == Card.Rank.TWO || card1.compareTo(top) > -1) ? ChallengeResult.SUCCESS : ChallengeResult.FAIL;
+        }
+    }
+
+
     public State GetMainState() {
         return mMainState;
     }

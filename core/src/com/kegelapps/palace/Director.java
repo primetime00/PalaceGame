@@ -34,6 +34,7 @@ import com.kegelapps.palace.tween.CameraAccessor;
 import com.kegelapps.palace.tween.ActorAccessor;
 import com.kegelapps.palace.tween.HighlightAccessor;
 
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -105,6 +106,7 @@ public class Director implements Disposable{
     public void update()
     {
         if (mAssetManager == null) {
+            loadOptions();
             loadAssets();
         }
         if (mGameScene == null) {
@@ -135,6 +137,23 @@ public class Director implements Disposable{
         else
         {
             Gdx.app.log("WTF!", "No mCurrentScene");
+        }
+    }
+
+    private void loadOptions() {
+        try {
+            mOptions = OptionProtos.Options.parseFrom(new FileInputStream(Gdx.files.getLocalStoragePath()+"/options.dat"));
+        } catch (IOException e) {
+            System.out.print("Could not find / parse options.dat file\n");
+            mOptions = OptionProtos.Options.getDefaultInstance();
+        }
+    }
+
+    public void saveOptions() {
+        try {
+            mOptions.writeTo(new FileOutputStream(Gdx.files.getLocalStoragePath()+"/options.dat", false));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -341,6 +360,7 @@ public class Director implements Disposable{
 
     public void setOptions(OptionProtos.Options.Builder val) {
         mOptions = val.build();
+        saveOptions();
     }
 
     public void dispose() {

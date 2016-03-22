@@ -59,6 +59,7 @@ message PlaceEndCardState {
     extend State {
         optional PlaceEndCardState state = 105;
     }
+    optional int32 placeState = 1;
 }
 
 message PlayTurnState {

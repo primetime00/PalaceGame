@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.ai.EndCardSelection;
 import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.PlayersProto;
 

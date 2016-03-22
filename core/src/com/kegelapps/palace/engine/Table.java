@@ -57,7 +57,7 @@ public class Table  implements Serializer, Resettable{
         for (int i=0; i<numberOfPlayers; ++i) {
             Hand hand = new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU);
             if (hand.getType() == Hand.HandType.CPU)
-                hand.setIdentity(new Identity(ids.get(i)));
+                hand.createAI(new Identity(ids.get(i)));
             mHands.add(hand);
         }
     }
@@ -67,7 +67,7 @@ public class Table  implements Serializer, Resettable{
         int i=0;
         for (Hand hand : mHands) {
             if (hand.getType() == Hand.HandType.CPU) {
-                hand.setIdentity(new Identity(ids.get(i)));
+                hand.createAI(new Identity(ids.get(i)));
                 ++i;
             }
         }

@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.protos.StateProtos;
 
@@ -12,17 +13,18 @@ public class SelectEndCards extends State {
     private StateListener mPlaceCardListener, mTapDeckListener;
 
     private int mState = 0;
+    private Table mTable;
 
     public SelectEndCards(State parent, Table table) {
         super(parent);
-        createStates(table);
+        mTable = table;
+        createStates();
         mState = 0;
     }
 
-    private void createStates(Table table) {
+    private void createStates() {
 
-        mChildrenStates.addState(Names.PLACE_END_CARD, this).setStateListener(mPlaceCardListener);
-        mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);
+        Table table = mTable;
 
         mPlaceCardListener = new StateListener() {
             @Override
@@ -34,7 +36,7 @@ public class SelectEndCards extends State {
         mTapDeckListener = new StateListener() {
             @Override
             public void onContinueState() {
-                mState = 2;
+                mState = 3;
             }
 
             @Override
@@ -43,17 +45,28 @@ public class SelectEndCards extends State {
             }
         };
 
-        mChildrenStates.addState(Names.PLACE_END_CARD, this).setStateListener(mPlaceCardListener);
+        for (Hand h : table.getHands())
+            mChildrenStates.addState(Names.PLACE_END_CARD, this, h.getID()).setStateListener(mPlaceCardListener);
+
         mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);
+
     }
 
     @Override
     public boolean OnRun() {
         switch (mState) {
             case 0:
-                mChildrenStates.getState(Names.PLACE_END_CARD).Execute();
+                for (Hand h: mTable.getHands())
+                    mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).Execute();
                 break;
             case 1:
+                for (Hand h: mTable.getHands()) {
+                    if (!h.HasAllEndCards())
+                        break;
+                    mState = 2;
+                }
+                break;
+            case 2:
                 mChildrenStates.getState(Names.TAP_DECK_START).Execute();
                 break;
             default:

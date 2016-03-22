@@ -30,6 +30,8 @@ public class AudioManager {
 
 
     public void QueueSound(final SoundEvent evt) {
+        if (!Director.instance().getOptions().getSound())
+            return;
         if (evt.getDelay() <= 0) {
             mSoundList.play(evt.getSound());
             return;
@@ -38,6 +40,8 @@ public class AudioManager {
     }
 
     public void PlayMusic() {
+        if (!Director.instance().getOptions().getMusic())
+            return;
         String title = Director.instance().getAssets().get("music", MusicMap.class).getSongTitle();
         Director.instance().getAssets().get("music", MusicMap.class).getSong(title).play();
     }

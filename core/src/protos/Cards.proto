@@ -26,7 +26,12 @@ message Hand {
     repeated Card playCards = 6;
     repeated Card discarCards = 7;
     optional bool playCardsCommitted = 8;
-    optional int32 identity = 9 [default=0];
+    optional AI ai = 9;
+}
+
+message AI {
+    required int32 id = 1;
+    repeated Card selectedCards = 2;
 }
 message Table {
     optional Deck deck = 1;

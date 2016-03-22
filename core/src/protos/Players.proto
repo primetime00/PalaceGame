@@ -10,6 +10,7 @@ message AllPlayers {
 message Player {
     required int32 id = 1;
     optional float play_multiple = 2 [default = 1.0];
+    optional float end_card_spread = 5 [default = 0.15];
     optional int32 hidden_order = 3 [default = 0];
     optional string name = 4 [default = "Unknown"];
 }

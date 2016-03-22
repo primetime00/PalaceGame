@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.engine.ai.AI;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
@@ -21,7 +22,8 @@ public class Hand implements Serializer, Resettable{
     private int mID;
     private HandType mType;
 
-    private Identity mIdentity;
+    private AI mAI;
+
 
     private Card mHiddenCards[];
     private Card mEndCards[];
@@ -199,6 +201,18 @@ public class Hand implements Serializer, Resettable{
                 return true;
         return false;
     }
+
+    public boolean HasAllEndCards() {
+        int count = 0;
+        for (int i=0; i<mEndCards.length; ++i) {
+            if (mEndCards[i] != null)
+                count++;
+            else
+                return false;
+        }
+        return count == 3;
+    }
+
 
 
     public boolean HasHiddenCards() {
@@ -380,11 +394,18 @@ public class Hand implements Serializer, Resettable{
 
     }
 
-    public void setIdentity(Identity id) {
-        mIdentity = id;
+    public void createAI(Identity id) {
+        mAI = new AI(id, this);
     }
 
-    public Identity getIdentity() {return mIdentity;}
+    public Identity getIdentity() {
+        return mAI.getIdentity();
+    }
+
+    public AI GetAI() {
+        return mAI;
+    }
+
 
     @Override
     public void Reset(boolean newGame) {
@@ -406,8 +427,9 @@ public class Hand implements Serializer, Resettable{
         GetPlayCards().Clear();
         mID = hand.getId();
         mType = HandType.values()[hand.getType()];
-        if (mType == HandType.CPU)
-            mIdentity = new Identity(hand.getIdentity());
+        if (mType == HandType.CPU) {
+            mAI = new AI(hand.getAi(), this);
+        }
         for (CardsProtos.Card protoCard : hand.getActiveCardsList()) {
             GetActiveCards().add(Card.GetCard(protoCard));
         }
@@ -455,7 +477,7 @@ public class Hand implements Serializer, Resettable{
         builder.setId(getID());
         builder.setType(getType().ordinal());
         if (getType() == HandType.CPU)
-            builder.setIdentity(mIdentity.get().getId());
+            builder.setAi((CardsProtos.AI) mAI.WriteBuffer());
         return builder.build();
     }
 }

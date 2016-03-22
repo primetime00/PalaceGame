@@ -182,7 +182,7 @@ public class GameScene extends Scene {
     @Override
     public void enter() {
         super.enter();
-        Director.instance().getAudioManager().PlayMusic();
+        //Director.instance().getAudioManager().PlayMusic();
         if (runLogic == false) {
             getRoot().setColor(1, 1, 1, 0);
             mMessageStage.getRoot().setColor(1,1,1,1);

@@ -2,24 +2,29 @@ players {
     id: 0
     play_multiple: 0.9
     hidden_order: 0
+    end_card_spread: 0.2
 }
 players {
     id: 1
     play_multiple: 1.0
     hidden_order: 0
+    end_card_spread: 0.2
 }
 players {
     id: 2
     play_multiple: 0.8
     hidden_order: 1
+    end_card_spread: 0.1
 }
 players {
     id: 3
     play_multiple: 0.8
     hidden_order: 0
+    end_card_spread: 0.3
 }
 players {
     id: 4
     play_multiple: 0.85
     hidden_order: -1
+    end_card_spread: 0.25
 }

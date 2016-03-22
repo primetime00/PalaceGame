@@ -8,6 +8,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by Ryan on 12/23/2015.
@@ -57,7 +58,7 @@ public class State implements Serializer{
     protected StateListener mStateListener;
 
     private State mParent;
-    private State mChild;
+    private ArrayList<State> mChildren;
 
     protected StateFactory.StateList mChildrenStates;
 
@@ -112,7 +113,7 @@ public class State implements Serializer{
             if (mStateListener != null)
                 mStateListener.onDoneState();
             if (mParent != null) {
-                mParent.removeChild();
+                mParent.removeChild(this);
             }
         }
     }
@@ -130,28 +131,50 @@ public class State implements Serializer{
     }
 
     public void addChild(State child) {
-        mChild = child;
+        if (mChildren == null)
+            mChildren=  new ArrayList<>();
+        if (!mChildren.contains(child))
+            mChildren.add(child);
     }
 
-    private void removeChild() {
-        mChild = null;
+    private void removeChild(State child) {
+        if (mChildren == null)
+            return;
+        for (Iterator<State> it = mChildren.iterator(); it.hasNext();) {
+            State state = it.next();
+            if (state == child)
+                it.remove();
+        }
     }
 
 
     public boolean containsState(Names name) {
         if (getStateName() == name)
             return true;
-        if (mChild != null)
-            return mChild.containsState(name);
+        if (mChildren != null) {
+            for (State s : mChildren) {
+                if (s.containsState(name))
+                    return true;
+            }
+        }
         return false;
     }
 
     public State getState(Names name) {
-        if (getStateName() == name)
+        return getState(name, 0);
+    }
+
+    public State getState(Names name, int id) {
+        if (getStateName() == name && getID() == id)
             return this;
 
-        if (mChild != null)
-            return mChild.getState(name);
+        if (mChildren != null) {
+            for (State s : mChildren) {
+                State res = s.getState(name, id);
+                if (res != null)
+                    return res;
+            }
+        }
         return null;
     }
 

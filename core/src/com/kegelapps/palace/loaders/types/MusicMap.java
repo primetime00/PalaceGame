@@ -34,7 +34,8 @@ public class MusicMap  extends ObjectMap<String, Music> implements Disposable {
     public void dispose() {
         for (Music m : values().toArray())
             m.dispose();
-        playList.clear();
+        if (playList != null)
+            playList.clear();
         clear();
     }
 }
