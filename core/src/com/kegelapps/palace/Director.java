@@ -13,8 +13,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.kegelapps.palace.audio.AudioIDList;
+import com.kegelapps.palace.audio.SoundIDList;
 import com.kegelapps.palace.audio.AudioManager;
+import com.kegelapps.palace.audio.VolumeController;
 import com.kegelapps.palace.loaders.types.MusicMap;
 import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.events.EventSystem;
@@ -94,7 +95,7 @@ public class Director implements Disposable{
         Tween.registerAccessor(HighlightView.class, new HighlightAccessor());
 
         //create audio tweens
-        Tween.registerAccessor(AudioIDList.class, new AudioAccessor());
+        Tween.registerAccessor(VolumeController.class, new AudioAccessor());
 
     }
 

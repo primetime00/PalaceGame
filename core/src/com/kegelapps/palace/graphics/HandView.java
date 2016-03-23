@@ -269,6 +269,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 CardView cardView = CardView.getCardView((Card) params[0]);
                 HandUtils.Reparent(table, cardView);
 
+
                 if (getParent() instanceof TableView) {
                     final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                     builder.setPause(false).setDescription("Selecting end cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID());
@@ -285,6 +286,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 }
 
                 OrganizeCards(true, true, false, false, true);
+                cardView.toFront();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mSelectEndCardEventListener);

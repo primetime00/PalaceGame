@@ -6,7 +6,6 @@ import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.SnapshotArray;
 import com.kegelapps.palace.tween.AudioAccessor;
 
 import java.util.Iterator;
@@ -14,25 +13,22 @@ import java.util.Iterator;
 /**
  * Created by Ryan on 3/21/2016.
  */
-public class AudioIDList {
-    private final float duration = 3.0f;
+public class SoundIDList extends VolumeController{
+    private final float mMaxDuration = 3.0f;
     private float mMasterVolume = 1.0f;
-    private Array<AudioItem> mList;
+    private Array<SoundItem> mList;
     private TweenManager mTweenManager;
 
 
-    public AudioIDList() {
+    public SoundIDList() {
         mMasterVolume = 1.0f;
         mList = new Array<>();
         mTweenManager = new TweenManager();
     }
 
-    public float getMasterVolume() { return mMasterVolume;    }
-    public void setMasterVolume(float val) { mMasterVolume = val;}
-
     public void play(Sound s) {
         long id = s.play(mMasterVolume);
-        mList.add(new AudioItem(s, id));
+        mList.add(new SoundItem(s, id));
     }
 
     public void playLater(final Sound s, float delay) {
@@ -49,11 +45,11 @@ public class AudioIDList {
         mTweenManager.update(delta);
         if (mList.size == 0)
             return;
-        for (Iterator<AudioItem> it = mList.iterator(); it.hasNext();) {
-            AudioItem item = it.next();
+        for (Iterator<SoundItem> it = mList.iterator(); it.hasNext();) {
+            SoundItem item = it.next();
             item.getSound().setVolume(item.getID(), mMasterVolume);
             item.addTime(delta);
-            if (item.isOverTime(duration)) {
+            if (item.isOverTime(mMaxDuration)) {
                 item.getSound().stop(item.getID());
                 System.out.print(String.format("Removing item %d from queue\n", item.getID()));
                 it.remove();
@@ -76,8 +72,8 @@ public class AudioIDList {
     }
 
     private void stopAllSounds() {
-        for (Iterator<AudioItem> it = mList.iterator(); it.hasNext();) {
-            AudioItem item = it.next();
+        for (Iterator<SoundItem> it = mList.iterator(); it.hasNext();) {
+            SoundItem item = it.next();
             item.getSound().stop(item.getID());
             it.remove();
         }
@@ -98,5 +94,15 @@ public class AudioIDList {
 
     public void Reset() {
         stopAllSounds();
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        mMasterVolume = volume;
+    }
+
+    @Override
+    public float getVolume() {
+        return mMasterVolume;
     }
 }

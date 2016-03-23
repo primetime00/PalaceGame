@@ -1,23 +1,27 @@
 package com.kegelapps.palace.audio;
 
+import com.badlogic.gdx.audio.Music;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.loaders.types.MusicMap;
-import com.kegelapps.palace.scenes.Scene;
 
 /**
  * Created by Ryan on 3/20/2016.
  */
 public class AudioManager {
 
-    private AudioIDList mSoundList;
+    final float mMusicVolume = 0.15f;
+    private SoundIDList mSoundList;
+    private SongList mSongList;
 
 
     public AudioManager() {
-        mSoundList = new AudioIDList();
+        mSoundList = new SoundIDList();
+        mSongList = new SongList();
     }
 
     public void update(float delta) {
         mSoundList.update(delta);
+        mSongList.update(delta);
     }
 
     public void FadeOutSound(Runnable done) {
@@ -42,12 +46,12 @@ public class AudioManager {
     public void PlayMusic() {
         if (!Director.instance().getOptions().getMusic())
             return;
-        String title = Director.instance().getAssets().get("music", MusicMap.class).getSongTitle();
-        Director.instance().getAssets().get("music", MusicMap.class).getSong(title).play();
+        mSongList.playMusic();
     }
 
     public void SetMasterVolume(float v) {
-        mSoundList.setMasterVolume(v);
+        mSoundList.setVolume(v);
+        mSongList.setVolume(v);
     }
 
     public void Reset() {

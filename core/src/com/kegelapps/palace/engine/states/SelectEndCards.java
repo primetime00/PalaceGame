@@ -45,8 +45,11 @@ public class SelectEndCards extends State {
             }
         };
 
-        for (Hand h : table.getHands())
-            mChildrenStates.addState(Names.PLACE_END_CARD, this, h.getID()).setStateListener(mPlaceCardListener);
+        for (Hand h : table.getHands()) {
+            State s = mChildrenStates.addState(Names.PLACE_END_CARD, this, h.getID());
+            if (h.getType() == Hand.HandType.HUMAN)
+                s.setStateListener(mPlaceCardListener);
+        }
 
         mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);
 

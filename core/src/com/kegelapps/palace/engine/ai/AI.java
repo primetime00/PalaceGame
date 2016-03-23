@@ -5,7 +5,6 @@ import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Identity;
 import com.kegelapps.palace.engine.Serializer;
-import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;

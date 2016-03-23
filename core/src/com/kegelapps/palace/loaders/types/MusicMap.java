@@ -20,6 +20,10 @@ public class MusicMap  extends ObjectMap<String, Music> implements Disposable {
         return playList.pop();
     }
 
+    public Array<String> getTitles() {
+        return keys().toArray();
+    }
+
     public Music getSong(String title) {
         return get(title);
     }

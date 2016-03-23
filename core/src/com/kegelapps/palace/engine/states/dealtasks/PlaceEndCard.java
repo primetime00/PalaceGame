@@ -64,6 +64,8 @@ public class PlaceEndCard extends State {
                     mState = PlaceState.DONE;
                 break;
             case DONE:
+                if (mStateListener != null)
+                    mStateListener.onContinueState();
                 return true;
         }
         return false;

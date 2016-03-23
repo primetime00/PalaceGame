@@ -5,14 +5,14 @@ import com.badlogic.gdx.audio.Sound;
 /**
  * Created by Ryan on 3/21/2016.
  */
-public class AudioItem {
+public class SoundItem {
 
     private long id;
     private float time;
     private Sound sound;
 
 
-    public AudioItem(Sound s, long id) {
+    public SoundItem(Sound s, long id) {
         this.id = id;
         this.time = 0;
         this.sound = s;
