@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.graphics.CardCamera;
+import com.kegelapps.palace.protos.OptionProtos;
 
 /**
  * Created by keg45397 on 12/15/2015.
@@ -88,5 +89,9 @@ public class Scene extends Stage implements Resettable {
     public void Reset(boolean newGame) {
         clearScene();
         mTweenManager.killAll();
+    }
+
+    public void OptionChanged(OptionProtos.Options option) {
+
     }
 }

@@ -387,7 +387,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                     @Override
                     public void onEnd(Animation animation) {
                         Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("applause"),0.0f));
-                        String name = mHand.getIdentity() != null ? mHand.getIdentity().get().getName() : StringMap.getString("you");
+                        String name = mHand.GetAI() != null ? mHand.getIdentity().get().getName() : StringMap.getString("you");
                         HandUtils.Reparent(HandView.this, builder.getCoin());
                         switch (builder.getCoin().getType()) {
                             case GOLD:

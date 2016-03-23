@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
@@ -17,6 +18,7 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
+import com.kegelapps.palace.protos.OptionProtos;
 import com.kegelapps.palace.tween.ActorAccessor;
 
 /**
@@ -91,17 +93,30 @@ public class GameScene extends Scene {
 
         });
 
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_LOADED) {
+            @Override
+            public void handle(Object params[]) {
+                Director.instance().getAudioManager().SendEvent(AudioManager.AudioEvent.GAME_LOADED);
+            }
+
+        });
+
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.QUIT_GAME) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 1 || !(params[0] instanceof Boolean)) {
                     throw new IllegalArgumentException("Invalid parameters for QUIT_GAME");
                 }
+                final float duration = 0.75f;
                 final boolean restart = (boolean) params[0];
                 runLogic = false;
+                if (!restart)
+                    Director.instance().getAudioManager().SendEvent(AudioManager.AudioEvent.TRANSITION_TO_MAIN, duration);
+                else
+                    Director.instance().getAudioManager().SendEvent(AudioManager.AudioEvent.STOP_GAME, duration);
                 Timeline ani = Timeline.createParallel();
-                ani.push(Tween.to(getRoot(), ActorAccessor.ALPHA, 0.75f).target(0));
-                ani.push(Tween.to(mMessageStage.getRoot(), ActorAccessor.ALPHA, 0.75f).target(0));
+                ani.push(Tween.to(getRoot(), ActorAccessor.ALPHA, duration).target(0));
+                ani.push(Tween.to(mMessageStage.getRoot(), ActorAccessor.ALPHA, duration).target(0));
                 ani.setCallbackTriggers(TweenCallback.END);
                 ani.setCallback(new TweenCallback() {
                     @Override
@@ -182,7 +197,6 @@ public class GameScene extends Scene {
     @Override
     public void enter() {
         super.enter();
-        Director.instance().getAudioManager().PlayMusic();
         if (runLogic == false) {
             getRoot().setColor(1, 1, 1, 0);
             mMessageStage.getRoot().setColor(1,1,1,1);
@@ -198,5 +212,14 @@ public class GameScene extends Scene {
         }
     }
 
+    @Override
+    public void OptionChanged(OptionProtos.Options option) {
+        if (!option.getMusic()) {
+            Director.instance().getAudioManager().StopMusic();
+        }
+        else {
+            Director.instance().getAudioManager().PlayMusic();
+        }
 
+    }
 }

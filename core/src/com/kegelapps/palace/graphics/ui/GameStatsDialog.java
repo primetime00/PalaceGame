@@ -44,12 +44,18 @@ public class GameStatsDialog extends FrameView {
         statsTable = new Table();
         mTitle = title;
 
-        NinePatch btnUp = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button"), 8, 8, 8, 8);
-        NinePatch btnDn = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button_down"), 8, 8, 8, 8);
+        btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.downFontColor = Color.YELLOW;
+        btnStyle.fontColor = Color.WHITE;
+        btnStyle.font = style.font;
 
 
-        btnStyle = new TextButton.TextButtonStyle(new NinePatchDrawable(btnUp),
-                new NinePatchDrawable(btnDn), null, style.font);
+//        NinePatch btnUp = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button"), 8, 8, 8, 8);
+//        NinePatch btnDn = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button_down"), 8, 8, 8, 8);
+
+
+/*        btnStyle = new TextButton.TextButtonStyle(new NinePatchDrawable(btnUp),
+                new NinePatchDrawable(btnDn), null, style.font);*/
 
         mRematchListener = new ChangeListener() {
             @Override
@@ -95,7 +101,7 @@ public class GameStatsDialog extends FrameView {
             if (place.getHandID() >= 0) {
                 statsTable.add(new Label(placeStrings[i], style)).maxWidth(Value.percentWidth(0.2f, this))
                         .expandX().left();
-                if (Logic.get().GetTable().GetHand(place.getHandID()).getIdentity() != null)
+                if (Logic.get().GetTable().GetHand(place.getHandID()).GetAI() != null)
                     name = Logic.get().GetTable().GetHand(place.getHandID()).getIdentity().get().getName();
                 statsTable.add(new Label(name, style))
                         .maxWidth(Value.percentWidth(0.4f, this)).expandX();
@@ -108,10 +114,8 @@ public class GameStatsDialog extends FrameView {
         row();
         Table btnTable = new Table();
         TextButton tbRematch = new TextButton(StringMap.getString("rematch"), btnStyle);
-        tbRematch.getLabel().setFontScale(0.75f);
         tbRematch.addListener(mRematchListener);
         TextButton tbQuit = new TextButton(StringMap.getString("quit"), btnStyle);
-        tbQuit.getLabel().setFontScale(0.75f);
         tbQuit.addListener(mQuitListener);
         btnTable.add(tbRematch).prefWidth(100).height(36);
         btnTable.add().expandX();

@@ -308,6 +308,7 @@ public class Director implements Disposable{
             @Override
             public void handle(Object params[]) {
                 getAudioManager().FadeInSound(null);
+                getAudioManager().SendEvent(AudioManager.AudioEvent.RESUME_FROM_OPTIONS);
                 setScene(mGameScene);
             }
         });
@@ -339,6 +340,7 @@ public class Director implements Disposable{
                 }
                 getAudioManager().SetMasterVolume(1.0f);
                 getAudioManager().Reset();
+                getAudioManager().SendEvent(AudioManager.AudioEvent.NEW_GAME);
                 setScene(mGameScene);
             }
         });
@@ -361,6 +363,8 @@ public class Director implements Disposable{
 
     public void setOptions(OptionProtos.Options.Builder val) {
         mOptions = val.build();
+        if (mCurrentScene != null)
+            mCurrentScene.OptionChanged(mOptions);
         saveOptions();
     }
 

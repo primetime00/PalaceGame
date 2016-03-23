@@ -21,7 +21,8 @@ public class AudioAccessor implements TweenAccessor<VolumeController> {
     @Override
     public void setValues(VolumeController target, int tweenType, float[] newValues) {
         switch (tweenType) {
-            case VOLUME: target.setVolume(newValues[0]); break;
+            case VOLUME:
+                target.setVolume(newValues[0]); break;
             default: assert false; break;
         }
     }

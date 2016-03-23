@@ -6,4 +6,6 @@ package com.kegelapps.palace.audio;
 public abstract class VolumeController {
     abstract public void setVolume(float volume);
     abstract public float getVolume();
+
+
 }

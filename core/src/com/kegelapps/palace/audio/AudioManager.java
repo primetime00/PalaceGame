@@ -1,8 +1,6 @@
 package com.kegelapps.palace.audio;
 
-import com.badlogic.gdx.audio.Music;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.loaders.types.MusicMap;
 
 /**
  * Created by Ryan on 3/20/2016.
@@ -12,6 +10,14 @@ public class AudioManager {
     final float mMusicVolume = 0.15f;
     private SoundIDList mSoundList;
     private SongList mSongList;
+
+    public enum AudioEvent {
+        TRANSITION_TO_MAIN,
+        STOP_GAME,
+        TRANSITION_TO_OPTIONS,
+        GAME_LOADED,
+        NEW_GAME, RESUME_FROM_OPTIONS
+    }
 
 
     public AudioManager() {
@@ -56,6 +62,46 @@ public class AudioManager {
 
     public void Reset() {
         mSoundList.Reset();
+    }
+
+    public void StopMusic() {
+        mSongList.stopMusic();
+    }
+
+    public void PauseMusic(float time, Runnable done) {
+        mSongList.pauseMusic(time, done);
+    }
+
+    public void SendEvent(AudioEvent evt, float time) {
+        switch (evt) {
+            case GAME_LOADED:
+                PlayMusic();
+                break;
+            case STOP_GAME:
+            case TRANSITION_TO_MAIN:
+                PauseMusic(time, new Runnable() {
+                    @Override
+                    public void run() {
+                        StopMusic();
+                    }
+                });
+                break;
+            case TRANSITION_TO_OPTIONS:
+                PauseMusic(time, null);
+                break;
+            case RESUME_FROM_OPTIONS:
+                PlayMusic();
+                break;
+            case NEW_GAME:
+                PlayMusic();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void SendEvent(AudioEvent evt) {
+        SendEvent(evt, 0);
     }
 
 }

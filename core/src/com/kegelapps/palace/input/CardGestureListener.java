@@ -16,7 +16,7 @@ public class CardGestureListener extends ActorGestureListener {
     private HandView mHand;
 
     public CardGestureListener(HandView hand) {
-        super(20, 0.4f, 1.1f, 0.15f);
+        super(20, 0.4f, 0.6f, 0.15f);
         mHand = hand;
     }
 
