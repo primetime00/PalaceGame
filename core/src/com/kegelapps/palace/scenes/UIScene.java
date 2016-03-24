@@ -28,12 +28,10 @@ public class UIScene extends Scene {
 
     public UIScene() {
         super();
-        init();
     }
 
     public UIScene(Viewport viewport) {
         super(viewport);
-        init();
     }
 
     private void init() {
@@ -48,13 +46,18 @@ public class UIScene extends Scene {
         clearScene();
     }
 
+    @Override
+    protected void initFirstRun() {
+        init();
+    }
+
     private void createEvents() {
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.GAME_OVER) {
             @Override
             public void handle(Object params[]) {
                 clearScene();
-                float x = (getViewport().getScreenWidth() - mGameStatsDialog.getWidth()) / 2.0f;
-                float y = (getViewport().getScreenHeight() - mGameStatsDialog.getHeight()) / 2.0f;
+                float x = (getViewWidth() - mGameStatsDialog.getWidth()) / 2.0f;
+                float y = (getViewHeight() - mGameStatsDialog.getHeight()) / 2.0f;
                 mGameStatsDialog.setPosition(x,y);
                 addActor(mGameStatsDialog);
             }
@@ -64,8 +67,8 @@ public class UIScene extends Scene {
             @Override
             public void handle(Object params[]) {
                 clearScene();
-                float x = (getViewport().getScreenWidth() - mOptionsDialog.getWidth()) / 2.0f;
-                float y = (getViewport().getScreenHeight() - mOptionsDialog.getHeight()) / 2.0f;
+                float x = (getViewWidth() - mOptionsDialog.getWidth()) / 2.0f;
+                float y = (getViewHeight() - mOptionsDialog.getHeight()) / 2.0f;
                 mOptionsDialog.setPosition(x,y);
                 addActor(mOptionsDialog);
                 Director.instance().getAudioManager().SendEvent(AudioManager.AudioEvent.TRANSITION_TO_OPTIONS, 1.0f);

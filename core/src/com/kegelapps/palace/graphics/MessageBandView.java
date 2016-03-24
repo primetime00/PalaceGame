@@ -38,8 +38,8 @@ public class MessageBandView extends Group implements TweenCallback{
     }
 
     public MessageBandView() {
-        int height = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
-        int width = Director.instance().getScreenWidth();
+        float height = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        float width = Director.instance().getViewWidth();
         setWidth(width);
         setHeight(height);
         mBand = new Image(Director.instance().getAssets().get("messageband", MessageBandView.MessageBandTexture.class));
@@ -89,14 +89,14 @@ public class MessageBandView extends Group implements TweenCallback{
                 }
             };
         }
-        setX(Director.instance().getScreenWidth()-30);
-        setY((Director.instance().getScreenHeight() - getHeight()) / 2.0f);
+        setX(Director.instance().getViewWidth()-30);
+        setY((Director.instance().getViewHeight() - getHeight()) / 2.0f);
         setText(message);
         setTextColor(textColor);
         TweenEquation eq = TweenEquations.easeInOutQuart;
         mAnimation = Timeline.createSequence().push(Tween.to(this, ActorAccessor.POSITION_X, 0.7f).target(0).ease(eq));
         mAnimation.pushPause(length);
-        mAnimation.push(Tween.to(this, ActorAccessor.POSITION_X, 0.7f).target(-Director.instance().getScreenWidth()).ease(eq));
+        mAnimation.push(Tween.to(this, ActorAccessor.POSITION_X, 0.7f).target(-Director.instance().getViewWidth()).ease(eq));
 
         mAnimation.setCallback(this);
         mAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );

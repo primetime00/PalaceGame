@@ -48,8 +48,8 @@ public class OptionsDialog extends FrameView {
         musicStatus = new Label(Director.instance().getOptions().getMusic() ?
                 StringMap.getString("on") : StringMap.getString("off"), style);
 
-        setWidth(Director.instance().getScreenWidth() * 0.8f);
-        setHeight(Director.instance().getScreenHeight() * 0.8f);
+        setWidth(Director.instance().getViewWidth() * 0.8f);
+        setHeight(Director.instance().getViewHeight() * 0.8f);
 
         createActions();
 

@@ -42,7 +42,7 @@ public class IntroScene extends Scene {
 
     private final float titleFadeTime = 1.0f;
     private final float screenFadeTime = 1.0f;
-    private final float initialAnimationDelayTime = 1.0f;
+    private final float initialAnimationDelayTime = 3.0f;
 
 
     public IntroScene(Viewport viewport) {
@@ -159,8 +159,8 @@ public class IntroScene extends Scene {
         if (mAckDialog == null)
             mAckDialog = new AcknowledgementDialog(StringMap.getString("acknowledgements"));
         mAckDialog.setColor(1,1,1,0);
-        mAckDialog.setX( (Director.instance().getScreenWidth() - mAckDialog.getWidth()) / 2.0f);
-        mAckDialog.setY( (Director.instance().getScreenHeight() - mAckDialog.getHeight()) / 2.0f);
+        mAckDialog.setX( (mViewWidth - mAckDialog.getWidth()) / 2.0f);
+        mAckDialog.setY( (mViewHeight - mAckDialog.getHeight()) / 2.0f);
         addActor(mAckDialog);
         Tween.to(mAckDialog, ActorAccessor.ALPHA, 0.35f).target(1.0f).start(getTweenManager());
     }
@@ -204,7 +204,7 @@ public class IntroScene extends Scene {
         mOptionTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 1.0f);
         addActor(mTitle);
 
-        mClipFrame.setWidth(Director.instance().getScreenWidth() * 0.4f);
+        mClipFrame.setWidth(Director.instance().getViewWidth() * 0.4f);
         mClipFrame.setHeight(200);
 
 
@@ -231,16 +231,17 @@ public class IntroScene extends Scene {
 
     private void placeCards() {
         Vector3 pos;
+        calculateViewportSize();
         //left
-        pos = getCamera().unproject(new Vector3(-cards[0].getWidth(), ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
+        pos = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
         cards[0].setPosition(pos.x, pos.y);
         addActor(cards[0]);
         //bottom
-        pos = getCamera().unproject(new Vector3 ((getCamera().viewportWidth-cards[0].getWidth())/2.0f, getCamera().viewportHeight + cards[0].getHeight(), 0));
+        pos = new Vector3((mViewWidth-cards[0].getWidth())/2.0f, mViewHeight + cards[0].getHeight(), 0);
         cards[1].setPosition(pos.x, pos.y);
         addActor(cards[1]);
         //right
-        pos = getCamera().unproject(new Vector3(getCamera().viewportWidth, ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
+        pos = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
         cards[2].setPosition(pos.x, pos.y);
         addActor(cards[2]);
     }
@@ -286,7 +287,7 @@ public class IntroScene extends Scene {
         Timeline c1 = Timeline.createSequence();
         c1.pushPause(firstDelay);
         c1.beginParallel();
-        pos1 = getCamera().unproject(new Vector3(getCamera().viewportWidth, ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
+        pos1 = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
         c1.push(Tween.to(cards[0], ActorAccessor.POSITION_XY, duration).target(pos1.x, pos1.y).ease(TweenEquations.easeOutQuad));
         c1.push(Tween.to(cards[0], ActorAccessor.ROTATION, duration).target(360)).end();
         c1.start(getTweenManager());
@@ -295,7 +296,7 @@ public class IntroScene extends Scene {
         Timeline c2 = Timeline.createSequence();
         c2.pushPause(secondDelay);
         c2.beginParallel();
-        pos2 = getCamera().unproject(new Vector3 ((getCamera().viewportWidth-cards[0].getWidth())/2.0f, -cards[0].getHeight(), 0));
+        pos2 = new Vector3 ((mViewWidth-cards[0].getWidth())/2.0f, -cards[0].getHeight(), 0);
         c2.push(Tween.to(cards[1], ActorAccessor.POSITION_XY,duration).target(pos2.x, pos2.y).ease(TweenEquations.easeOutQuad));
         c2.push(Tween.to(cards[1], ActorAccessor.ROTATION, duration).target(360)).end();
         c2.start(getTweenManager());
@@ -305,7 +306,7 @@ public class IntroScene extends Scene {
         Timeline c3 = Timeline.createSequence();
         c3.pushPause(thirdDelay);
         c3.beginParallel();
-        pos3 = getCamera().unproject(new Vector3(-cards[0].getWidth(), ( (getCamera().viewportHeight+cards[0].getHeight())/2.0f), 0));
+        pos3 = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
         c3.push(Tween.to(cards[2], ActorAccessor.POSITION_XY, duration).target(pos3.x, pos3.y).ease(TweenEquations.easeOutQuad));
         c3.push(Tween.to(cards[2], ActorAccessor.ROTATION, duration).target(360)).end();
         c3.pushPause(gap);

@@ -383,4 +383,31 @@ public class Director implements Disposable{
         mResetList = null;
         instance = null;
     }
+
+    public float getViewWidth() {
+        return getViewWidth(null);
+    }
+
+    public float getViewHeight() {
+        return getViewHeight(null);    }
+
+    public float getViewWidth(Actor a) {
+        if (a != null && a.getStage() != null && a.getStage() instanceof Scene) {
+            return ((Scene)a.getStage()).getViewWidth();
+        }
+        if (mCurrentScene == null)
+            return getScreenWidth();
+        return mCurrentScene.getViewWidth();
+    }
+
+    public float getViewHeight(Actor a) {
+        if (a != null && a.getStage() != null && a.getStage() instanceof Scene) {
+            return ((Scene)a.getStage()).getViewHeight();
+        }
+        if (mCurrentScene == null)
+            return getScreenHeight();
+        return mCurrentScene.getViewHeight();
+    }
+
+
 }

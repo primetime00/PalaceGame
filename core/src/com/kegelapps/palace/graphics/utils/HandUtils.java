@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.graphics.*;
 
 /**
@@ -111,6 +112,8 @@ public class HandUtils {
         if (side == HandSide.SIDE_UNKNOWN) {
             throw new RuntimeException("Hand side is set to unknown!");
         }
+        float sw = Director.instance().getViewWidth();
+        float sh = Director.instance().getViewHeight();
         float gap = table.getDeck().getHeight() * 0.1f;
         Vector2 res = new Vector2();
         DeckView mDeck = table.getDeck();
@@ -120,7 +123,7 @@ public class HandUtils {
         switch (side) {
             default:
             case SIDE_BOTTOM:
-                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
+                camX = sw / 2.0f;
                 camY = h.getActivePosition().getY() + table.getCamera().viewportHeight/2.0f - gap;
                 break;
             case SIDE_LEFT:
@@ -128,7 +131,7 @@ public class HandUtils {
                 camY = mDeck.getY()+(mDeck.getHeight()/2.0f);
                 break;
             case SIDE_TOP:
-                camX = mDeck.getX()+(mDeck.getWidth()/2.0f);
+                camX = sw / 2.0f;
                 camY = (h.getActivePosition().getY()+h.getActivePosition().getHeight()) - table.getCamera().viewportHeight/2.0f + gap;
                 break;
             case SIDE_RIGHT:

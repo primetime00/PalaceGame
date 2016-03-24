@@ -1,6 +1,7 @@
 package com.kegelapps.palace.scenes;
 
 import aurelienribon.tweenengine.TweenManager;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -21,12 +22,21 @@ public class Scene extends Stage implements Resettable {
     protected TweenManager mTweenManager;
     protected Color mBackgroundColor;
 
+    protected int mScreenWidth, mScreenHeight;
+    protected float mViewWidth, mViewHeight;
+
+    private boolean mFirstRun;
+
     public Scene() {
         super();
         this.inputMultiplexer = new InputMultiplexer(this);
         mTweenManager = new TweenManager();
         mBackgroundColor = Color.BLACK;
         getBatch().setColor(1,1,1,1);
+        mScreenHeight = Gdx.graphics.getHeight();
+        mScreenWidth = Gdx.graphics.getWidth();
+        calculateViewportSize();
+        mFirstRun = false;
     }
 
     public Scene(Viewport viewport) {
@@ -36,6 +46,15 @@ public class Scene extends Stage implements Resettable {
         this.inputMultiplexer = new InputMultiplexer(this);
         mTweenManager = new TweenManager();
         mBackgroundColor = Color.BLACK;
+        mScreenHeight = Gdx.graphics.getHeight();
+        mScreenWidth = Gdx.graphics.getWidth();
+        calculateViewportSize();
+        mFirstRun = false;
+    }
+
+    public void calculateViewportSize() {
+        mViewHeight = getCardCamera().viewportHeight;
+        mViewWidth = getCardCamera().viewportWidth;
     }
 
 
@@ -43,6 +62,10 @@ public class Scene extends Stage implements Resettable {
     public void act(float delta) {
         super.act(delta);
         mTweenManager.update(delta);
+    }
+
+    protected void initFirstRun() {
+
     }
 
     public CardCamera getCardCamera() {
@@ -54,7 +77,10 @@ public class Scene extends Stage implements Resettable {
     }
 
     public void enter() {
-
+        if (!mFirstRun) {
+            mFirstRun = true;
+            initFirstRun();
+        }
     }
 
     public Color getBackgroundColor() {
@@ -94,4 +120,13 @@ public class Scene extends Stage implements Resettable {
     public void OptionChanged(OptionProtos.Options option) {
 
     }
+
+    public float getViewWidth() {
+        return mViewWidth;
+    }
+
+    public float getViewHeight() {
+        return mViewHeight;
+    }
+
 }

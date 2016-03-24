@@ -86,7 +86,6 @@ public class SongList extends VolumeController implements Music.OnCompletionList
         mMasterVolume = volume;
         if (!mCurrentTitle.isEmpty()) {
             Music song = Director.instance().getAssets().get("music", MusicMap.class).getSong(mCurrentTitle);
-            System.out.print(String.format("setting volume to %f\n", mMasterVolume * mMaxVolume));
             song.setVolume(mMasterVolume * mMaxVolume);
         }
 

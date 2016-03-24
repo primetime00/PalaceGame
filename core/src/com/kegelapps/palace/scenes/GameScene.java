@@ -7,6 +7,7 @@ import aurelienribon.tweenengine.TweenCallback;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
@@ -34,12 +35,10 @@ public class GameScene extends Scene {
 
     public GameScene() {
         super();
-        init();
     }
 
     public GameScene(Viewport viewport) {
         super(viewport);
-        init();
     }
 
     private void init() {
@@ -47,7 +46,8 @@ public class GameScene extends Scene {
         logic.SetNumberOfPlayers(4);
         logic.Initialize();
         tableView = new TableView(logic.GetTable(), getCardCamera());
-        mMessageStage = new MessageStage(new ScreenViewport());
+        //mMessageStage = new MessageStage(new ScreenViewport());
+        mMessageStage = new MessageStage(new ExtendViewport(getViewWidth(), getViewHeight()));
         addActor(tableView);
 
         getInputMultiplexer().addProcessor(mMessageStage);
@@ -159,6 +159,12 @@ public class GameScene extends Scene {
         super.act(delta);
         if (runLogic)
             logic.Poll();
+    }
+
+    @Override
+    protected void initFirstRun() {
+        if (tableView == null)
+            init();
     }
 
     @Override

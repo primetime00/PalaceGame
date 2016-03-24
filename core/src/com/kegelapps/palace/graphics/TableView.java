@@ -115,8 +115,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
             }
         }
 
-        float w = (Director.instance().getScreenWidth() - mCardWidth)/2.0f;
-        float h = (Director.instance().getScreenHeight() - mCardHeight)/2.0f;
+        float w = (Director.instance().getViewWidth() - mCardWidth)/2.0f;
+        float h = (Director.instance().getViewHeight() - mCardHeight)/2.0f;
         mDeck.setPosition(w,h);
         int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
 
@@ -128,8 +128,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
     @Override
     public void Reset(boolean newGame) {
-        float x = mCamera.viewportWidth / 2.0f;
-        float y = mCamera.viewportHeight / 2.0f;
+        float x = Director.instance().getViewWidth() / 2.0f;
+        float y = Director.instance().getViewHeight() / 2.0f;
 
         for (Actor c : getChildren()) {
             if (c instanceof CardView || c instanceof CoinView)

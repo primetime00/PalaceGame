@@ -28,7 +28,7 @@ public class FontLoader extends SynchronousAssetLoader<BitmapFont, FontLoader.Fo
     public BitmapFont load(AssetManager assetManager, String fileName, FileHandle file, FontParams parameter) {
         if (parameter == null)
             parameter = new FontParams();
-        generator = new FreeTypeFontGenerator(new FileHandle(parameter.filename));
+        generator = new FreeTypeFontGenerator(Gdx.files.internal(parameter.filename));
         param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         param.size = (int) (parameter.size * Gdx.graphics.getDensity());
         if (parameter.border > 0) {

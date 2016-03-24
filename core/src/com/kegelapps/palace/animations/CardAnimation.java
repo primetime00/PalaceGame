@@ -130,6 +130,7 @@ public class CardAnimation extends Animation {
                 x = hiddenRect.getX() + (powerVariation * (side == HandUtils.HandSide.SIDE_RIGHT ? 1 : -1));
                 y = mTable.getDeck().getY()+angleVariation;
             }
+            System.out.print(String.format("Dealing to (%f, %f)\n", x, y));
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x, y).ease(TweenEquations.easeInOutExpo));
             mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(rotation));
 
@@ -247,7 +248,7 @@ public class CardAnimation extends Animation {
             };
             Vector3 pos;
 
-            pos = HandUtils.LineUpActiveCard(mIndex, mCard, mTable, mHandID, mTable.getHands().get(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
+            pos = HandUtils.LineUpActiveCard(mIndex, mCard, mTable, mHandID, mTable.getHand(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
 
             float duration = 0.1f;
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(), mCard.getY()));

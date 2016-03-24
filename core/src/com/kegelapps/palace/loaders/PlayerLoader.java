@@ -1,5 +1,7 @@
 package com.kegelapps.palace.loaders;
 
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
@@ -8,6 +10,7 @@ import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.*;
 import com.google.protobuf.TextFormat;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.PlayersProto;
 
@@ -45,9 +48,7 @@ public class PlayerLoader extends SynchronousAssetLoader<PlayerMap, PlayerLoader
         XmlReader xmlParser = new XmlReader();
         XmlReader.Element root;
         try {
-            reader = new FileReader(parameter.nameFile);
-            root = xmlParser.parse(reader);
-            reader.close();
+            root = xmlParser.parse(Gdx.files.internal(parameter.nameFile).reader());
         } catch (IOException e) {
             throw new RuntimeException("Could not parse names xml");
         }
@@ -78,9 +79,8 @@ public class PlayerLoader extends SynchronousAssetLoader<PlayerMap, PlayerLoader
         FileReader reader;
         PlayersProto.AllPlayers.Builder builder = PlayersProto.AllPlayers.newBuilder();
         try {
-            reader = new FileReader(parameter.dataFile);
-            TextFormat.merge(reader, builder);
-            reader.close();
+            FileHandle h = Gdx.files.internal(parameter.dataFile);
+            TextFormat.merge(h.reader(), builder);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Could not find the player file.");
         } catch (IOException e) {

@@ -80,8 +80,8 @@ public class ShadowView extends Actor {
 
     public void shadowEntireScreen(float amount) {
         setPosition(0,0);
-        setWidth(Director.instance().getScreenWidth());
-        setHeight(Director.instance().getScreenHeight());
+        setWidth(Director.instance().getViewWidth());
+        setHeight(Director.instance().getViewHeight());
     }
 
     public void setAlpha(float value) {

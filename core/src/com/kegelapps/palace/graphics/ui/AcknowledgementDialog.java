@@ -39,8 +39,8 @@ public class AcknowledgementDialog extends FrameView {
         actionsTable = new Table();
         mTitle = title;
 
-        setWidth(Director.instance().getScreenWidth() * 0.8f);
-        setHeight(Director.instance().getScreenHeight() * 0.8f);
+        setWidth(Director.instance().getViewWidth() * 0.8f);
+        setHeight(Director.instance().getViewHeight() * 0.8f);
 
         createActions();
 

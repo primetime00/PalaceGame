@@ -33,9 +33,7 @@ public class MusicLoader extends SynchronousAssetLoader<MusicMap, MusicLoader.Mu
         XmlReader xmlReader = new XmlReader();
         XmlReader.Element root;
         try {
-            reader = new FileReader(parameter.filename);
-            root = xmlReader.parse(reader);
-            reader.close();
+            root = xmlReader.parse(Gdx.files.internal(parameter.filename).reader());
         } catch (IOException e) {
             throw new RuntimeException("Could not parse music xml");
         }

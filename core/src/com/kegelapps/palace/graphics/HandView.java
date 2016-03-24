@@ -117,23 +117,25 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
     public float getEndCardOverlapPercent() { return mEndCardOverlapPercent; }
 
     private void setupActiveLayout() {
+        float w = Director.instance().getViewWidth();
+        float h = Director.instance().getViewHeight();
         switch (mHand.getID()) {
             default:
             case 0: //bottom
-                mActivePosition = new Rectangle(0, 0, Director.instance().getScreenWidth(), mCardHeight);
+                mActivePosition = new Rectangle(0, 0, w, mCardHeight);
                 mActivePosition.setY(-mCardHeight - (mCardHeight*0.10f));
                 break;
             case 1: //left
-                mActivePosition = new Rectangle(0, 0, mCardHeight, Director.instance().getScreenHeight());
+                mActivePosition = new Rectangle(0, 0, mCardHeight, h);
                 mActivePosition.setX(-mCardHeight - (mCardHeight*0.10f));
                 break;
             case 2: //top
-                mActivePosition = new Rectangle(0, Director.instance().getScreenHeight()-mCardHeight, Director.instance().getScreenWidth(), mCardHeight);
-                mActivePosition.setY(Director.instance().getScreenHeight()+ (mCardHeight*0.10f));
+                mActivePosition = new Rectangle(0, h-mCardHeight, w, mCardHeight);
+                mActivePosition.setY(h+ (mCardHeight*0.10f));
                 break;
             case 3: //right
-                mActivePosition = new Rectangle(Director.instance().getScreenWidth()-mCardHeight, 0, mCardHeight, Director.instance().getScreenHeight());
-                mActivePosition.setX(Director.instance().getScreenWidth()+ (mCardHeight*0.10f));
+                mActivePosition = new Rectangle(w-mCardHeight, 0, mCardHeight, h);
+                mActivePosition.setX(w+ (mCardHeight*0.10f));
                 break;
         }
     }
@@ -144,8 +146,8 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
 
     private void setupHiddenLayout() {
         mHiddenPositions = new Rectangle[3];
-        int screenWidth = Director.instance().getScreenWidth();
-        int screenHeight = Director.instance().getScreenHeight();
+        float screenWidth = Director.instance().getViewWidth();
+        float screenHeight = Director.instance().getViewHeight();
         float cardGap = mCardWidth * 0.1f;
         float hiddenWidth = mCardWidth * 3 + cardGap * 2;
         float startX = (screenWidth - hiddenWidth) / 2.0f;
@@ -448,11 +450,11 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         }
         if (getHand().getID() == 0 || getHand().getID() == 2) {
             r.setWidth(width);
-            r.setX( (Director.instance().getScreenWidth() - r.getWidth()) /2.0f);
+            r.setX( (Director.instance().getViewWidth() - r.getWidth()) /2.0f);
         }
         else {
             r.setHeight(width);
-            r.setY( (Director.instance().getScreenHeight() - r.getHeight()) /2.0f);
+            r.setY( (Director.instance().getViewHeight() - r.getHeight()) /2.0f);
         }
 
         ZSortAllViews();

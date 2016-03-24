@@ -72,7 +72,7 @@ public class GameStatsDialog extends FrameView {
                 Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, false);
             }
         };
-        setWidth(Director.instance().getScreenWidth()*0.8f);
+        setWidth(Director.instance().getViewWidth()*0.8f);
     }
 
     @Override

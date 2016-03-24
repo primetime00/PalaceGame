@@ -1,5 +1,7 @@
 package com.kegelapps.palace.input;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -23,6 +25,9 @@ public class TablePanListener extends ActorGestureListener {
     private TableView mTable;
     private long lastTime = 0;
     private TouchPosition mPosition = TouchPosition.NONE;
+    Rectangle mRectLeft;
+    Rectangle mRectRight;
+    Rectangle mRectTop;
     private enum TouchPosition {
         TOP,
         LEFT,
@@ -34,8 +39,17 @@ public class TablePanListener extends ActorGestureListener {
     public TablePanListener(TableView table) {
         super(20, 0.4f, 1.1f, 0.15f);
         mTable = table;
+        createTouchRectangles();
+
     }
 
+    private void createTouchRectangles() {
+        float w = Director.instance().getViewWidth();
+        float h = Director.instance().getViewHeight();
+        mRectLeft = new Rectangle(0, 0, w*0.25f, h);
+        mRectRight = new Rectangle(w-(w*0.25f), 0, w-(w-(w*0.25f)), h);
+        mRectTop = new Rectangle(0, 0, w, h*0.25f);
+    }
 
 
     @Override
@@ -92,26 +106,47 @@ public class TablePanListener extends ActorGestureListener {
         }
     }
 
+
+
     @Override
-    public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
+    public void touchDown(InputEvent event, float x, float y, int pointer, int button) { //x,y relative to viewport not screen
         super.touchDown(event, x, y, pointer, button);
         if (button != 0)
             return;
-        float w = Director.instance().getScreenWidth();
-        float h = Director.instance().getScreenHeight();
         CardCamera cam = mTable.getCamera();
+        adjustTouchRectangles(cam);
+        if (mTable.getHand(0).getActivePosition().contains(x,y))
+            return;
         if (mPosition == TouchPosition.NONE) {
-            Vector3 pos = mTable.getCamera().unproject(new Vector3(x,y,0));
-            if (pos.x > w*0.1f && pos.x < w - (w*0.1f) && pos.y < h*0.25f) { //top center
+            if (mRectTop.contains(x,y)) { //top
                 mPosition = TouchPosition.TOP;
             }
-            else if (pos.x < w*0.25f && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Left center
+            else if (mRectLeft.contains(x,y)) { //Left center
                 mPosition = TouchPosition.LEFT;
             }
-            else if (pos.x > w-(w*0.25f) && pos.y < h - (h*0.20f) && pos.y > h*0.20f) { //Right center
+            else if (mRectRight.contains(x,y)) { //Right center
                 mPosition = TouchPosition.RIGHT;
             }
         }
+    }
+
+    private void adjustTouchRectangles(CardCamera cam) {
+        float w = Director.instance().getViewWidth();
+        float h = Director.instance().getViewHeight();
+        Rectangle screenRect = new Rectangle();
+        screenRect.setWidth(w);
+        screenRect.setHeight(h);
+        screenRect.setCenter(cam.position.x, cam.position.y);
+        mRectTop.setY((screenRect.getHeight() + screenRect.getY()) - mRectTop.getHeight());
+        mRectTop.setX(screenRect.getX());
+
+        mRectLeft.setY(screenRect.getY());
+        mRectLeft.setX(screenRect.getX());
+
+        mRectRight.setY(screenRect.getY());
+        mRectRight.setX(screenRect.getX()+screenRect.getWidth() - mRectRight.getWidth());
+
+
     }
 
     @Override
