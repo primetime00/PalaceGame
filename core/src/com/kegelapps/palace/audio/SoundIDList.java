@@ -51,7 +51,6 @@ public class SoundIDList extends VolumeController{
             item.addTime(delta);
             if (item.isOverTime(mMaxDuration)) {
                 item.getSound().stop(item.getID());
-                System.out.print(String.format("Removing item %d from queue\n", item.getID()));
                 it.remove();
             }
         }

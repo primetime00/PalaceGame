@@ -1,5 +1,6 @@
 package com.kegelapps.palace;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,12 +28,25 @@ public class CardResource implements Disposable{
     private Pixmap mCardHighlight;
     private Texture mCardHighlightTexture;
 
-    public CardResource(TextureAtlas mCardAtlas, CardSize size) {
-        if (mCardAtlas == null || size == null) {
-            throw new RuntimeException("Card atlas and size cannot be null!");
+    public CardResource(String directory) {
+        String filename = directory;
+        //figure this out
+        float height = Director.instance().getViewHeight();
+        if (height < 700) {
+            mSize = CardSize.SMALL;
+            filename += String.format("/%s", "cards_small.pack");
         }
-        this.mCardAtlas = mCardAtlas;
-        mSize = size;
+        else if (height < 1000) {
+            mSize = CardSize.MEDIUM;
+            filename += String.format("/%s", "cards_medium.pack");
+        }
+        else {
+            mSize = CardSize.LARGE;
+            filename += String.format("/%s", "cards_large.pack");
+        }
+
+        this.mCardAtlas = new TextureAtlas(filename);
+
 
         int ov = (int)(getWidth() * 0.05f);
         mCardHighlight = new Pixmap(getWidth()-ov, getHeight()-ov, Pixmap.Format.RGBA8888);
@@ -51,12 +65,12 @@ public class CardResource implements Disposable{
 
     public TextureAtlas.AtlasRegion getCardBack() {
         if (mCardBack == null)
-            mCardBack = mCardAtlas.findRegion("card_back");
+            mCardBack = mCardAtlas.findRegion("card_back_logo");
         return mCardBack;
     }
 
     public TextureAtlas.AtlasRegion getCardBackDeck() {
-        return mCardAtlas.findRegion("back_deck");
+        return mCardAtlas.findRegion("back_deck_logo");
     }
 
     public int getWidth() {

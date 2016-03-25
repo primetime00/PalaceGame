@@ -1,0 +1,531 @@
+
+cards_large.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+10_of_clubs
+  rotate: false
+  xy: 1, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+10_of_diamonds
+  rotate: false
+  xy: 1, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+10_of_hearts
+  rotate: false
+  xy: 174, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+10_of_spades
+  rotate: false
+  xy: 1, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+2_of_clubs
+  rotate: false
+  xy: 174, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+2_of_diamonds
+  rotate: false
+  xy: 347, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+2_of_hearts
+  rotate: false
+  xy: 1, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+2_of_spades
+  rotate: false
+  xy: 174, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+3_of_clubs
+  rotate: false
+  xy: 347, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+3_of_diamonds
+  rotate: false
+  xy: 520, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+3_of_hearts
+  rotate: false
+  xy: 174, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+3_of_spades
+  rotate: false
+  xy: 347, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+4_of_clubs
+  rotate: false
+  xy: 520, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+4_of_diamonds
+  rotate: false
+  xy: 693, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+4_of_hearts
+  rotate: false
+  xy: 347, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+4_of_spades
+  rotate: false
+  xy: 520, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+5_of_clubs
+  rotate: false
+  xy: 693, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+5_of_diamonds
+  rotate: false
+  xy: 520, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+5_of_hearts
+  rotate: false
+  xy: 693, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+5_of_spades
+  rotate: false
+  xy: 693, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+
+cards_large2.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+6_of_clubs
+  rotate: false
+  xy: 1, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+6_of_diamonds
+  rotate: false
+  xy: 1, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+6_of_hearts
+  rotate: false
+  xy: 174, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+6_of_spades
+  rotate: false
+  xy: 1, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+7_of_clubs
+  rotate: false
+  xy: 174, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+7_of_diamonds
+  rotate: false
+  xy: 347, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+7_of_hearts
+  rotate: false
+  xy: 1, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+7_of_spades
+  rotate: false
+  xy: 174, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+8_of_clubs
+  rotate: false
+  xy: 347, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+8_of_diamonds
+  rotate: false
+  xy: 520, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+8_of_hearts
+  rotate: false
+  xy: 174, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+8_of_spades
+  rotate: false
+  xy: 347, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+9_of_clubs
+  rotate: false
+  xy: 520, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+9_of_diamonds
+  rotate: false
+  xy: 693, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+9_of_hearts
+  rotate: false
+  xy: 347, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+9_of_spades
+  rotate: false
+  xy: 520, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+ace_of_clubs
+  rotate: false
+  xy: 693, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+ace_of_diamonds
+  rotate: false
+  xy: 520, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+ace_of_hearts
+  rotate: false
+  xy: 693, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+ace_of_spades
+  rotate: false
+  xy: 693, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+
+cards_large3.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+ace_of_spades2
+  rotate: false
+  xy: 1, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+black_joker
+  rotate: false
+  xy: 1, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+card_back
+  rotate: false
+  xy: 174, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+card_back_logo
+  rotate: false
+  xy: 1, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+card_back_symbol
+  rotate: false
+  xy: 174, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_clubs
+  rotate: false
+  xy: 347, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_clubs2
+  rotate: false
+  xy: 1, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_diamonds
+  rotate: false
+  xy: 174, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_diamonds2
+  rotate: false
+  xy: 347, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_hearts
+  rotate: false
+  xy: 520, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_hearts2
+  rotate: false
+  xy: 174, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_spades
+  rotate: false
+  xy: 347, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+jack_of_spades2
+  rotate: false
+  xy: 520, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_clubs
+  rotate: false
+  xy: 693, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_clubs2
+  rotate: false
+  xy: 347, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_diamonds
+  rotate: false
+  xy: 520, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_diamonds2
+  rotate: false
+  xy: 693, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_hearts
+  rotate: false
+  xy: 520, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_hearts2
+  rotate: false
+  xy: 693, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+king_of_spades
+  rotate: false
+  xy: 693, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+
+cards_large4.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+king_of_spades2
+  rotate: false
+  xy: 1, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_clubs
+  rotate: false
+  xy: 1, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_clubs2
+  rotate: false
+  xy: 174, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_diamonds
+  rotate: false
+  xy: 1, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_diamonds2
+  rotate: false
+  xy: 174, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_hearts
+  rotate: false
+  xy: 347, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_hearts2
+  rotate: false
+  xy: 1, 1
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_spades
+  rotate: false
+  xy: 174, 251
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+queen_of_spades2
+  rotate: false
+  xy: 347, 501
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+red_joker
+  rotate: false
+  xy: 520, 751
+  size: 171, 248
+  orig: 171, 248
+  offset: 0, 0
+  index: -1
+back_deck
+  rotate: false
+  xy: 174, 7
+  size: 171, 242
+  orig: 171, 242
+  offset: 0, 0
+  index: -1
+back_deck_logo
+  rotate: false
+  xy: 347, 257
+  size: 171, 242
+  orig: 171, 242
+  offset: 0, 0
+  index: -1
+back_deck_symbol
+  rotate: false
+  xy: 520, 507
+  size: 171, 242
+  orig: 171, 242
+  offset: 0, 0
+  index: -1

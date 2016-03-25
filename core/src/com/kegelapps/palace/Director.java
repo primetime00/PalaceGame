@@ -10,9 +10,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kegelapps.palace.audio.SoundIDList;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.audio.VolumeController;
@@ -44,6 +50,7 @@ import java.util.ArrayList;
 public class Director implements Disposable{
     private static Director instance = null;
 
+    private Vector2 mWorldSize;
     private GameScene mGameScene;
     private UIScene mUIScene;
     private IntroScene mIntroScene;
@@ -72,6 +79,7 @@ public class Director implements Disposable{
     {
         mCurrentScene = null;
         mResetList = new ArrayList<>();
+        mWorldSize = new Vector2(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         mEventSystem = new EventSystem();
         registerTweens();
@@ -81,9 +89,9 @@ public class Director implements Disposable{
     }
 
     private void createScenes() {
-        mGameScene = new GameScene(new ExtendViewport(800,480));
-        mUIScene = new UIScene(new ExtendViewport(800,480));
-        mIntroScene = new IntroScene(new ExtendViewport(800,480));
+        mGameScene = new GameScene(new ExtendViewport(mWorldSize.x, mWorldSize.y));
+        mUIScene = new UIScene(new ExtendViewport(mWorldSize.x, mWorldSize.y));
+        mIntroScene = new IntroScene(new ExtendViewport(mWorldSize.x, mWorldSize.y));
     }
 
     private void registerTweens() {
@@ -193,10 +201,10 @@ public class Director implements Disposable{
     }
 
     public int getVirtualWidth() {
-        return 1200;
+        return (int)(getViewWidth() + (getViewWidth()*.35f));
     }
     public int getVirtualHeight() {
-        return 1200;
+        return (int)(getViewHeight() + (getViewHeight()*.75f));
     }
 
     public Scene getScene() {
@@ -224,35 +232,36 @@ public class Director implements Disposable{
 
 
         //lets load out font first
+        float fontScale = Director.instance.getViewHeight() / 480.0f;
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
         FontLoader.FontParams fontParam = new FontLoader.FontParams();
         fontParam.filename = "Actor-Regular.ttf";
-        fontParam.size = 45;
-        fontParam.border = 2;
+        fontParam.size =  MathUtils.round(45*fontScale);
+        fontParam.border = MathUtils.round(2*fontScale);
         mAssetManager.load("default_font", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
         fontParam.filename = "Actor-Regular.ttf";
-        fontParam.size = 55;
-        fontParam.border = 3;
+        fontParam.size = MathUtils.round(55*fontScale);
+        fontParam.border = MathUtils.round(3*fontScale);
         mAssetManager.load("message_font", BitmapFont.class, fontParam);
 
 
         fontParam = new FontLoader.FontParams();
-        fontParam.size = 175;
-        fontParam.border = 5;
+        fontParam.size = MathUtils.round(175*fontScale);
+        fontParam.border = MathUtils.round(5*fontScale);
         fontParam.filename = "title_font.ttf";
         mAssetManager.load("title_font_large", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
-        fontParam.size = 45;
-        fontParam.border = 1;
+        fontParam.size = MathUtils.round(45*fontScale);
+        fontParam.border = MathUtils.round(1*fontScale);
         fontParam.filename = "title_font.ttf";
         mAssetManager.load("title_font_small", BitmapFont.class, fontParam);
 
 
         mAssetManager.setLoader(CardResource.class, new CardLoader(new InternalFileHandleResolver()));
-        mAssetManager.load("cards_tiny.pack", CardResource.class);
+        mAssetManager.load("cards", CardResource.class);
 
         mAssetManager.setLoader(CoinResource.class, new CoinLoader(new InternalFileHandleResolver()));
         mAssetManager.load("coins.pack", CoinResource.class);

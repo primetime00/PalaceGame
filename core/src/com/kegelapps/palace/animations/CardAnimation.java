@@ -130,7 +130,6 @@ public class CardAnimation extends Animation {
                 x = hiddenRect.getX() + (powerVariation * (side == HandUtils.HandSide.SIDE_RIGHT ? 1 : -1));
                 y = mTable.getDeck().getY()+angleVariation;
             }
-            System.out.print(String.format("Dealing to (%f, %f)\n", x, y));
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x, y).ease(TweenEquations.easeInOutExpo));
             mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(rotation));
 

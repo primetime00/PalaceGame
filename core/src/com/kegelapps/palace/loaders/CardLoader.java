@@ -24,7 +24,7 @@ public class CardLoader extends SynchronousAssetLoader<CardResource, CardLoader.
     public CardResource load(AssetManager assetManager, String fileName, FileHandle file, CardParams parameter) {
         if (parameter == null)
             parameter = new CardParams();
-        CardResource r = new CardResource(new TextureAtlas(file), parameter.size);
+        CardResource r = new CardResource(parameter.directory);
         return r;
     }
 
@@ -34,7 +34,7 @@ public class CardLoader extends SynchronousAssetLoader<CardResource, CardLoader.
     }
 
     static public class CardParams extends AssetLoaderParameters<CardResource> {
-        public CardResource.CardSize size = CardResource.CardSize.TINY;
+        public String directory = "art/cards/";
     }
 
 }

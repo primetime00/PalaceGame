@@ -46,8 +46,8 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
     public InPlayView(InPlay play) {
         super();
         mInPlayCards = play;
-        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
-        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        mCardHeight = Director.instance().getAssets().get("cards", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
         init();
     }
 
@@ -181,7 +181,7 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
 
     public void OrganizeCards() {
         int size = mInPlayCards.GetCards().size();
-        float width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        float width = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
         int rows = (size/cardsHorizontal)+1;
         int lastCol = size % cardsHorizontal;
         float height = (width * overlapPercentY * (size/(cardsHorizontal+1)));

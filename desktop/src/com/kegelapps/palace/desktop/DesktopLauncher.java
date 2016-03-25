@@ -7,8 +7,8 @@ import com.kegelapps.palace.Palace;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1024;
-        config.height = 768;
+		config.width = 1280;
+        config.height = 800;
 		new LwjglApplication(new Palace(), config);
 	}
 }

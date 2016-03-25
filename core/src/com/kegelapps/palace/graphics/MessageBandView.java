@@ -38,7 +38,7 @@ public class MessageBandView extends Group implements TweenCallback{
     }
 
     public MessageBandView() {
-        float height = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
+        float height = Director.instance().getAssets().get("cards", CardResource.class).getHeight();
         float width = Director.instance().getViewWidth();
         setWidth(width);
         setHeight(height);

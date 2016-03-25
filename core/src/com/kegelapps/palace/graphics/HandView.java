@@ -56,8 +56,8 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
     }
 
     private void init() {
-        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
-        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        mCardHeight = Director.instance().getAssets().get("cards", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
 
         if (mHand.getType() == Hand.HandType.HUMAN)
             mCardOverlapPercent = 0.75f;
@@ -94,7 +94,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                     mPlayerName.setY(mHiddenPositions[1].getY());
                     break;
                 case 1: //left
-                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getHeight());
+                    mPlayerName.setX(mHiddenPositions[1].getX() + mCardWidth + mPlayerName.getHeight() + mPlayerName.getOriginX());
                     mPlayerName.setY(mHiddenPositions[1].getY() - mPlayerName.getHeight() /2.0f + mCardWidth/2.0f );
                     mPlayerName.setRotation(-90);
                     break;

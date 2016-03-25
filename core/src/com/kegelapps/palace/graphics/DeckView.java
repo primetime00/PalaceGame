@@ -40,7 +40,7 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
     }
 
     private void init() {
-        mDeckBack = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardBackDeck();
+        mDeckBack = Director.instance().getAssets().get("cards", CardResource.class).getCardBackDeck();
         setBounds(0,0,mDeckBack.originalWidth, mDeckBack.originalHeight);
         mHighlightView = new HighlightView();
         createEvents();
@@ -195,6 +195,7 @@ public class DeckView extends Group implements Input.BoundObject, Resettable {
         for (Actor a : getChildren()) {
             a.remove();
         }
+        setHighlight(false);
         getChildren().clear();
         mDeckLow = false;
     }

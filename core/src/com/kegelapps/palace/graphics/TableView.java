@@ -81,8 +81,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         mHelperText = new TextView(Director.instance().getAssets().get("default_font", BitmapFont.class));
         mHelperText.setVerticalPadPercent(0.6f);
 
-        mCardHeight = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getHeight();
-        mCardWidth = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        mCardHeight = Director.instance().getAssets().get("cards", CardResource.class).getHeight();
+        mCardWidth = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
 
         mBackground = new TiledDrawable(((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("tabletop"));
 
@@ -118,7 +118,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         float w = (Director.instance().getViewWidth() - mCardWidth)/2.0f;
         float h = (Director.instance().getViewHeight() - mCardHeight)/2.0f;
         mDeck.setPosition(w,h);
-        int width = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getWidth();
+        int width = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
 
         mPlayView.setPosition(mDeck.getX()+width+(width*mDeckToActiveGap), mDeck.getY());
         mPlayView.setReferenceDeck(mDeck);
@@ -130,7 +130,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
     public void Reset(boolean newGame) {
         float x = Director.instance().getViewWidth() / 2.0f;
         float y = Director.instance().getViewHeight() / 2.0f;
-
+        mHelperText.setText("");
         for (Actor c : getChildren()) {
             if (c instanceof CardView || c instanceof CoinView)
                 c.remove();

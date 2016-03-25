@@ -52,7 +52,7 @@ public class CardView extends Actor {
 
 
     private void init(boolean newInstance) {
-        mCardFace = Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
+        mCardFace = Director.instance().getAssets().get("cards", CardResource.class).getCard(mCard.getSuit(), mCard.getRank());
         setSide(Side.FRONT);
         setBounds(0,0,mCardRegion.originalWidth, mCardRegion.originalHeight);
         setOrigin(mCardRegion.originalWidth/2.0f, mCardRegion.originalHeight/2.0f);
@@ -79,7 +79,7 @@ public class CardView extends Actor {
     }
 
     public void setSide(Side side) {
-        mCardRegion = side == Side.FRONT ? mCardFace : Director.instance().getAssets().get("cards_tiny.pack", CardResource.class).getCardBack();
+        mCardRegion = side == Side.FRONT ? mCardFace : Director.instance().getAssets().get("cards", CardResource.class).getCardBack();
     }
 
     public float getMaxCardSize() {
