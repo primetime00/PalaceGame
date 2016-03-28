@@ -38,6 +38,7 @@ public class Logic implements Serializer, Resettable{
     }
 
     private int mNumberOfPlayers = 0;
+    private boolean mSimulate = false;
     private Stats mStats;
 
     private boolean mFastDeal = false;
@@ -198,6 +199,7 @@ public class Logic implements Serializer, Resettable{
     public void Initialize() {
         if (mStats != null)
             mStats.Reset(false);
+        mSimulate = false;
         //if we are rematching, don't load save
         if (mTable == null && mMainState == null)
             CheckForSave();
@@ -260,4 +262,11 @@ public class Logic implements Serializer, Resettable{
             mTable.generateNewIdentities();
     }
 
+    public boolean isSimulate() {
+        return mSimulate;
+    }
+
+    public void setSimulate(boolean mSimulate) {
+        this.mSimulate = mSimulate;
+    }
 }

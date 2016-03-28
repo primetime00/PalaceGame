@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.tween.ActorAccessor;
@@ -78,12 +79,16 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         if (mKillPreviousAnimation != null && (mKillPreviousAnimation instanceof Actor || mKillPreviousAnimation instanceof Camera)) {
             Director.instance().getTweenManager().killTarget(mKillPreviousAnimation);
 
-            Actor a = (Actor) mKillPreviousAnimation;
         }
 
         if (mTimeLineAnimation != null) {
             mTimeLineAnimation.setCallback(this);
             mTimeLineAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
+            if (Logic.get().isSimulate()) {
+                onEvent(TweenCallback.BEGIN, null);
+                onEvent(TweenCallback.END, null);
+                return;
+            }
             mTimeLineAnimation.start(Director.instance().getTweenManager());
             if (mChild != null) {
                 mChild.getTimeLineAnimation().pause();

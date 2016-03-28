@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.animations.AnimationFactory;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.SelectEndCards;
@@ -151,6 +152,8 @@ public class GameScene extends Scene {
     }
 
     public void ShowMessage(String message, float duration, Color color, boolean pause) {
+        if (Logic.get().isSimulate())
+            return;
         mMessageStage.getMessageBand().showMessage(message, duration, color, pause);
     }
 
@@ -216,6 +219,11 @@ public class GameScene extends Scene {
             });
             ani.start(getTweenManager());
         }
+        CheckForQuickGame();
+    }
+
+    private void CheckForQuickGame() {
+        tableView.CheckForQuickGame();
     }
 
     @Override

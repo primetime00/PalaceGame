@@ -23,7 +23,7 @@ public class OptionsTable extends Table {
 
     private TextButton.TextButtonStyle buttonStyle;
     private Label.LabelStyle labelStyle;
-    private Label mMusicLabel, mSoundLabel;
+    private Label mMusicLabel, mSoundLabel, mQuickLabel;
 
     public OptionsTable() {
 
@@ -38,6 +38,10 @@ public class OptionsTable extends Table {
                 }
                 else if (actor.getName().equals(StringMap.getString("sound"))) {
                     Director.instance().setOptions(opt.toBuilder().setSound(!opt.getSound()));
+                    invalidate();
+                }
+                else if (actor.getName().equals(StringMap.getString("quick_play"))) {
+                    Director.instance().setOptions(opt.toBuilder().setQuick(!opt.getQuick()));
                     invalidate();
                 }
                 else if (actor.getName().equals(StringMap.getString("back"))) {
@@ -64,6 +68,11 @@ public class OptionsTable extends Table {
                 StringMap.getString("on") :
                 StringMap.getString("off"),
                 labelStyle);
+        mQuickLabel = new Label(Director.instance().getOptions().getQuick() ?
+                StringMap.getString("on") :
+                StringMap.getString("off"),
+                labelStyle);
+
     }
 
     private void createButtons() {
@@ -76,6 +85,7 @@ public class OptionsTable extends Table {
 
         Table t = new Table();
         TextButton btn;
+
         btn = new TextButton(StringMap.getString("music"), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
         btn.setName(StringMap.getString("music"));
         btn.addListener(onChange);
@@ -88,6 +98,13 @@ public class OptionsTable extends Table {
         btn.addListener(onChange);
         t.add(btn).expandX().left();
         t.add(mSoundLabel).right();
+        t.row();
+
+        btn = new TextButton(StringMap.getString("quick_play"), buttonStyle); maxWidth = Math.max(maxWidth, btn.getWidth());
+        btn.setName(StringMap.getString("quick_play"));
+        btn.addListener(onChange);
+        t.add(btn).expandX().left();
+        t.add(mQuickLabel).right();
 
         add(t).expandX().fillX();
         row();
@@ -106,6 +123,9 @@ public class OptionsTable extends Table {
                 StringMap.getString("on") :
                 StringMap.getString("off"));
         mSoundLabel.setText(Director.instance().getOptions().getSound() ?
+                StringMap.getString("on") :
+                StringMap.getString("off"));
+        mQuickLabel.setText(Director.instance().getOptions().getQuick() ?
                 StringMap.getString("on") :
                 StringMap.getString("off"));
     }

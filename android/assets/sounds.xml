@@ -52,10 +52,10 @@
         <sound filename="keydown.ogg"></sound>
     </sounds>
     <sounds category="coin">
-        <sound filename="cardSlide7.ogg"></sound>
+        <sound filename="ting.ogg"></sound>
     </sounds>
     <sounds category="button">
-        <sound filename="cardSlide7.ogg"></sound>
+        <sound filename="button.ogg"></sound>
     </sounds>
 
 

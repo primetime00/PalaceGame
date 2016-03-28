@@ -14,7 +14,7 @@ import java.util.Iterator;
  * Created by Ryan on 3/21/2016.
  */
 public class SoundIDList extends VolumeController{
-    private final float mMaxDuration = 3.0f;
+    private final float mMaxDuration = 4.0f;
     private float mMasterVolume = 1.0f;
     private Array<SoundItem> mList;
     private TweenManager mTweenManager;

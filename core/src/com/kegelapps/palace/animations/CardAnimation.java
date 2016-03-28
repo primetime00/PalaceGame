@@ -77,6 +77,7 @@ public class CardAnimation extends Animation {
             mCard.setSide(CardView.Side.BACK);
             Vector2 vec = mTable.getPlayView().GetAbsoluteNextCardPosition();
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, 1.0f).target(vec.x, vec.y).ease(TweenEquations.easeInOutExpo));
             mAnimation.push(Tween.call(new TweenCallback() {
@@ -100,6 +101,7 @@ public class CardAnimation extends Animation {
             TableView mTable = builder.getTable();
             int mHandID = builder.getHandID();
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mTable.getDeck().getX(), mTable.getDeck().getY()));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             HandView hand = mTable.getHands().get(mHandID);
 
             Rectangle activeRect = hand.getActivePosition();
@@ -215,6 +217,7 @@ public class CardAnimation extends Animation {
                     break;
             }
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(),mCard.getY()));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x,y));
             mAnimation.push(Tween.call(new TweenCallback() {
@@ -280,6 +283,7 @@ public class CardAnimation extends Animation {
             float rotDiff = (mCard.getOriginY() - mCard.getOriginX())/1;
             float sideRot = 90.0f;
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(pos_x, pos_y));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             switch (mHandID) {
                 default:
                 case 0: //bottom
@@ -327,6 +331,7 @@ public class CardAnimation extends Animation {
             float y = vec.y;
 
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(pos_x, pos_y));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             mAnimation.beginParallel();
             TweenEquation eq = TweenEquations.easeInOutQuart;
             float duration = mDuration;
@@ -364,6 +369,7 @@ public class CardAnimation extends Animation {
             float rotDiff = (mCard.getOriginY() - mCard.getOriginX()) / 1;
             float sideRot = 90.0f;
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(x, y));
+            mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
 
             switch (mHandID) {
                 default:

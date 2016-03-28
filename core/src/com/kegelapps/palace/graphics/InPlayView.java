@@ -199,6 +199,8 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
                     CardView cv = CardView.getCardView(mInPlayCards.GetCards().get(i));
                     HandUtils.Reparent(this, cv);
                     cv.setPosition(width * overlapPercentX * x, startY);
+                    cv.setRotation(0);
+                    cv.setSide(CardView.Side.FRONT);
                     i++;
                 }
             }
@@ -207,6 +209,8 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
                     CardView cv = CardView.getCardView(mInPlayCards.GetCards().get(i));
                     HandUtils.Reparent(this, cv);
                     cv.setPosition(width * overlapPercentX * (cardsHorizontal-1-x), startY);
+                    cv.setRotation(0);
+                    cv.setSide(CardView.Side.FRONT);
                     i++;
                 }
             }

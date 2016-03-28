@@ -1,6 +1,7 @@
 package com.kegelapps.palace.audio;
 
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Logic;
 
 /**
  * Created by Ryan on 3/20/2016.
@@ -41,6 +42,8 @@ public class AudioManager {
 
     public void QueueSound(final SoundEvent evt) {
         if (!Director.instance().getOptions().getSound())
+            return;
+        if (Logic.get().isSimulate())
             return;
         if (evt.getDelay() <= 0) {
             mSoundList.play(evt.getSound());

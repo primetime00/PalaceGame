@@ -27,7 +27,7 @@ public class PlayCPUTurn extends PlayTurn {
 
     @Override
     protected boolean DoPlayCard() {
-        if (System.currentTimeMillis() - mTime < 500)
+        if (!Logic.get().isSimulate()  && System.currentTimeMillis() - mTime < 500)
             return false;
         Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
         //find a card to play

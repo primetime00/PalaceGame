@@ -78,7 +78,7 @@ public class GameStatsDialog extends FrameView {
     @Override
     public void update() {
         super.update();
-        //reset();
+        reset();
         titleTable.reset();
         statsTable.reset();
         //lets get out stats
@@ -91,7 +91,8 @@ public class GameStatsDialog extends FrameView {
 
         String placeStrings[] = { StringMap.getString("1st"), StringMap.getString("2nd"), StringMap.getString("3rd")};
 
-        titleTable.add(new Label(mTitle, style)).top().expand();
+        Label ls = new Label(mTitle, style);
+        titleTable.add(ls).top().expand().padTop(25);
         add(titleTable).prefHeight(Value.percentHeight(0.2f, this));
         row();
 
@@ -117,10 +118,11 @@ public class GameStatsDialog extends FrameView {
         tbRematch.addListener(mRematchListener);
         TextButton tbQuit = new TextButton(StringMap.getString("quit"), btnStyle);
         tbQuit.addListener(mQuitListener);
-        btnTable.add(tbRematch).prefWidth(100).height(36);
+        btnTable.add(tbRematch).prefWidth(100).height(ls.getPrefHeight());
         btnTable.add().expandX();
-        btnTable.add(tbQuit).prefWidth(100).height(36);
-        add(btnTable).expandX().fillX().pad(Value.zero, Value.percentWidth(0.1f, this), Value.zero, Value.percentWidth(0.1f, this)).height(32);
+        btnTable.add(tbQuit).prefWidth(100);
+        add(btnTable).expandX().fillX().pad(Value.zero, Value.percentWidth(0.1f, this), Value.zero, Value.percentWidth(0.1f, this)).height(tbQuit.getPrefHeight() + (tbQuit.getPrefHeight() * 0.5f));
+        setHeight(getPrefHeight());
     }
 
     public void setTitle(String title) {

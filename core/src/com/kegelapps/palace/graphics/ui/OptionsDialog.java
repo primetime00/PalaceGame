@@ -28,7 +28,7 @@ public class OptionsDialog extends FrameView {
     private Label.LabelStyle style;
     private TextButton.TextButtonStyle buttonStyle;
 
-    private Label soundStatus, musicStatus;
+    private Label soundStatus, musicStatus, quickStatus;
 
     private ChangeListener onChange;
 
@@ -46,6 +46,8 @@ public class OptionsDialog extends FrameView {
         soundStatus = new Label(Director.instance().getOptions().getSound() ?
                 StringMap.getString("on") : StringMap.getString("off"), style);
         musicStatus = new Label(Director.instance().getOptions().getMusic() ?
+                StringMap.getString("on") : StringMap.getString("off"), style);
+        quickStatus = new Label(Director.instance().getOptions().getQuick() ?
                 StringMap.getString("on") : StringMap.getString("off"), style);
 
         setWidth(Director.instance().getViewWidth() * 0.8f);
@@ -86,6 +88,10 @@ public class OptionsDialog extends FrameView {
                     Director.instance().setOptions(opt.toBuilder().setSound(!opt.getSound()));
                     mark();
                 }
+                else if (actor.getName().equals(StringMap.getString("quick_play"))) {
+                    Director.instance().setOptions(opt.toBuilder().setQuick(!opt.getQuick()));
+                    mark();
+                }
                 else if (actor.getName().equals(StringMap.getString("restart"))) {
                     Director.instance().getEventSystem().FireLater(EventSystem.EventType.QUIT_GAME, true);
                 }
@@ -106,7 +112,7 @@ public class OptionsDialog extends FrameView {
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.font = style.font;
 
-        TextButton btn, snd, mus;
+        TextButton btn, snd, mus, qck;
 
 
 
@@ -114,6 +120,8 @@ public class OptionsDialog extends FrameView {
         mus.setName(StringMap.getString("music"));
         snd = new TextButton(StringMap.getString("sound"), buttonStyle);
         snd.setName(StringMap.getString("sound"));
+        qck = new TextButton(StringMap.getString("quick_play"), buttonStyle);
+        qck.setName(StringMap.getString("quick_play"));
 
         Table t = new Table();
         t.add(mus).expandX().left();
@@ -121,11 +129,18 @@ public class OptionsDialog extends FrameView {
         t.row();
         t.add(snd).expandX().left();
         t.add(soundStatus).right();
-        optionTable.add(t).prefWidth(Math.max(mus.getWidth()+42+musicStatus.getWidth(), snd.getWidth()+42+soundStatus.getWidth()));
+        t.row();
+        t.add(qck).expandX().left();
+        t.add(quickStatus).right();
+        float max = Math.max(mus.getWidth()+42+musicStatus.getWidth(), snd.getWidth()+42+soundStatus.getWidth());
+        max = Math.max(qck.getWidth()+42+quickStatus.getWidth(), max);
+        optionTable.add(t).prefWidth(max);
 
         mus.addListener(onChange);
 
         snd.addListener(onChange);
+
+        qck.addListener(onChange);
 
 
         btn = new TextButton(StringMap.getString("resume"), buttonStyle);
@@ -148,6 +163,7 @@ public class OptionsDialog extends FrameView {
     public void update() {
         soundStatus.setText(Director.instance().getOptions().getSound() ? StringMap.getString("on") : StringMap.getString("off"));
         musicStatus.setText(Director.instance().getOptions().getMusic() ? StringMap.getString("on") : StringMap.getString("off"));
+        quickStatus.setText(Director.instance().getOptions().getQuick() ? StringMap.getString("on") : StringMap.getString("off"));
 
     }
 }

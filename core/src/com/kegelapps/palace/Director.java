@@ -201,10 +201,10 @@ public class Director implements Disposable{
     }
 
     public int getVirtualWidth() {
-        return (int)(getViewWidth() + (getViewWidth()*.35f));
+        return (int)(  (getViewWidth() + (getViewWidth()*.35f)) / (0.6f/Gdx.graphics.getDensity())   );
     }
     public int getVirtualHeight() {
-        return (int)(getViewHeight() + (getViewHeight()*.75f));
+        return (int)((getViewHeight() + (getViewHeight()*.75f) / (0.6f/Gdx.graphics.getDensity())));
     }
 
     public Scene getScene() {
@@ -233,29 +233,37 @@ public class Director implements Disposable{
 
         //lets load out font first
         float fontScale = Director.instance.getViewHeight() / 480.0f;
+        //fontScale *= 0.6f / Gdx.graphics.getDensity();
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
         FontLoader.FontParams fontParam = new FontLoader.FontParams();
         fontParam.filename = "Actor-Regular.ttf";
-        fontParam.size =  MathUtils.round(45*fontScale);
+        fontParam.size =  MathUtils.round(28*fontScale);
         fontParam.border = MathUtils.round(2*fontScale);
         mAssetManager.load("default_font", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
         fontParam.filename = "Actor-Regular.ttf";
-        fontParam.size = MathUtils.round(55*fontScale);
+        fontParam.size =  MathUtils.round(18*fontScale);
+        fontParam.border = MathUtils.round(1*fontScale);
+        mAssetManager.load("small_font", BitmapFont.class, fontParam);
+
+
+        fontParam = new FontLoader.FontParams();
+        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.size = MathUtils.round(50*fontScale);
         fontParam.border = MathUtils.round(3*fontScale);
         mAssetManager.load("message_font", BitmapFont.class, fontParam);
 
 
         fontParam = new FontLoader.FontParams();
-        fontParam.size = MathUtils.round(175*fontScale);
-        fontParam.border = MathUtils.round(5*fontScale);
+        fontParam.size = MathUtils.round(120*fontScale);
+        fontParam.border = MathUtils.round(3*fontScale);
         fontParam.filename = "title_font.ttf";
         mAssetManager.load("title_font_large", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
-        fontParam.size = MathUtils.round(45*fontScale);
-        fontParam.border = MathUtils.round(1*fontScale);
+        fontParam.size = MathUtils.round(30*fontScale);
+        fontParam.border = MathUtils.round(2*fontScale);
         fontParam.filename = "title_font.ttf";
         mAssetManager.load("title_font_small", BitmapFont.class, fontParam);
 

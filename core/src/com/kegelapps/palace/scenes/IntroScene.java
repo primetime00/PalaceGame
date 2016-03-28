@@ -1,6 +1,8 @@
 package com.kegelapps.palace.scenes;
 
 import aurelienribon.tweenengine.*;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
@@ -42,7 +44,7 @@ public class IntroScene extends Scene {
 
     private final float titleFadeTime = 1.0f;
     private final float screenFadeTime = 1.0f;
-    private final float initialAnimationDelayTime = 3.0f;
+    private final float initialAnimationDelayTime = 13.0f;
 
 
     public IntroScene(Viewport viewport) {
@@ -159,9 +161,11 @@ public class IntroScene extends Scene {
         if (mAckDialog == null)
             mAckDialog = new AcknowledgementDialog(StringMap.getString("acknowledgements"));
         mAckDialog.setColor(1,1,1,0);
-        mAckDialog.setX( (mViewWidth - mAckDialog.getWidth()) / 2.0f);
-        mAckDialog.setY( (mViewHeight - mAckDialog.getHeight()) / 2.0f);
+        //mAckDialog.setX( (mViewWidth - mAckDialog.getWidth()) / 2.0f);
+        //mAckDialog.setY( (mViewHeight - mAckDialog.getHeight()) / 2.0f);
         addActor(mAckDialog);
+        mAckDialog.setScreenPercent(0.8f, 0.8f);
+        mAckDialog.mark();
         Tween.to(mAckDialog, ActorAccessor.ALPHA, 0.35f).target(1.0f).start(getTweenManager());
     }
 
@@ -205,7 +209,7 @@ public class IntroScene extends Scene {
         addActor(mTitle);
 
         mClipFrame.setWidth(Director.instance().getViewWidth() * 0.4f);
-        mClipFrame.setHeight(200);
+        mClipFrame.setHeight(mOptionTable.getPrefHeight());
 
 
         mClipFrame.addActor(mMainTable);

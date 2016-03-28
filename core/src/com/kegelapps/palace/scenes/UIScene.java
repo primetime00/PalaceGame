@@ -56,10 +56,11 @@ public class UIScene extends Scene {
             @Override
             public void handle(Object params[]) {
                 clearScene();
-                float x = (getViewWidth() - mGameStatsDialog.getWidth()) / 2.0f;
-                float y = (getViewHeight() - mGameStatsDialog.getHeight()) / 2.0f;
-                mGameStatsDialog.setPosition(x,y);
+                //float x = (getViewWidth() - mGameStatsDialog.getWidth()) / 2.0f;
+                //float y = (getViewHeight() - mGameStatsDialog.getHeight()) / 2.0f;
+                //mGameStatsDialog.setPosition(x,y);
                 addActor(mGameStatsDialog);
+                mGameStatsDialog.mark();
             }
         });
 
@@ -67,10 +68,12 @@ public class UIScene extends Scene {
             @Override
             public void handle(Object params[]) {
                 clearScene();
-                float x = (getViewWidth() - mOptionsDialog.getWidth()) / 2.0f;
-                float y = (getViewHeight() - mOptionsDialog.getHeight()) / 2.0f;
-                mOptionsDialog.setPosition(x,y);
+                //float x = (getViewWidth() - mOptionsDialog.getWidth()) / 2.0f;
+                //float y = (getViewHeight() - mOptionsDialog.getHeight()) / 2.0f;
+                //mOptionsDialog.setPosition(x,y);
                 addActor(mOptionsDialog);
+                mOptionsDialog.setScreenPercent(0.8f, 0.8f);
+                mOptionsDialog.mark();
                 Director.instance().getAudioManager().SendEvent(AudioManager.AudioEvent.TRANSITION_TO_OPTIONS, 1.0f);
             }
         });

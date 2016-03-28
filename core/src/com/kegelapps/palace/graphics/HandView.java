@@ -28,6 +28,7 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
+import sun.rmi.runtime.Log;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -226,7 +227,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         };
         Director.instance().getEventSystem().RegisterEvent(mLayoutHiddenCardEventListener);
 
-        EventSystem.EventListener mLayoutActiveCardEventListener = new EventSystem.EventListener(EventSystem.EventType.LAYOUT_ACTIVE_CARD) {
+        final EventSystem.EventListener mLayoutActiveCardEventListener = new EventSystem.EventListener(EventSystem.EventType.LAYOUT_ACTIVE_CARD) {
             @Override
             public void handle(Object params[]) {
                 if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer)) {
@@ -401,8 +402,10 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                             case SILVER: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("2nd_place"), name), 1.0f, Color.GRAY, true); break;
                             case BRONZE: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("3rd_place"), name), 1.0f, Color.BROWN, true); break;
                         }
+                        builder.getTable().SimulateGame(mHand, 2.0f);
                     }
                 });
+
                 builder.build().Start();
             }
         });
@@ -442,6 +445,13 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         int size = getHand().GetActiveCards().size();
         Rectangle r = getActivePosition();
         float width;
+        if (Logic.get().isSimulate()) {
+            animation = false;
+            active = true;
+            hidden = true;
+            end = true;
+            pause = false;
+        }
         if (size > 0) {
             CardView c = CardView.getCardView(getHand().GetActiveCards().get(0));
             width = (((size - 1) * c.getWidth()) * mCardOverlapPercent) + c.getWidth();

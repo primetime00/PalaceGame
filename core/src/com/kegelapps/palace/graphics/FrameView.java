@@ -18,7 +18,9 @@ public class FrameView extends Table{
     private TextureRegion mGrid[][];
     private ShadowView mShadow;
     private final int sz = 26;
+    private final int shadowOverlay = 20;
     private boolean mNeedsRedraw;
+    private float mXPercent, mYPercent;
 
     public FrameView() {
         super();
@@ -47,11 +49,17 @@ public class FrameView extends Table{
         mLeftTile = new TiledDrawable(mGrid[1][0]);
         mRightTile = new TiledDrawable(mGrid[1][2]);
 
+        mXPercent = 0;
+        mYPercent = 0;
+
         setWidth((sz*14));
         setHeight((sz*14));
         setX(30);
         setY(30);
         pad(sz + sz*0.5f);
+        padBottom(mGrid[2][1].getRegionHeight() + shadowOverlay);
+        padTop(mGrid[0][1].getRegionHeight());
+        mark();
     }
 
 
@@ -82,7 +90,7 @@ public class FrameView extends Table{
 
     @Override
     protected void drawBackground(Batch batch, float parentAlpha, float x, float y) {
-        mShadow.shadowBottomRight(20, this);
+        mShadow.shadowBottomRight(shadowOverlay, this);
         mShadow.setColor(Color.BLACK, 0.5f);
         mShadow.draw(batch, parentAlpha);
 
@@ -106,8 +114,26 @@ public class FrameView extends Table{
     @Override
     public void act(float delta) {
         super.act(delta);
-        if (needsRedraw())
+        if (needsRedraw()) {
             update();
+            pad(sz + sz*0.5f);
+            padTop(mGrid[0][1].getRegionHeight());
+            padBottom(mGrid[2][1].getRegionHeight() + shadowOverlay);
+
+            if (mXPercent > 0 && mYPercent > 0) {
+                setWidth(Director.instance().getViewWidth() * mXPercent);
+                setHeight(Director.instance().getViewHeight() * mYPercent);
+            } else {
+                setHeight(getPrefHeight());
+            }
+            setY((Director.instance().getViewHeight() - getHeight())/2.0f);
+            setX((Director.instance().getViewWidth() - getWidth())/2.0f);
+        }
+    }
+
+    public void setScreenPercent(float x, float y) {
+        mXPercent = x;
+        mYPercent = y;
     }
 
     public boolean needsRedraw() {

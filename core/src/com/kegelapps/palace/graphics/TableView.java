@@ -1,5 +1,8 @@
 package com.kegelapps.palace.graphics;
 
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -843,6 +846,56 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
     public void dispose() {
         for (HandView h : getHands()) {
             h.dispose();
+        }
+    }
+
+    public void SimulateGame(Hand hand, float duration) {
+        if (!Director.instance().getOptions().getQuick())
+            return;
+        if (hand.getType() == Hand.HandType.HUMAN) {
+            float x = Director.instance().getViewWidth() / 2.0f;
+            float y = Director.instance().getViewHeight() / 2.0f;
+            CameraAnimation cameraCenter = (CameraAnimation) AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
+                    setPause(true).setDescription("Moving to center").setTable(TableView.this).setCamera(mCamera).
+                    setCameraSide(CardCamera.CameraSide.CENTER).setTweenCalculator(new CameraAnimation.MoveCamera(x, y, 1.0f, 0.5f)).
+                    setStartDelay(duration).killPreviousAnimation(mCamera).
+                    addStatusListener(new Animation.AnimationStatusListener() {
+                        @Override
+                        public void onEnd(Animation animation) {
+                            Logic.get().setSimulate(true);
+                            Director.instance().getTweenManager().update(100.0f);
+                            for (BaseTween tm : Director.instance().getTweenManager().getObjects()) {
+                                tm.kill();
+                                AnimationFactory.get().pauseDecrement();
+                            }
+                        }
+                    }).build();
+            cameraCenter.Start();
+        } else {
+            getHand(hand.getID()).ReparentAllViews();
+        }
+    }
+
+
+    public void CheckForQuickGame() {
+        Hand hand = null;
+        for (HandView h : getHands()) {
+            if (h.getHand().getType() == Hand.HandType.HUMAN) {
+                if (!h.getHand().HasAnyCards()) {
+                    hand = h.getHand();
+                    break;
+                }
+            }
+        }
+        if (hand == null)
+            return;
+        if (!Director.instance().getOptions().getQuick())
+            Logic.get().setSimulate(false);
+        else {
+            if (mCamera.GetSide() != CardCamera.CameraSide.CENTER)
+                SimulateGame(hand, 0.1f);
+            else
+                Logic.get().setSimulate(true);
         }
     }
 }

@@ -25,22 +25,29 @@ public class AcknowledgementDialog extends FrameView {
     private Table titleTable;
     private Table textTable;
     private Table actionsTable;
-    private Label.LabelStyle style;
+    private Label.LabelStyle titleStyle;
+    private Label.LabelStyle bodyStyle;
 
     private ChangeListener onChange;
 
     public AcknowledgementDialog(String title) {
-        style = new Label.LabelStyle();
-        style.background = null;
-        style.fontColor = Color.WHITE;
-        style.font = Director.instance().getAssets().get("default_font", BitmapFont.class);
+        titleStyle = new Label.LabelStyle();
+        titleStyle.background = null;
+        titleStyle.fontColor = Color.WHITE;
+        titleStyle.font = Director.instance().getAssets().get("default_font", BitmapFont.class);
+
+        bodyStyle = new Label.LabelStyle();
+        bodyStyle.background = null;
+        bodyStyle.fontColor = titleStyle.fontColor;
+        bodyStyle.font = Director.instance().getAssets().get("small_font", BitmapFont.class);
+
         titleTable  = new Table();
         textTable = new Table();
         actionsTable = new Table();
         mTitle = title;
 
-        setWidth(Director.instance().getViewWidth() * 0.8f);
-        setHeight(Director.instance().getViewHeight() * 0.8f);
+        //setWidth(Director.instance().getViewWidth() * 0.8f);
+        //setHeight(Director.instance().getViewHeight() * 0.8f);
 
         createActions();
 
@@ -54,13 +61,20 @@ public class AcknowledgementDialog extends FrameView {
     }
 
     private void createText() {
-        Label l = new Label("", style);
+        Label l = new Label("", bodyStyle);
         l.setText(StringMap.getString("all_acknowledgements"));
         String s = l.getText().toString();
         l.setWrap(true);
-        l.setAlignment(Align.center);
-        textTable.add(l).width(getWidth()-getPadLeft()-getPadRight());
+        l.setAlignment(Align.left);
+        textTable.add(l).expand().fill().padLeft(getPadLeft()).padRight(getPadRight());
 
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        textTable.reset();
+        createText();
     }
 
     private void createDialog() {
@@ -84,14 +98,14 @@ public class AcknowledgementDialog extends FrameView {
     }
 
     private void createTitle() {
-        titleTable.add(new Label(mTitle, style)).top().expand();
+        titleTable.add(new Label(mTitle, titleStyle)).top().expand();
     }
 
     private void createButtons() {
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.downFontColor = Color.YELLOW;
         buttonStyle.fontColor = Color.WHITE;
-        buttonStyle.font = style.font;
+        buttonStyle.font = titleStyle.font;
 
         TextButton btn;
 

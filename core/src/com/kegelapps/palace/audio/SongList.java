@@ -59,8 +59,8 @@ public class SongList extends VolumeController implements Music.OnCompletionList
 
     @Override
     public void onCompletion(Music music) {
-        mPlayList.pop();
-        if (mCurrentTitle == mLastSong) //we need a new playlist
+        mPlayList.removeIndex(0);
+        if (mCurrentTitle.equals(mLastSong)) //we need a new playlist
             generatePlayList();
         mCurrentTitle = "";
         if (!mPausing)
