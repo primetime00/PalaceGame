@@ -3,11 +3,14 @@ package com.kegelapps.palace.scenes;
 import aurelienribon.tweenengine.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -81,6 +84,18 @@ public class IntroScene extends Scene {
             }
         };
         createEvents();
+
+        addListener(new InputListener() {
+            @Override
+            public boolean keyUp(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {//Exit game (need a dialog)
+                    //Director.instance().getEventSystem().FireLater(EventSystem.EventType.OPTIONS);
+                    Gdx.app.exit();
+                }
+                return super.keyUp(event, keycode);
+            }
+        });
+
 
         mShadow = new ShadowView();
         mShadow.shadowEntireScreen(0);

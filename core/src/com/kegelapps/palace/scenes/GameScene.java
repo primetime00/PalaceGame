@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -58,7 +59,7 @@ public class GameScene extends Scene {
         addListener(new InputListener() {
             @Override
             public boolean keyUp(InputEvent event, int keycode) {
-                if (keycode == 131) {//ESC pressed
+                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {//ESC pressed
                     Director.instance().getEventSystem().FireLater(EventSystem.EventType.OPTIONS);
                 }
                 return super.keyUp(event, keycode);

@@ -1,7 +1,11 @@
 package com.kegelapps.palace.scenes;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -38,6 +42,18 @@ public class UIScene extends Scene {
         mGameStatsDialog = new GameStatsDialog(StringMap.getString("game_over"));
         mOptionsDialog = new OptionsDialog(StringMap.getString("options"));
         createEvents();
+
+        addListener(new InputListener() {
+            @Override
+            public boolean keyUp(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {//Exit game (need a dialog)
+                    //Director.instance().getEventSystem().FireLater(EventSystem.EventType.OPTIONS);
+                    Gdx.app.exit();
+                }
+                return super.keyUp(event, keycode);
+            }
+        });
+
     }
 
     @Override

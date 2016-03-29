@@ -120,11 +120,10 @@ public class Director implements Disposable{
         }
         if (mGameScene == null) {
             createScenes();
-            setScene(mGameScene);
-            //setScene(mIntroScene);
+            //setScene(mGameScene);
+            setScene(mIntroScene);
         }
         // Update View
-        //Gdx.gl.glClearColor(0, 0, 0, 1);
         Color c = mCurrentScene.getBackgroundColor();
         if (c != null)
             Gdx.gl.glClearColor(c.r, c.g, c.b, c.a);
@@ -184,6 +183,7 @@ public class Director implements Disposable{
 
             // NOTE: Route input events to the mCurrentScene.
             Gdx.input.setInputProcessor(scene.getInputMultiplexer());
+            Gdx.input.setCatchBackKey(true);
         }
     }
 

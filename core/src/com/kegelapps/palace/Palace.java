@@ -29,4 +29,14 @@ public class Palace extends ApplicationAdapter {
 		super.dispose();
 		Director.instance().dispose();
 	}
+
+	@Override
+	public void pause() {
+		super.pause();
+	}
+
+	@Override
+	public void resume() {
+		super.resume();
+	}
 }
