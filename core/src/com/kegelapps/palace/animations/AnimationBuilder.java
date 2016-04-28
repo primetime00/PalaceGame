@@ -190,6 +190,7 @@ public class AnimationBuilder {
             default:
                 break;
         }
+        ani.mDelayRunnable = mAnimationAfterDelay;
         if (ani != null) {
             onBuild(ani);
         }

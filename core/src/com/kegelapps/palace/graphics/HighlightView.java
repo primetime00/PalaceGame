@@ -13,17 +13,26 @@ import com.kegelapps.palace.tween.HighlightAccessor;
  */
 public class HighlightView {
 
-    private float mAlpha = mMaxAlpha;
-    private static float mMaxAlpha = 0.8f;
+    protected float mAlpha;
+    protected float mMinAlpha;
+    protected float mDuration;
+    protected static float mMaxAlpha = 0.8f;
     private Tween mAnimation;
     private boolean mVisible;
-    private Color mColor = Color.WHITE;
+    protected Color mColor;
+
+    public HighlightView() {
+        mColor = Color.WHITE;
+        mMinAlpha = 0;
+        mAlpha = mMaxAlpha;
+        mDuration = 0.4f;
+    }
 
     public void setAlpha(float v) { mAlpha = v;
         if (mAlpha > mMaxAlpha)
             mAlpha = mMaxAlpha;
-        if (mAlpha < 0)
-            mAlpha = 0;
+        if (mAlpha < mMinAlpha)
+            mAlpha = mMinAlpha;
     }
 
     public float getAlpha() {
@@ -53,7 +62,7 @@ public class HighlightView {
     public void show() {
         if (mVisible)
             return;
-        mAnimation = Tween.to(this, HighlightAccessor.ALPHA, 0.4f).target(0).repeatYoyo(Tween.INFINITY, 0.0f);
+        mAnimation = Tween.to(this, HighlightAccessor.ALPHA, mDuration).target(mMinAlpha).repeatYoyo(Tween.INFINITY, 0.0f);
         mAnimation.start(Director.instance().getTweenManager());
         mVisible = true;
     }

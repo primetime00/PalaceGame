@@ -1,6 +1,7 @@
 package com.kegelapps.palace.graphics.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -62,5 +63,11 @@ public class MainTable extends Table {
         btn.addListener(onChange);
         add(btn).width(maxWidth).row();
 
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+        UIDebug.get().addChangeListener("NEW_GAME", onChange, 3.0f, this.findActor(StringMap.getString("new_game")));
     }
 }

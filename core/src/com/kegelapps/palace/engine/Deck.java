@@ -44,6 +44,7 @@ public class Deck implements Serializer, Resettable{
             return null;
         }
         Card c = mCards.get(0);
+        Logic.log().info(String.format("Drawing card %s", c));
         mCards.remove(0);
         return c;
     }

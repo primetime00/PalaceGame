@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.*;
 
 /**
@@ -152,6 +153,14 @@ public class HandUtils {
         Group parent = point.getParent();
         if (destView == parent)
             return;
+        /*
+        if (point instanceof CardView) {
+            Logic.log().info(String.format("-------------------------------"));
+            Logic.log().info(String.format("[REPARENT]"));
+            Logic.log().info(String.format("Dest: %s", destView));
+            Logic.log().info(String.format("Point: %s", point));
+            Logic.log().info(String.format("-------------------------------"));
+        }*/
         if (point.getParent() != destView) {
             Vector2 pos = new Vector2();
             if (src == null) {
@@ -165,7 +174,7 @@ public class HandUtils {
                             pos = parent.localToAscendantCoordinates(destView, new Vector2(point.getX(), point.getY()));
                     }
                     catch (Exception e) {
-                        System.out.print(String.format("Card is %s", point.getName()));
+                        Logic.log().warning(String.format("[BAD!!] Card is %s [%s, %s, %s]\n", point.getName(), destView, src, point));
                     }
                 }
                 else
@@ -186,5 +195,16 @@ public class HandUtils {
         }
         destView.addActor(point);
     }
+
+    public static void ReparentLog(Group destView, Actor point, String val) {
+        if (point instanceof CardView) {
+            Logic.log().info(String.format("-------------------------------\n%s",val));
+            Logic.log().info(String.format("[REPARENT]"));
+            Logic.log().info(String.format("Dest: %s", destView));
+            Logic.log().info(String.format("Point: %s", point));
+            Logic.log().info(String.format("-------------------------------"));
+        }
+    }
+
 
 }

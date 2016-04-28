@@ -29,7 +29,7 @@ public class TapToStart extends State {
 
     @Override
     protected boolean OnRun() {
-        if (mTapped) {
+        if (mTapped || mTable.isEveryPlayerCPU()) {
             if (mStateListener != null)
                 mStateListener.onContinueState();
             return true;

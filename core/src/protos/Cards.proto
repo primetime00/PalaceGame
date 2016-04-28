@@ -40,4 +40,5 @@ message Table {
     optional int32 currentTurn = 4;
     optional int32 currentDeal = 5;
     optional int32 firstDeal = 6;
+    repeated Card unplayable = 7;
 }

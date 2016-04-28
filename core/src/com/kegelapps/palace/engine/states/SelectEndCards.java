@@ -2,8 +2,12 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.protos.StateProtos;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ryan on 1/13/2016.
@@ -14,12 +18,15 @@ public class SelectEndCards extends State {
 
     private int mState = 0;
     private Table mTable;
+    private List<Hand> mDoneHands;
+
 
     public SelectEndCards(State parent, Table table) {
         super(parent);
         mTable = table;
         createStates();
         mState = 0;
+        mDoneHands = new ArrayList<>();
     }
 
     private void createStates() {
@@ -28,8 +35,12 @@ public class SelectEndCards extends State {
 
         mPlaceCardListener = new StateListener() {
             @Override
-            public void onContinueState() {
-                mState = 1;
+            public void onDoneState(Object result) {
+                Hand hand = (Hand) result;
+                if (!mDoneHands.contains(hand))
+                    mDoneHands.add(hand);
+                if (mDoneHands.size() == mTable.getHands().size())
+                    mState = 1;
             }
         };
 
@@ -47,8 +58,7 @@ public class SelectEndCards extends State {
 
         for (Hand h : table.getHands()) {
             State s = mChildrenStates.addState(Names.PLACE_END_CARD, this, h.getID());
-            if (h.getType() == Hand.HandType.HUMAN)
-                s.setStateListener(mPlaceCardListener);
+            s.setStateListener(mPlaceCardListener);
         }
 
         mChildrenStates.addState(Names.TAP_DECK_START, this).setStateListener(mTapDeckListener);

@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kegelapps.palace.audio.SoundIDList;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.audio.VolumeController;
+import com.kegelapps.palace.graphics.ui.UIDebug;
 import com.kegelapps.palace.loaders.types.MusicMap;
 import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.events.EventSystem;

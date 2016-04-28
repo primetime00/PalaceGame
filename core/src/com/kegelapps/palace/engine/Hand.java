@@ -125,6 +125,7 @@ public class Hand implements Serializer, Resettable{
         }
         if (pos > -1) {
             Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_HIDDEN_CARD, card, getID(), pos);
+            Logic.log().info(String.format("Hand %d adding hidden card %s", mID, card));
         }
     }
 
@@ -132,6 +133,7 @@ public class Hand implements Serializer, Resettable{
         mActiveCards.add(card);
         Collections.sort(mActiveCards);
         Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_ACTIVE_CARD, card, getID());
+        Logic.log().info(String.format("Hand %d adding active card %s", mID, card));
     }
 
     public void AddEndCard(Card card) {
@@ -146,6 +148,11 @@ public class Hand implements Serializer, Resettable{
         if (pos > -1) {
             GetActiveCards().remove(card);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.SELECT_END_CARD, card, getID(), pos);
+            Logic.log().info(String.format("Hand %d adding end card %s", mID, card));
+            Logic.log().info(String.format("--------------------------------------"));
+            Logic.log().info(String.format("%s", info()));
+            Logic.log().info(String.format("--------------------------------------"));
+            Logic.log().info(String.format(" "));
         }
     }
 
@@ -176,6 +183,11 @@ public class Hand implements Serializer, Resettable{
     public HandType getType() {
         return mType;
     }
+
+    public void setType( HandType type) {
+        mType = type;
+    }
+
 
     public List<Card> GetHiddenCards() {
         return Arrays.asList(mHiddenCards);
@@ -377,6 +389,10 @@ public class Hand implements Serializer, Resettable{
         GetActiveCards().addAll(cards);
         Collections.sort(GetActiveCards());
         Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_TURN_END_CARDS, getID(), cards);
+        Logic.log().info(String.format("Hand %d drawing turn cards", mID));
+        for (Card c : cards) {
+            Logic.log().info(String.format("  %s", c));
+        }
     }
 
     public void PickUpStack(InPlay stack) {
@@ -391,7 +407,10 @@ public class Hand implements Serializer, Resettable{
         Collections.sort(GetActiveCards());
         stack.Clear();
         Director.instance().getEventSystem().Fire(EventSystem.EventType.PICK_UP_STACK, getID(), cards);
-
+        Logic.log().info(String.format("Hand %d picking up stack cards", mID));
+        for (Card c : cards) {
+            Logic.log().info(String.format("  %s", c));
+        }
     }
 
     public void createAI(Identity id) {
@@ -399,6 +418,8 @@ public class Hand implements Serializer, Resettable{
     }
 
     public Identity getIdentity() {
+        if (mAI == null)
+            return null;
         return mAI.getIdentity();
     }
 
@@ -414,6 +435,8 @@ public class Hand implements Serializer, Resettable{
         mActiveCards.clear();
         mPendingCards.Clear();
         mDiscardCards.clear();
+        if (mAI != null)
+            mAI.Reset(newGame);
     }
 
 
@@ -449,6 +472,7 @@ public class Hand implements Serializer, Resettable{
         }
         if (hand.hasPlayCardsCommitted() && hand.getPlayCardsCommitted())
             GetPlayCards().TransferQueueToPlay();
+        Logic.log().info(info());
     }
 
     @Override
@@ -479,5 +503,24 @@ public class Hand implements Serializer, Resettable{
         if (getType() == HandType.CPU)
             builder.setAi((CardsProtos.AI) mAI.WriteBuffer());
         return builder.build();
+    }
+
+    public String info() {
+        String s = String.format("Hand %d %s\n", mID, getIdentity() != null ? getIdentity().get().getName() : "");
+        s+="Active:\n";
+        for (Card c : mActiveCards) {
+            s += String.format("\t%s\n", c);
+        }
+        s+="End:\n";
+        for (Card c : mEndCards) {
+            if (c != null)
+                s += String.format("\t%s\n", c);
+        }
+        s+="Hidden:\n";
+        for (Card c : mHiddenCards) {
+            if (c != null)
+                s += String.format("\t%s\n", c);
+        }
+        return s;
     }
 }

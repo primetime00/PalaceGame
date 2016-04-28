@@ -123,6 +123,7 @@ public class GameStatsDialog extends FrameView {
         btnTable.add(tbQuit).prefWidth(100);
         add(btnTable).expandX().fillX().pad(Value.zero, Value.percentWidth(0.1f, this), Value.zero, Value.percentWidth(0.1f, this)).height(tbQuit.getPrefHeight() + (tbQuit.getPrefHeight() * 0.5f));
         setHeight(getPrefHeight());
+        UIDebug.get().addChangeListener("RESET_GAME", mRematchListener, 1.0f);
     }
 
     public void setTitle(String title) {

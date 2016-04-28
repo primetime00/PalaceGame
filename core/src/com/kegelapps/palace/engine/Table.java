@@ -5,6 +5,7 @@ import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.loaders.types.PlayerMap;
+import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class Table  implements Serializer, Resettable{
     InPlay mPlayCards;
 
     List<Card> mBurntCards;
+    List<Card> mUnplayableCards; //this is the top card just picked up.  It is unplayable in the same round it is picked up
 
     //should the table have the hands?
     List<Hand> mHands;
@@ -35,9 +37,9 @@ public class Table  implements Serializer, Resettable{
     public Table (CardsProtos.Table tableProto) {
         mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
+        mUnplayableCards = new ArrayList<>();
         mHands = new ArrayList<>();
         ReadBuffer(tableProto);
-        mFirstDealHand = 0;
         Director.instance().addResetter(this);
     }
 
@@ -46,6 +48,7 @@ public class Table  implements Serializer, Resettable{
         mDeck = deck;
         mPlayCards = new InPlay();
         mBurntCards = new ArrayList<>();
+        mUnplayableCards = new ArrayList<>();
         mHands = new ArrayList<>();
         createHands(numberOfPlayers);
         mFirstDealHand = 0;
@@ -55,7 +58,11 @@ public class Table  implements Serializer, Resettable{
     private void createHands(int numberOfPlayers) {
         List<Integer> ids = Director.instance().getAssets().get("players", PlayerMap.class).getRandomIDs();
         for (int i=0; i<numberOfPlayers; ++i) {
-            Hand hand = new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU);
+            Hand hand;
+            if (!Logic.get().debug().isCPUPlayOnly())
+                hand = new Hand(i, i==0 ? Hand.HandType.HUMAN : Hand.HandType.CPU);
+            else
+                hand = new Hand(i, Hand.HandType.CPU);
             if (hand.getType() == Hand.HandType.CPU)
                 hand.createAI(new Identity(ids.get(i)));
             mHands.add(hand);
@@ -121,6 +128,7 @@ public class Table  implements Serializer, Resettable{
             if (isTenBurn)
                 mNumberOfCardsPlayed = 0;
             boolean isBurnPlay = isTenBurn || isNumberCardsBurn;
+            mUnplayableCards.clear();
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand, isBurnPlay);
             mPlayCards.AddCard(activeCard);
             if (res != Logic.ChallengeResult.SUCCESS_BURN && isBurnPlay)
@@ -153,6 +161,7 @@ public class Table  implements Serializer, Resettable{
 
     public void PickUpStack(int id) {
         Hand h = getHands().get(id);
+        AddUnplayableCardsFromStack();
         h.PickUpStack(mPlayCards);
     }
 
@@ -175,12 +184,16 @@ public class Table  implements Serializer, Resettable{
         for (CardsProtos.Hand handProto : table.getHandsList()) {
             mHands.add(new Hand(handProto));
         }
+        mFirstDealHand = 0;
         if (table.hasCurrentTurn())
             mCurrentPlayTurn = table.getCurrentTurn();
         if (table.hasCurrentDeal())
             mCurrentDealTurn = table.getCurrentDeal();
         if (table.hasFirstDeal())
             mFirstDealHand = table.getFirstDeal();
+        for (CardsProtos.Card c : table.getUnplayableList() ) {
+            mUnplayableCards.add(Card.GetCard(c));
+        }
     }
 
     @Override
@@ -194,6 +207,8 @@ public class Table  implements Serializer, Resettable{
         tableBuilder.setCurrentTurn(mCurrentPlayTurn);
         tableBuilder.setCurrentDeal(mCurrentDealTurn);
         tableBuilder.setFirstDeal(mFirstDealHand);
+        for (Card c : mUnplayableCards)
+            tableBuilder.addUnplayable((CardsProtos.Card) c.WriteBuffer());
         return tableBuilder.build();
     }
 
@@ -213,6 +228,32 @@ public class Table  implements Serializer, Resettable{
                 Logic.get().getStats().NextRound();
         } while (!getHands().get(mCurrentPlayTurn).HasAnyCards());
         return true;
+    }
+
+    public int GetNextPlayerId() {
+        mNumberOfCardsPlayed = 0;
+        int currentPlayer = getCurrentPlayTurn();
+        int numberOfPlayersLeft = getHands().size();
+        for (Hand h : mHands) {
+            if (!h.HasAnyCards())
+                numberOfPlayersLeft--;
+        }
+        if (numberOfPlayersLeft < 2)
+            return -1;
+        do { //are we out of the game?
+            currentPlayer++;
+            currentPlayer %= getHands().size();
+        } while (!getHands().get(currentPlayer).HasAnyCards());
+        return mHands.get(currentPlayer).getID();
+    }
+
+    public int GetNumberOfValidPlayers() {
+        int v = 0;
+        for (Hand h : mHands) {
+            if (h.HasAnyCards())
+                v++;
+        }
+        return v;
     }
 
     public boolean NextDealTurn() {
@@ -253,5 +294,61 @@ public class Table  implements Serializer, Resettable{
         if (newGame)
             generateNewIdentities();
     }
+
+    public boolean isEveryPlayerCPU() {
+        for (Hand h : mHands) {
+            if (h.getType() == Hand.HandType.HUMAN)
+                return false;
+        }
+        return true;
+    }
+
+    /*
+    public void AddUnplayableCardsFromStack() {
+        if (mPlayCards.GetCards().size() == 0)
+            return;
+        Card c = mPlayCards.GetTopCard();
+        ArrayList<Card> cards = (ArrayList<Card>) mPlayCards.GetCards();
+        mUnplayableCards.clear();
+        for (int i=cards.size()-1; i>=0; --i) {
+            Card card = cards.get(i);
+            if (card.getRank() == c.getRank())
+                mUnplayableCards.add(card);
+            else
+                break;
+        }
+    }*/
+
+    public void AddUnplayableCardsFromStack() {
+        if (mPlayCards.GetCards().size() == 0)
+            return;
+        mUnplayableCards.clear();
+        mUnplayableCards.addAll(mPlayCards.GetCards());
+    }
+
+
+    public List<Card> GetUnplayableCards() {
+        return mUnplayableCards;
+    }
+
+    public boolean IsUnplayable(Card card) {
+        return mUnplayableCards.contains(card);
+    }
+
+    public boolean AllCardsUnplayable(int id) {
+        Hand hand = GetHand(id);
+        for (Card c : hand.GetActiveCards()) {
+            if (!IsUnplayable(c))
+                return false;
+        }
+        return true;
+    }
+
+    public void SkipTurn() {
+        mUnplayableCards.clear();
+    }
+
+
+
 
 }

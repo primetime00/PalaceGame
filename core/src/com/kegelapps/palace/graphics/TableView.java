@@ -104,18 +104,14 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
         mHandSide = new HashMap<>();
         for (HandView h : mHands) {
-            if (h.getHand().getType() == Hand.HandType.HUMAN)
+            if (mHandSide.get(HandUtils.HandSide.SIDE_BOTTOM) == null)
                 mHandSide.put(HandUtils.HandSide.SIDE_BOTTOM, h);
-            else {
-                if (mHandSide.get(HandUtils.HandSide.SIDE_LEFT) == null)
-                    mHandSide.put(HandUtils.HandSide.SIDE_LEFT, h);
-                else if (mHandSide.get(HandUtils.HandSide.SIDE_TOP) == null)
-                    mHandSide.put(HandUtils.HandSide.SIDE_TOP, h);
-                else if (mHandSide.get(HandUtils.HandSide.SIDE_RIGHT) == null)
-                    mHandSide.put(HandUtils.HandSide.SIDE_RIGHT, h);
-                else if (mHandSide.get(HandUtils.HandSide.SIDE_BOTTOM) == null)
-                    mHandSide.put(HandUtils.HandSide.SIDE_BOTTOM, h);
-            }
+            else if (mHandSide.get(HandUtils.HandSide.SIDE_LEFT) == null)
+                mHandSide.put(HandUtils.HandSide.SIDE_LEFT, h);
+            else if (mHandSide.get(HandUtils.HandSide.SIDE_TOP) == null)
+                mHandSide.put(HandUtils.HandSide.SIDE_TOP, h);
+            else if (mHandSide.get(HandUtils.HandSide.SIDE_RIGHT) == null)
+                mHandSide.put(HandUtils.HandSide.SIDE_RIGHT, h);
         }
 
         float w = (Director.instance().getViewWidth() - mCardWidth)/2.0f;
@@ -145,7 +141,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         }
         mPlayView.Reset(false);
         mDeck.Reset(false);
-
+        CardView.Reset();
     }
 
     private void createTableEvents() {
@@ -192,7 +188,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer))
                     throw new IllegalArgumentException("Invalid parameters for DEAL_HIDDEN_CARD");
                 CardView cardView = CardView.getCardView((Card) params[0]);
-                int id =  (int) params[1];
+                final int id =  (int) params[1];
 
                 float duration = params.length >= 3 && params[2] instanceof Float ? (float)params[2] : 0.5f;
                 cardView.setSide(CardView.Side.BACK);
@@ -201,8 +197,14 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 cardView.setPosition(mDeck.getX(), mDeck.getY());
                 cardView.setRotation(0.0f);
 
-                AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription("Dealing to a hand").setTable(TableView.this).setCard(cardView).setHandID(id)
+                        .addStatusListener(new Animation.AnimationStatusListener() {
+                            @Override
+                            public void onEnd(Animation animation) {
+                                HandUtils.Reparent(getHand(id), builder.getCard());
+                            }
+                        })
                         .setTweenCalculator(new CardAnimation.DealToHand()).build().Start();
 
                 Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.02f));
@@ -238,6 +240,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 }
                 TapDeckToStart((params[0] instanceof TapToStart));
                 mPlayView.OrganizeCards();
+                CheckForQuickGame();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
@@ -331,6 +334,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.45f));
                     cardAnimation.Start();
                 }
+                TableView.this.getHand(hand.getID()).CheckDisabledCards();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mCardPlaySuccess);
@@ -852,38 +856,52 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
     public void SimulateGame(Hand hand, float duration) {
         if (!Director.instance().getOptions().getQuick())
             return;
-        if (hand.getType() == Hand.HandType.HUMAN) {
-            float x = Director.instance().getViewWidth() / 2.0f;
-            float y = Director.instance().getViewHeight() / 2.0f;
-            CameraAnimation cameraCenter = (CameraAnimation) AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
-                    setPause(true).setDescription("Moving to center").setTable(TableView.this).setCamera(mCamera).
-                    setCameraSide(CardCamera.CameraSide.CENTER).setTweenCalculator(new CameraAnimation.MoveCamera(x, y, 1.0f, 0.5f)).
-                    setStartDelay(duration).killPreviousAnimation(mCamera).
-                    addStatusListener(new Animation.AnimationStatusListener() {
-                        @Override
-                        public void onEnd(Animation animation) {
-                            Logic.get().setSimulate(true);
-                            Director.instance().getTweenManager().update(100.0f);
-                            for (BaseTween tm : Director.instance().getTweenManager().getObjects()) {
-                                tm.kill();
-                                AnimationFactory.get().pauseDecrement();
-                            }
-                        }
-                    }).build();
-            cameraCenter.Start();
+        CenterCamera(duration);
+        getHand(hand.getID()).ReparentAllViews();
+/*        if (hand.getType() == Hand.HandType.HUMAN) {
+            CenterCamera(duration);
         } else {
             getHand(hand.getID()).ReparentAllViews();
-        }
+        }*/
+    }
+
+    private void CenterCamera(float duration) {
+        float x = Director.instance().getViewWidth() / 2.0f;
+        float y = Director.instance().getViewHeight() / 2.0f;
+        CameraAnimation cameraCenter = (CameraAnimation) AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CAMERA).
+                setPause(true).setDescription("Moving to center").setTable(TableView.this).setCamera(mCamera).
+                setCameraSide(CardCamera.CameraSide.CENTER).setTweenCalculator(new CameraAnimation.MoveCamera(x, y, 1.0f, 0.5f)).
+                setStartDelay(duration).killPreviousAnimation(mCamera).
+                addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        Logic.get().setSimulate(true);
+                        Director.instance().getTweenManager().update(100.0f);
+                        for (BaseTween tm : Director.instance().getTweenManager().getObjects()) {
+                            tm.kill();
+                            AnimationFactory.get().pauseDecrement();
+                        }
+                    }
+                }).build();
+        cameraCenter.Start();
     }
 
 
     public void CheckForQuickGame() {
         Hand hand = null;
-        for (HandView h : getHands()) {
-            if (h.getHand().getType() == Hand.HandType.HUMAN) {
-                if (!h.getHand().HasAnyCards()) {
-                    hand = h.getHand();
-                    break;
+        if (!Logic.get().GetMainState().containsState(State.Names.PLAY)) {
+            Logic.get().setSimulate(false);
+            return;
+        }
+        if (mTable.isEveryPlayerCPU())
+            hand = mHands.get(0).getHand();
+        else {
+            for (HandView h : getHands()) {
+                if (h.getHand().getType() == Hand.HandType.HUMAN) {
+                    if (!h.getHand().HasAnyCards()) {
+                        hand = h.getHand();
+                        break;
+                    }
                 }
             }
         }
@@ -892,10 +910,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         if (!Director.instance().getOptions().getQuick())
             Logic.get().setSimulate(false);
         else {
-            if (mCamera.GetSide() != CardCamera.CameraSide.CENTER)
+            SimulateGame(hand, 0.1f);
+/*            if (mCamera.GetSide() != CardCamera.CameraSide.CENTER)
                 SimulateGame(hand, 0.1f);
             else
-                Logic.get().setSimulate(true);
+                Logic.get().setSimulate(true);*/
         }
     }
 }

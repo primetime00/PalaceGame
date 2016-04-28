@@ -5,7 +5,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.HandView;
 import com.kegelapps.palace.graphics.TableView;
@@ -210,16 +212,26 @@ public class CardAnimation extends Animation {
                 case 2: //top
                     x += -ov;
                     y += -ov;
+                    //ov = -ov;
                     break;
                 case 3: //right
                     x += (rotDiff*MathUtils.sinDeg(sideRot))-ov;
                     y += -((rotDiff*MathUtils.sinDeg(sideRot))-ov);
+                    //ov = -ov;
                     break;
             }
+            int index = mTable.getHand(mHandID).getHand().GetActiveCards().indexOf(mCard.getCard());
+            Vector3 init = HandUtils.LineUpActiveCard(index, mCard, mTable, mHandID, mTable.getHand(mHandID).getActivePosition(), mTable.getHands().get(mHandID).getCardOverlapPercent());
+            Vector3 pos = HandUtils.LineUpHiddenCard(mCard, mTable, mHandID, rect);
             mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(mCard.getX(),mCard.getY()));
+            //mAnimation.push(Tween.set(mCard, ActorAccessor.POSITION_XY).target(init.x,init.y));
+            System.out.print(String.format("My id is %d, my Card is %s Parent is %s\n", mHandID, mCard, mCard.getParent()));
             mAnimation.push(Tween.set(mCard, ActorAccessor.ROTATION).target(mCard.getRotation()));
             mAnimation.beginParallel();
             mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(x,y));
+            //mAnimation.push(Tween.to(mCard, ActorAccessor.POSITION_XY, duration).target(pos.x+ov, pos.y+ov));
+            mAnimation.push(Tween.to(mCard, ActorAccessor.ROTATION, duration).target(pos.z));
+
             mAnimation.push(Tween.call(new TweenCallback() {
                 @Override
                 public void onEvent(int type, BaseTween<?> source) {
@@ -316,7 +328,7 @@ public class CardAnimation extends Animation {
         protected float mDuration, mFlipDuration;
 
         public PlaySuccessCard() {
-            mDuration = 0.3f;
+            mDuration = 5.3f;
             mFlipDuration = mDuration / 3.0f;
         }
 
@@ -350,7 +362,7 @@ public class CardAnimation extends Animation {
     static public class PlaySuccessBurnCard extends PlaySuccessCard {
 
         public PlaySuccessBurnCard() {
-            mDuration = 1.0f;
+            mDuration = 6.0f;
             mFlipDuration = 0.3f / 3.0f;
         }
     }

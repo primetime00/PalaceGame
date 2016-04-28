@@ -65,7 +65,7 @@ public class PlaceEndCard extends State {
                 break;
             case DONE:
                 if (mStateListener != null)
-                    mStateListener.onContinueState();
+                    mStateListener.onDoneState(mHand);
                 return true;
         }
         return false;

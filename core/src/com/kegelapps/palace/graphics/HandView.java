@@ -28,7 +28,9 @@ import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.CardGestureListener;
-import sun.rmi.runtime.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by keg45397 on 12/9/2015.
@@ -262,7 +264,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                     return;
 
                 if ( !(getParent() instanceof TableView) ) {
-                    throw new RuntimeException("SELECT_MULTIPLE_CARDS requires a TableView parent.");
+                    throw new RuntimeException("SELECT_END_CARD requires a TableView parent.");
                 }
                 TableView table = (TableView)getParent();
 
@@ -273,20 +275,18 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 HandUtils.Reparent(table, cardView);
 
 
-                if (getParent() instanceof TableView) {
-                    final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
-                    builder.setPause(false).setDescription("Selecting end cards").setTable((TableView) getParent()).setCard(cardView).setHandID(getHand().getID());
-                    builder.addStatusListener(new Animation.AnimationStatusListener() {
-                        @Override
-                        public void onEnd(Animation animation) {
-                            HandUtils.Reparent(builder.getTable().getHand(builder.getHandID()), builder.getCard());
-                        }
-                    });
+                final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
+                builder.setPause(false).setDescription("Selecting end cards").setTable(table).setCard(cardView).setHandID(getHand().getID());
+                builder.addStatusListener(new Animation.AnimationStatusListener() {
+                    @Override
+                    public void onEnd(Animation animation) {
+                        HandUtils.Reparent(builder.getTable().getHand(builder.getHandID()), builder.getCard());
+                    }
+                });
 
-                    builder.setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
-                    Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlideFirstDraw"), 0.00f));
+                builder.setTweenCalculator(new CardAnimation.SelectEndCard(pos)).build().Start();
+                Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlideFirstDraw"), 0.00f));
 
-                }
 
                 OrganizeCards(true, true, false, false, true);
                 cardView.toFront();
@@ -512,6 +512,7 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         int size = getHand().GetActiveCards().size();
         for (int i =0; i<size; ++i) {
             CardView cv = CardView.getCardView(getHand().GetActiveCards().get(i));
+            CheckDisabledCards();
             HandUtils.Reparent(this, cv);
 
             if (animation) {
@@ -549,6 +550,19 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         return position;
     }
 
+    public void CheckDisabledCards() {
+        if (!(getParent() instanceof TableView))
+            throw new RuntimeException("The parent of the handview must be a tableview");
+        TableView table = (TableView) getParent();
+        for (Card c : getHand().GetActiveCards()) {
+            CardView cv = CardView.getCardView(c);
+            if (table.getTable().IsUnplayable(c))
+                cv.setDisabled(true);
+            else
+                cv.setDisabled(false);
+        }
+    }
+
     private int OrganizeEndCards(int position) {
         if ( !(getParent() instanceof TableView) )
             throw new RuntimeException("Cannot organize cards in a hand without a TableView parent");
@@ -558,7 +572,10 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
             Card c = cards[i];
             if (c != null) {
                 CardView cv = CardView.getCardView(c);
-                Vector3 pos = HandUtils.LineUpEndCard(cv, table, getHand().getID(), getHiddenPosition(i), cv.getWidth() * getEndCardOverlapPercent());
+                float ov = cv.getWidth() * getEndCardOverlapPercent();
+                if (HandUtils.IDtoSide(getHand().getID(), table) == HandUtils.HandSide.SIDE_TOP)
+                    ov = - ov;
+                Vector3 pos = HandUtils.LineUpEndCard(cv, table, getHand().getID(), getHiddenPosition(i), ov);
                 cv.setPosition(pos.x, pos.y);
                 cv.setRotation(pos.z);
             }
@@ -657,8 +674,25 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
 
     @Override
     public String toString() {
-        return "HandView";
+        List<Card> cList = new ArrayList<>();
+        cList.addAll(getHand().GetActiveCards());
+        for (int i=0; i<3; ++i) {
+            if (getHand().GetEndCards().toArray()[i] != null)
+                cList.add((Card) getHand().GetEndCards().toArray()[i]);
+            if (getHand().GetHiddenCards().toArray()[i] != null)
+                cList.add((Card) getHand().GetHiddenCards().toArray()[i]);
+        }
+        int max = Math.max(cList.size(), getChildren().size);
+        String s = String.format("HandView %d:\n", getHand().getID());
+        for (int i = 0; i < max; ++i) {
+            s += String.format("%s\t\t\t%s\n",
+                    i < cList.size() ? cList.get(i) : null,
+                    i < getChildren().size ? getChildren().get(i) : null
+            );
+        }
+        return s;
     }
+
 
     @Override
     public void Reset(boolean newGame) {

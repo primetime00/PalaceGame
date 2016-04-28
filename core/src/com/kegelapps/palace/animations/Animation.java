@@ -24,6 +24,7 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
     protected Animation mChild;
     protected String mDescription;
     protected Object mKillPreviousAnimation;
+    protected Runnable mDelayRunnable;
 
     public boolean isPauseLogic() {
         return mPauseLogic;
@@ -36,6 +37,7 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         mChild = child;
         mDescription = description;
         mType = type;
+        mDelayRunnable = null;
         mKillPreviousAnimation = killPrevious;
         if (mTimeLineAnimation != null)
             mTimeLineAnimation.setCallback(this);
@@ -47,6 +49,7 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
         mTimeLineAnimation = ani.mTimeLineAnimation;
         mChild = ani.mChild;
         mType = ani.mType;
+        mDelayRunnable = null;
         mKillPreviousAnimation = ani.mKillPreviousAnimation;
     }
 
@@ -86,6 +89,8 @@ public class Animation implements TweenCallback, AnimationBuilder.AnimationBuild
             mTimeLineAnimation.setCallbackTriggers(TweenCallback.BEGIN | TweenCallback.END );
             if (Logic.get().isSimulate()) {
                 onEvent(TweenCallback.BEGIN, null);
+                if (mDelayRunnable != null)
+                    mDelayRunnable.run();
                 onEvent(TweenCallback.END, null);
                 return;
             }

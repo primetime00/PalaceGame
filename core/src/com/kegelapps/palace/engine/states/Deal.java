@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
@@ -26,8 +27,11 @@ public class Deal extends State{
         StateListener mDealCardStateListener = new StateListener() {
             @Override
             public void onDoneState() {
+                Logic.log().info(String.format("Finished dealing to player %d", mTable.getCurrentDealTurn()));
+                Logic.log().info("--------------------------------------");
                 if (mTable.NextDealTurn()) //we've come around full circle
                     mRound++;
+                 Logic.get().SaveState();
             }
         };
 

@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.graphics.CardCamera;
+import com.kegelapps.palace.graphics.ui.UIDebug;
 import com.kegelapps.palace.protos.OptionProtos;
 
 /**
@@ -62,6 +63,7 @@ public class Scene extends Stage implements Resettable {
     public void act(float delta) {
         super.act(delta);
         mTweenManager.update(delta);
+        UIDebug.get().update(delta);
     }
 
     protected void initFirstRun() {

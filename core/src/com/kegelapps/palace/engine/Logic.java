@@ -3,6 +3,7 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Debug;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.states.Main;
@@ -14,9 +15,8 @@ import com.kegelapps.palace.protos.LogicProtos;
 import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.logging.*;
 
 /**
  * Created by Ryan on 12/5/2015.
@@ -24,6 +24,9 @@ import java.io.IOException;
 public class Logic implements Serializer, Resettable{
 
     private static Logic mLogic;
+    private static Logger mLog;
+
+    private Debug mDebug;
 
     public enum ChallengeResult {
         FAIL,
@@ -50,12 +53,40 @@ public class Logic implements Serializer, Resettable{
 
     public Logic() {
         mStats = new Stats();
+        mDebug = new Debug();
+        mDebug.setCPUPlayOnly(true);
+        mDebug.disableSaves();
     }
 
     static public Logic get() {
         if (mLogic == null)
             mLogic = new Logic();
         return mLogic;
+    }
+
+    static public Logger log() {
+        if (mLog == null) {
+            mLog = Logger.getLogger("");
+            Handler mHandler = new ConsoleHandler();
+            Formatter mFormatter = new Formatter() {
+                @Override
+                public String format(LogRecord record) {
+                    return record.getMessage() + "\r\n";
+                }
+            };
+            mHandler.setFormatter(mFormatter);
+            mLog.addHandler(mHandler);
+            /*
+            try {
+                mHandler = new FileHandler("log-%u-%g.txt");
+                mHandler.setFormatter(mFormatter);
+                mLog.addHandler(mHandler);
+            } catch (IOException e) {
+
+            }*/
+            mLog.removeHandler(mLog.getHandlers()[0]);
+        }
+        return mLog;
     }
 
     public void LoadStatus(StatusProtos.Status s) {
@@ -156,6 +187,8 @@ public class Logic implements Serializer, Resettable{
 
     public ChallengeResult ChallengeCard(Card card) {
         Card top = mTable.GetTopPlayCard();
+        if (mTable.IsUnplayable(card))
+            return ChallengeResult.FAIL;
         switch (card.getRank()) {
             case TWO: return ChallengeResult.SUCCESS_AGAIN; //this card wins all the time and you get to go again!
             case TEN: return ChallengeResult.SUCCESS_BURN; //you burn the pile and get to go again!
@@ -165,6 +198,8 @@ public class Logic implements Serializer, Resettable{
 
     public ChallengeResult TestCard(Card card1, Card card2) {
         Card top = card2;
+        if (mTable.IsUnplayable(card1))
+            return ChallengeResult.FAIL;
         switch (card1.getRank()) {
             case TWO: return ChallengeResult.SUCCESS_AGAIN; //this card wins all the time and you get to go again!
             case TEN: return ChallengeResult.SUCCESS_BURN; //you burn the pile and get to go again!
@@ -184,9 +219,10 @@ public class Logic implements Serializer, Resettable{
     public boolean CheckForSave() {
         StatusProtos.Status st;
         try {
-            FileInputStream fs = new FileInputStream("test.dat");
+            FileInputStream fs = new FileInputStream(mDebug.getLastSave());
             CodedInputStream istream = CodedInputStream.newInstance(fs);
             st = StatusProtos.Status.parseFrom(istream, StateFactory.get().getRegistry());
+            fs.close();
         } catch (Exception e) {
             return false;
         }
@@ -213,16 +249,19 @@ public class Logic implements Serializer, Resettable{
     public boolean SaveState() {
         if (GetTable() == null || GetMainState() == null)
             return false;
+        if (!mDebug.isSavesEnabled())
+            return false;
         StatusProtos.Status.Builder statBuilder = StatusProtos.Status.newBuilder();
         statBuilder.setTable((CardsProtos.Table) GetTable().WriteBuffer());
         statBuilder.setMainState((StateProtos.State) GetMainState().WriteBuffer());
         statBuilder.setLogic((LogicProtos.Logic) Logic.get().WriteBuffer());
         StatusProtos.Status st = statBuilder.build();
         try {
-            FileOutputStream bs = new FileOutputStream("test.dat");
+            FileOutputStream bs = new FileOutputStream(mDebug.getNextSave());
             CodedOutputStream output = CodedOutputStream.newInstance(bs);
             st.writeTo(output);
             output.flush();
+            bs.close();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -260,6 +299,13 @@ public class Logic implements Serializer, Resettable{
         Initialize();
         if (newGame)
             mTable.generateNewIdentities();
+        log().info("------------------------");
+        log().info("The game has been reset");
+        log().info("------------------------");
+    }
+
+    public Debug debug() {
+        return mDebug;
     }
 
     public boolean isSimulate() {

@@ -27,6 +27,8 @@ public class PlayCPUTurn extends PlayTurn {
 
     @Override
     protected boolean DoPlayCard() {
+        boolean res;
+        Card card;
         if (!Logic.get().isSimulate()  && System.currentTimeMillis() - mTime < 500)
             return false;
         Logic.ChallengeResult playResult = Logic.ChallengeResult.FAIL;
@@ -38,13 +40,11 @@ public class PlayCPUTurn extends PlayTurn {
                 mTurnState = TurnState.PLAY_HIDDEN_CARD;
                 return false;
             case ACTIVE:
-                for (Card c : mHand.GetActiveCards()) {
-                    playResult = Logic.get().ChallengeCard(c);
-                    if (playResult != Logic.ChallengeResult.FAIL) {
-                        boolean res = PlayCard(c);
-                        mPlayMode = CheckPlayMode();
-                        return res;
-                    }
+                card = mHand.GetAI().SelectPlayCard();
+                if (card != null) {
+                    res = PlayCard(card);
+                    mPlayMode = CheckPlayMode();
+                    return res;
                 }
                 break;
             case END:
@@ -53,7 +53,7 @@ public class PlayCPUTurn extends PlayTurn {
                         continue;
                     playResult = Logic.get().ChallengeCard(c);
                     if (playResult != Logic.ChallengeResult.FAIL) {
-                        boolean res = PlayCard(c);
+                        res = PlayCard(c);
                         mPlayMode = CheckPlayMode();
                         return res;
                     }
@@ -66,6 +66,10 @@ public class PlayCPUTurn extends PlayTurn {
         // Logic challenge failed!
         mTable.PickUpStack(mHand.getID());
         mPlayMode = CheckPlayMode();
+        if (mTable.AllCardsUnplayable(mHand.getID())) {
+            mTable.SkipTurn();
+            return true; //the rest of your turn is skipped!
+        }
         return false; //probably need to pick up!
     }
 
@@ -126,12 +130,10 @@ public class PlayCPUTurn extends PlayTurn {
         super.OnFirstRun();
         mTime = System.currentTimeMillis();
         mPlayMultiple = Math.random() >= 1-mHand.getIdentity().get().getPlayMultiple();
-        System.out.print(String.format("Player %d %s\n", mHand.getID(), mPlayMultiple ? "Will play multiple" : "Will not play multiple"));
     }
 
     @Override
     protected void OnEndRun() {
-        System.out.print("CPU TURN END\n");
     }
 
     @Override

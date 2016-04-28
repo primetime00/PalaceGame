@@ -3,6 +3,7 @@ package com.kegelapps.palace.engine.states;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Hand;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
@@ -15,21 +16,26 @@ public class Play extends State {
     private Table mTable;
 
     private StateListener mSingleTurnDone;
+    private boolean mGameOver = false;
 
 
     public Play(State parent, Table table) {
         super(parent);
         mTable = table;
+        mGameOver = false;
 
         mSingleTurnDone = new StateListener() {
             @Override
             public void onDoneState() {
                 boolean keepPlaying = mTable.NextPlayTurn();
-                if (keepPlaying)
+                if (keepPlaying) {
+                    Logic.get().SaveState();
                     Director.instance().getEventSystem().Fire(EventSystem.EventType.CHANGE_TURN, mTable.getHands().get(mTable.getCurrentPlayTurn()).getID());
+                }
                 else {
                     if (mStateListener != null)
                         mStateListener.onDoneState();
+                    mGameOver = true;
                 }
             }
         };
@@ -56,7 +62,8 @@ public class Play extends State {
             mChildrenStates.getState(Names.PLAY_HUMAN_TURN, mCurrentPlayer).Execute();
         else
             mChildrenStates.getState(Names.PLAY_CPU_TURN, mCurrentPlayer).Execute();
-        return false;
+
+        return mGameOver;
     }
 
     @Override
@@ -80,4 +87,9 @@ public class Play extends State {
         //mCurrentPlayer = selectEndCardState.getCurrentPlayTurn();
     }
 
+    @Override
+    public void Reset() {
+        mGameOver = false;
+        super.Reset();
+    }
 }

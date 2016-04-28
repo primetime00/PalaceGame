@@ -189,7 +189,8 @@ public class GameScene extends Scene {
         if (tableView != null) {
             tableView.dispose();
         }
-        mMessageStage.dispose();
+        if (mMessageStage != null)
+            mMessageStage.dispose();
         mMessageStage = null;
     }
 

@@ -19,6 +19,7 @@ import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.GameStatsDialog;
 import com.kegelapps.palace.graphics.ui.OptionsDialog;
+import com.kegelapps.palace.graphics.ui.UIDebug;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.protos.OptionProtos;
 

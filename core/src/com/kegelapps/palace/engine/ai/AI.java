@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine.ai;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Resettable;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Identity;
@@ -12,8 +13,9 @@ import java.util.ArrayList;
 /**
  * Created by keg45397 on 3/22/2016.
  */
-public class AI implements Serializer{
+public class AI implements Serializer, Resettable{
     private EndCardSelection mEndCardAI;
+    private PlayCardSelection mPlayCardAI;
     private Identity mIdentity;
     private Hand mHand;
     private ArrayList<Card> mSelectedCards;
@@ -21,12 +23,14 @@ public class AI implements Serializer{
     public AI(Identity mIdentity, Hand parent) {
         this.mIdentity = mIdentity;
         mEndCardAI = new EndCardSelection(parent);
+        mPlayCardAI = new PlayCardSelection(parent.getID());
         mHand = parent;
         mSelectedCards = new ArrayList<>();
     }
 
     public AI(CardsProtos.AI proto, Hand parent) {
         mEndCardAI = new EndCardSelection(parent);
+        mPlayCardAI = new PlayCardSelection(parent.getID());
         mHand = parent;
         mSelectedCards = new ArrayList<>();
         ReadBuffer(proto);
@@ -53,6 +57,10 @@ public class AI implements Serializer{
         return c;
     }
 
+    public Card SelectPlayCard() {
+        return mPlayCardAI.SelectCard();
+    }
+
 
     @Override
     public void ReadBuffer(Message msg) {
@@ -72,5 +80,10 @@ public class AI implements Serializer{
         }
         builder.setId(getIdentity().get().getId());
         return builder.build();
+    }
+
+    @Override
+    public void Reset(boolean newGame) {
+        mSelectedCards.clear();
     }
 }

@@ -95,6 +95,8 @@ public class PlayTurn extends State {
 
     @Override
     protected void OnFirstRun() {
+        Logic.log().info(String.format("It is player %d turn", mID));
+        Logic.log().info("--------------------------------------");
         mTurnState = TurnState.PLAY_CARD;
         mPlayMode = CheckPlayMode();
         if (mPlayMode == PlayMode.HIDDEN)

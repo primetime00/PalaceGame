@@ -41,7 +41,6 @@ public class EndCardSelection {
     }
 
     public EndCardSelection() {
-        mEndItems = new ArrayList<>();
         mCompare = new Comparator<EndCardsItem>() {
             @Override
             public int compare(EndCardsItem o1, EndCardsItem o2) {
@@ -56,7 +55,6 @@ public class EndCardSelection {
 
     public EndCardSelection(Hand hand) {
         this.mHand = hand;
-        mEndItems = new ArrayList<>();
         mCompare = new Comparator<EndCardsItem>() {
             @Override
             public int compare(EndCardsItem o1, EndCardsItem o2) {
@@ -66,6 +64,9 @@ public class EndCardSelection {
     }
 
     public void SelectEndCards() {
+        if (mEndItems == null)
+            mEndItems = new ArrayList<>();
+        mEndItems.clear();
         List<Card> mCards = mHand.GetActiveCards();
         for (int i=0; i<mCards.size()-2; ++i) { //          0 1 2 3 4
             for (int j=i+1; j<mCards.size()-1; ++j) {//     1 2 3 4 5
@@ -77,6 +78,8 @@ public class EndCardSelection {
     }
 
     public Card[] GetRandomCardSet(float percent, boolean top) {
+        if (mEndItems == null)
+            SelectEndCards();
         Collections.sort(mEndItems, mCompare);
         if (mEndItems == null || mEndItems.size() == 0)
             return null;

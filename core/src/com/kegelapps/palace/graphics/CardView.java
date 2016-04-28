@@ -22,6 +22,7 @@ public class CardView extends Actor {
     private float mMaxCardSize;
 
     private HighlightView mHighlightView;
+    private DisableView mDisableView;
 
     public enum Side {
         FRONT,
@@ -63,6 +64,7 @@ public class CardView extends Actor {
             mCardMap.put(mCard, this);
         }
         mHighlightView = new HighlightView();
+        mDisableView = new DisableView();
     }
 
     public Card getCard() {
@@ -76,6 +78,9 @@ public class CardView extends Actor {
         if (mHighlightView.isVisible()) {
             mHighlightView.draw(batch, this);
         }
+        if (mCardRegion == mCardFace && mDisableView.isVisible()) //we are showing this card
+            mDisableView.draw(batch, this);
+
     }
 
     public void setSide(Side side) {
@@ -105,6 +110,14 @@ public class CardView extends Actor {
             mHighlightView.hide();
     }
 
+    public void setDisabled(boolean disable) {
+        if (disable)
+            mDisableView.show();
+        else
+            mDisableView.hide();
+    }
+
+
     @Override
     public String getName() {
         if (mCard != null)
@@ -119,6 +132,29 @@ public class CardView extends Actor {
         shapes.set(ShapeRenderer.ShapeType.Filled);
         shapes.circle(getX(), getY(), 10);
         shapes.set(ShapeRenderer.ShapeType.Line);
+
+    }
+
+    public static void Reset() {
+        for (CardView c : mCardMap.values()) {
+            if (c != null)
+                c.remove();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String s;
+        if (getParent() == null)
+            return String.format("CardView: %s [none]", mCard);
+        else if (getParent() instanceof HandView)
+            return String.format("CardView: %s [%s - %d]", mCard, ((HandView)getParent()).getHand().getIdentity().get().getName(), ((HandView)getParent()).getHand().getID());
+        else if (getParent() instanceof InPlayView)
+            return String.format("CardView: %s [in play]", mCard);
+        else if (getParent() instanceof TableView)
+            return String.format("CardView: %s [table]", mCard);
+        else
+            return String.format("CardView: %s [%s]", mCard, getParent().getClass());
 
     }
 }

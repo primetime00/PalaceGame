@@ -282,11 +282,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
     }
 
     @Override
-    public String toString() {
-        return "InPlayView";
-    }
-
-    @Override
     public void Reset(boolean newGame) {
         for (Actor a : getChildren()) {
             a.remove();
@@ -306,4 +301,18 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
 //        shapes.rect(pos.x, pos.y, mTotalAreaRectangle.getWidth(), mTotalAreaRectangle.getHeight());
 
     }
+
+    @Override
+    public String toString() {
+        int max = Math.max(mInPlayCards.GetCards().size(), getChildren().size);
+        String s = "InPlayView:\n";
+        for (int i=0; i<max; ++i) {
+            s += String.format("%s\t%s\n",
+                    i < mInPlayCards.GetCards().size() ? mInPlayCards.GetCards().get(i) : null,
+                    i < getChildren().size ? getChildren().get(i) : null
+                    );
+        }
+        return s;
+    }
+
 }

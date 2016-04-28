@@ -29,7 +29,6 @@ public class MusicLoader extends SynchronousAssetLoader<MusicMap, MusicLoader.Mu
         if (parameter == null)
             parameter = new MusicParam();
         MusicMap mMusicMap = new MusicMap();
-        FileReader reader;
         XmlReader xmlReader = new XmlReader();
         XmlReader.Element root;
         try {

@@ -6,7 +6,6 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,10 +36,15 @@ public class InPlay implements Serializer{
     public void AddCard(Card c) {
         mCards.add(c);
         Director.instance().getEventSystem().Fire(EventSystem.EventType.INPLAY_CARDS_CHANGED);
+        Logic.log().info(String.format("Adding card %s to in play pile", c));
     }
 
     public void Burn() {
         Director.instance().getEventSystem().Fire(EventSystem.EventType.BURN_CARDS, GetTopCard());
+        Logic.log().info(String.format("Burning cards:"));
+        for (Card c : mCards) {
+            Logic.log().info(String.format("%s", c));
+        }
         Clear();
     }
 
@@ -51,6 +55,7 @@ public class InPlay implements Serializer{
         for (CardsProtos.Card protoCard : played.getCardsList()) {
             mCards.add(Card.GetCard(protoCard));
         }
+        Logic.log().info(info());
     }
 
     @Override
@@ -67,4 +72,14 @@ public class InPlay implements Serializer{
         mCards.clear();
         Director.instance().getEventSystem().Fire(EventSystem.EventType.INPLAY_CARDS_CHANGED);
     }
+
+    public String info() {
+        String s = String.format("InPlay:\n");
+        for (Card c : mCards) {
+            s += String.format("\t%s\n", c);
+        }
+        return s;
+    }
+
+
 }
