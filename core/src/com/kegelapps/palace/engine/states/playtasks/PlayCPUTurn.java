@@ -1,14 +1,15 @@
 package com.kegelapps.palace.engine.states.playtasks;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -118,6 +119,7 @@ public class PlayCPUTurn extends PlayTurn {
             case SUCCESS_AGAIN:
                 return false;
             case SUCCESS_BURN:
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.CHAT_COMMENT, "burn", 2f, mHand.getID(), true);
                 mTurnState = TurnState.BURN;
                 return false;
             default:

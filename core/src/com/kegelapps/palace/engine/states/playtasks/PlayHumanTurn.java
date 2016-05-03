@@ -55,6 +55,11 @@ public class PlayHumanTurn extends PlayTurn {
         }
         if (mPlayTapped) {
             mTable.PickUpStack(mHand.getID());
+            mPlayMode = CheckPlayMode();
+            if (mTable.AllCardsUnplayable(mHand.getID())) {
+                mTable.SkipTurn();
+                return true; //the rest of your turn is skipped!
+            }
             mPlayTapped = false;
             return false;
         }

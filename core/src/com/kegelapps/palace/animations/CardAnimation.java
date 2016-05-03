@@ -328,7 +328,7 @@ public class CardAnimation extends Animation {
         protected float mDuration, mFlipDuration;
 
         public PlaySuccessCard() {
-            mDuration = 5.3f;
+            mDuration = 0.3f;
             mFlipDuration = mDuration / 3.0f;
         }
 
@@ -362,7 +362,7 @@ public class CardAnimation extends Animation {
     static public class PlaySuccessBurnCard extends PlaySuccessCard {
 
         public PlaySuccessBurnCard() {
-            mDuration = 6.0f;
+            mDuration = 1.0f;
             mFlipDuration = 0.3f / 3.0f;
         }
     }

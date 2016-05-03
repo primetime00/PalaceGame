@@ -31,13 +31,4 @@ public class ClipView extends Group {
         batch.flush();
         ScissorStack.popScissors();
     }
-
-    @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-        shapes.setColor(Color.GREEN);
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.circle(getX(), getY(), 10);
-        shapes.set(ShapeRenderer.ShapeType.Line);
-    }
 }

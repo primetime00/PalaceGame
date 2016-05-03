@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.animations.AnimationFactory;
+import com.kegelapps.palace.PlayerData;
 import com.kegelapps.palace.audio.AudioManager;
+import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.states.SelectEndCards;
 import com.kegelapps.palace.engine.states.State;
@@ -21,6 +21,8 @@ import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.MessageStage;
 import com.kegelapps.palace.graphics.TableView;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
+import com.kegelapps.palace.graphics.utils.HandUtils;
+import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.OptionProtos;
 import com.kegelapps.palace.tween.ActorAccessor;
 
@@ -94,6 +96,48 @@ public class GameScene extends Scene {
             }
 
         });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.CHAT_MESSAGE) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 4 || !(params[0] instanceof String) || !(params[1] instanceof Float) || !(params[2] instanceof Color) || !(params[3] instanceof Integer) ) {
+                    throw new IllegalArgumentException("Invalid parameters for CHAT_MESSAGE");
+                }
+                String message = (String) params[0];
+                float duration = (float) params[1];
+                Color color = (Color) params[2];
+                HandUtils.HandSide side = tableView.getSideFromHand((Integer) params[3]);
+                mMessageStage.getChatBox().showChat(message, side, duration, color, false);
+            }
+
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.CHAT_COMMENT) {
+            @Override
+            public void handle(Object params[]) {
+                if (params == null || params.length != 4 || !(params[0] instanceof String) || !(params[1] instanceof Float) || !(params[2] instanceof Integer) || !(params[3] instanceof Boolean) ) {
+                    throw new IllegalArgumentException("Invalid parameters for CHAT_MESSAGE");
+                }
+                String key = (String) params[0];
+                float duration = (float) params[1];
+                Color color = Color.WHITE;
+                int id = (Integer) params[2];
+                Hand hand = tableView.getTable().GetHand(id);
+                HandUtils.HandSide side = tableView.getSideFromHand(id);
+                boolean isRandom = (boolean) params[3];
+                if (hand.getIdentity() == null)
+                    return;
+                int cpuID = hand.getIdentity().get().getId();
+                PlayerData mPlayerData = Director.instance().getAssets().get("players", PlayerMap.class).get(cpuID);
+                String comment = isRandom ? mPlayerData.getRandomComment(key) : mPlayerData.getComment(key);
+                if (comment.isEmpty())
+                    return;
+                mMessageStage.getChatBox().showChat(comment, side, duration, color, false);
+            }
+
+        });
+
+
 
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.STATE_LOADED) {
             @Override

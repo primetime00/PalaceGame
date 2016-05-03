@@ -1,6 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.kegelapps.palace.Director;
+import com.kegelapps.palace.PlayerData;
 import com.kegelapps.palace.engine.ai.EndCardSelection;
 import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.PlayersProto;
@@ -10,12 +11,14 @@ import com.kegelapps.palace.protos.PlayersProto;
  */
 public class Identity {
     private int id;
-    private PlayersProto.Player mPlayerData;
+    private PlayerData mPlayerData;
 
     public Identity(int id) {
         this.id = id;
         mPlayerData = Director.instance().getAssets().get("players", PlayerMap.class).get(id);
     }
 
-    public PlayersProto.Player get() { return mPlayerData;}
+
+
+    public PlayerData get() { return mPlayerData;}
 }

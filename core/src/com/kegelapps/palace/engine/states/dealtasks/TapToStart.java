@@ -1,11 +1,13 @@
 package com.kegelapps.palace.engine.states.dealtasks;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.StateProtos;
 
 /**
@@ -33,6 +35,15 @@ public class TapToStart extends State {
             if (mStateListener != null)
                 mStateListener.onContinueState();
             return true;
+        }
+
+        if (!HasTimeoutHandlers()) {
+            AddTimeoutHandler(2f, 3f, 10f, new Runnable() {
+                @Override
+                public void run() {
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHAT_COMMENT, "tap_deck", 2f, mTable.GetRandomCPUHandID(), false);
+                }
+            });
         }
 
         for (int i=0; i<mTable.getHands().size(); ++i) {

@@ -705,18 +705,6 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
     }
 
     @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-/*        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(Color.RED);
-        shapes.circle(mHiddenPositions[1].getX(), mHiddenPositions[1].getY(), 10);
-        shapes.setColor(Color.BLUE);
-        shapes.circle(mHiddenPositions[1].getX(), mHiddenPositions[1].getY() + mHiddenPositions[1].getHeight(), 10);
-        shapes.set(ShapeRenderer.ShapeType.Line);*/
-
-    }
-
-    @Override
     public void dispose() {
         if (mPlayerName != null)
             mPlayerName.dispose();

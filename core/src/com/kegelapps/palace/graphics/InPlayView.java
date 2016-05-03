@@ -290,19 +290,6 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
     }
 
     @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-        shapes.setColor(Color.BLUE.r, Color.BLUE.g, Color.BLUE.b, 0.5f);
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.rect(getX(), getY(), getWidth(), getHeight());
-        shapes.setColor(Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b, 1.0f);
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-//        Vector2 pos = (new Vector2(mTotalAreaRectangle.x+getX(), mTotalAreaRectangle.y+getY()));
-//        shapes.rect(pos.x, pos.y, mTotalAreaRectangle.getWidth(), mTotalAreaRectangle.getHeight());
-
-    }
-
-    @Override
     public String toString() {
         int max = Math.max(mInPlayCards.GetCards().size(), getChildren().size);
         String s = "InPlayView:\n";

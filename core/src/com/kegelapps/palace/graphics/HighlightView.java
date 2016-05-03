@@ -70,8 +70,10 @@ public class HighlightView {
     public void hide() {
         if (!mVisible)
             return;
-        if (mAnimation != null)
-            mAnimation.free();
+        if (mAnimation != null) {
+            //mAnimation.free();
+            Director.instance().getTweenManager().killTarget(this);
+        }
         mAlpha = mMaxAlpha;
         mVisible = false;
     }

@@ -17,6 +17,8 @@ message State {
     repeated State childrenStates = 5;
 
     required int32 id = 6;
+
+    required int64 activeTime = 7;
 }
 
 message MainState {

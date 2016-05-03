@@ -49,9 +49,23 @@ public class State implements Serializer{
         void onDoneState(Object result);
     }
 
+    static class StateTimerHandler {
+        private long mMin, mMax;
+        private long mRepeat;
+        private Runnable mRunnable;
+        public StateTimerHandler(long min, long max, long repeat, Runnable run) {
+            mMin = min;
+            mMax = max;
+            mRepeat = repeat;
+            mRunnable = run;
+        }
+    }
+
     protected boolean mPaused;
     protected int mID;
 
+    protected long mActiveTime;
+    private long mInitTime;
 
     protected Status mStatus, mPreviousStatus;
 
@@ -61,6 +75,8 @@ public class State implements Serializer{
     private ArrayList<State> mChildren;
 
     protected StateFactory.StateList mChildrenStates;
+
+    private ArrayList<StateTimerHandler> mTimeHandlers;
 
     public State() {
         init();
@@ -89,6 +105,7 @@ public class State implements Serializer{
         mPaused = false;
         mStatus = Status.NOT_STARTED;
         mID = 0;
+        mActiveTime = 0;
     }
 
     public Status getStatus() {return mStatus;}
@@ -104,8 +121,13 @@ public class State implements Serializer{
             if (mParent != null) {
                 mParent.addChild(this);
             }
+            mInitTime = StateFactory.get().GetTimeSinceStart();
+            mActiveTime = 0;
+            mTimeHandlers = null;
             OnFirstRun();
         }
+        mActiveTime = StateFactory.get().GetTimeSinceStart() - mInitTime;
+        checkHandlers();
         ret = OnRun();
         if (ret == true) {//we finished the state?
             OnEndRun();
@@ -114,6 +136,30 @@ public class State implements Serializer{
                 mStateListener.onDoneState();
             if (mParent != null) {
                 mParent.removeChild(this);
+            }
+        }
+    }
+
+    private void checkHandlers() {
+        if (mTimeHandlers == null)
+            return;
+        for (Iterator<StateTimerHandler> it = mTimeHandlers.iterator(); it.hasNext();) {
+            StateTimerHandler handler = it.next();
+            if (mActiveTime >= handler.mMin && mActiveTime <= handler.mMax) {
+                Logic.log().info(String.format("Running handler %d %d %d", handler.mMin, handler.mMax, mActiveTime));
+                handler.mRunnable.run();
+                if (handler.mRepeat > 0) {
+                    handler.mMin = handler.mMin + handler.mRepeat;
+                    handler.mMax = handler.mMax + handler.mRepeat;
+                }
+                else {
+                    it.remove();
+                }
+                continue;
+            }
+            if (handler.mMax < mActiveTime) { //we've passed this
+                it.remove();
+                continue;
             }
         }
     }
@@ -204,6 +250,8 @@ public class State implements Serializer{
         setStatus(Status.values()[state.getStatus()]);
         mPaused = state.getPaused();
         setID(state.getId());
+        mInitTime = StateFactory.get().GetTimeSinceStart();
+        mActiveTime = state.getActiveTime();
         if (state.hasPreviousStatus())
             mPreviousStatus = Status.values()[state.getPreviousStatus()];
         if (state.getChildrenStatesCount() > 0) {
@@ -219,6 +267,7 @@ public class State implements Serializer{
         builder.setType(getStateName().ordinal());
         builder.setPaused(mPaused);
         builder.setId(getID());
+        builder.setActiveTime(mActiveTime);
         builder.setStatus(getStatus().ordinal());
         if (mPreviousStatus != null)
             builder.setPreviousStatus(mPreviousStatus.ordinal());
@@ -229,14 +278,25 @@ public class State implements Serializer{
     public void Reset() {
         mPaused = false;
         mStatus = Status.NOT_STARTED;
+        if (mTimeHandlers != null)
+            mTimeHandlers.clear();
+        mTimeHandlers = null;
 
         for (ArrayList<State> s : mChildrenStates.values()) {
             for (State state : s) {
                 state.Reset();
             }
         }
+    }
 
+    public void AddTimeoutHandler(float min, float max, float repeat, Runnable run) {
+        if (mTimeHandlers == null)
+            mTimeHandlers = new ArrayList<>();
+        mTimeHandlers.add(new StateTimerHandler((long)(min*1000), (long)(max*1000), (long)(repeat*1000), run));
+    }
 
+    public boolean HasTimeoutHandlers() {
+        return mTimeHandlers != null;
     }
 
 }

@@ -54,8 +54,8 @@ public class Logic implements Serializer, Resettable{
     public Logic() {
         mStats = new Stats();
         mDebug = new Debug();
-        mDebug.setCPUPlayOnly(true);
-        mDebug.disableSaves();
+        //mDebug.setCPUPlayOnly(true);
+        //mDebug.disableSaves();
     }
 
     static public Logic get() {
@@ -302,6 +302,7 @@ public class Logic implements Serializer, Resettable{
         log().info("------------------------");
         log().info("The game has been reset");
         log().info("------------------------");
+        mDebug.Reset(newGame);
     }
 
     public Debug debug() {

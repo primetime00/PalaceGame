@@ -28,7 +28,6 @@ public class Debug implements Resettable{
         };
         mSaveEnabled = true;
         mCPUPlay = false;
-        Director.instance().addResetter(this);
     }
 
     public int getLastSaveCounter() {

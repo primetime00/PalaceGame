@@ -2,6 +2,7 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.engine.states.dealtasks.DealCard;
 import com.kegelapps.palace.engine.states.dealtasks.DrawPlayCard;
@@ -24,6 +25,7 @@ public class StateFactory {
     private ExtensionRegistry mRegistry;
     private Table mTable;
     private Map<State.Names, ArrayList<State>> mStateMap;
+    private long mInitTime = 0;
 
 
     public StateFactory() {
@@ -41,6 +43,7 @@ public class StateFactory {
         mRegistry.add(StateProtos.PlayHiddenAttemptState.state);
         mRegistry.add(StateProtos.DrawPlayCardState.state);
         mStateMap = new HashMap<>();
+        mInitTime = System.currentTimeMillis();
     }
 
     public void SetTable(Table t) {
@@ -214,4 +217,13 @@ public class StateFactory {
         StateProtos.State stateProto = (StateProtos.State) msg;
         instance.ReadBuffer(msg);
     }
+
+    public long GetStartTime() {
+        return mInitTime;
+    }
+
+    public long GetTimeSinceStart() {
+        return System.currentTimeMillis() - mInitTime;
+    }
+
 }

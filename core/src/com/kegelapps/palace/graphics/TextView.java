@@ -105,18 +105,4 @@ public class TextView extends Actor implements Disposable{
         mFrameBuffer = null;
         mFont = null;
     }
-
-
-    @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        shapes.set(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(Color.RED);
-        shapes.rect(getX(), getY(), getWidth(), getHeight());
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(Color.GOLDENROD);
-        shapes.circle(getX(), getY(), 10);
-        shapes.setColor(Color.FOREST);
-        shapes.circle(getX()+getOriginX(), getY()+getOriginY(), 10);
-        shapes.set(ShapeRenderer.ShapeType.Line);
-    }
 }

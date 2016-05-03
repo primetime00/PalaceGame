@@ -2,17 +2,47 @@
 <resources>
     <player id="0">
         <name>Bob</name>
+        <ai play_multiple="0.9" hidden_order="0" end_card_spread="0.2"/>
+        <comments>
+            <comment id="tap_deck" chance="1">Double tap the deck so we can start the game!</comment>
+            <comment id="burn01" chance="1">It's time to clear this pile!</comment>
+            <comment id="burn02" chance="1">Let's get rid of these cards now.</comment>
+        </comments>
     </player>
     <player id="1">
         <name>Sarah</name>
+        <ai play_multiple="1.0" hidden_order="0" end_card_spread="0.2"/>
+        <comments>
+            <comment id="tap_deck" chance="1">If you double tap the deck, we can play the game.</comment>
+            <comment id="burn01" chance="1">We can get rid of this pile now.</comment>
+            <comment id="burn02" chance="1">We won't be using these cards any longer.</comment>
+        </comments>
     </player>
     <player id="2">
         <name>Adam</name>
+        <ai play_multiple="0.8" hidden_order="1" end_card_spread="0.1"/>
+        <comments>
+            <comment id="tap_deck" chance="1">Double tap on the deck.  I'm ready to play!</comment>
+            <comment id="burn01" chance="1">I feel a burn coming on!</comment>
+            <comment id="burn02" chance="1">Feel the burn!</comment>
+        </comments>
     </player>
     <player id="3">
         <name>Linda</name>
+        <ai play_multiple="0.8" hidden_order="0" end_card_spread="0.3"/>
+        <comments>
+            <comment id="tap_deck" chance="1">Double tapping the deck shall start the game.</comment>
+            <comment id="burn01" chance="1">These cards will no longer be in play.</comment>
+            <comment id="burn02" chance="1">I believe that I shall burn the play pile.</comment>
+        </comments>
     </player>
     <player id="4">
         <name>Jesse</name>
+        <ai play_multiple="0.85" hidden_order="-1" end_card_spread="0.25"/>
+        <comments>
+            <comment id="tap_deck" chance="1">Can we play now?  Just double tap the deck.</comment>
+            <comment id="burn01" chance="1">Smell that?  It smells like a fire!</comment>
+            <comment id="burn02" chance="1">These cards...  They are gone!</comment>
+        </comments>
     </player>
 </resources>

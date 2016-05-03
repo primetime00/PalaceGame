@@ -10,6 +10,7 @@ import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by keg45397 on 12/7/2015.
@@ -348,6 +349,18 @@ public class Table  implements Serializer, Resettable{
         mUnplayableCards.clear();
     }
 
+    public int GetRandomCPUHandID() {
+        ArrayList<Integer> vals = new ArrayList<>();
+        for (Hand hand : getHands()) {
+            if (hand.getType() == Hand.HandType.CPU)
+                vals.add(hand.getID());
+        }
+        if (vals.size() == 0)
+            return -1;
+        Random rn = new Random();
+        int pick = rn.nextInt(vals.size());
+        return vals.get(pick);
+    }
 
 
 

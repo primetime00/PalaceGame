@@ -1,14 +1,11 @@
 package com.kegelapps.palace.graphics;
 
 import aurelienribon.tweenengine.BaseTween;
-import aurelienribon.tweenengine.Timeline;
-import aurelienribon.tweenengine.Tween;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -294,12 +291,12 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription(String.format("Success card %s", c.toString())).setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
                 builder.killPreviousAnimation(cardView);
-                Animation cardAnimation = null, cameraZoomAnimation = null;
+                Animation cameraZoomAnimation = null;
                 final int pending = hand.GetPlayCards().GetPendingCards().size();
 
                 if (!isBurnPlay || !hand.HasAnyCards()) {
-                    cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessCard()).build();
-                    cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
+                    builder.setTweenCalculator(new CardAnimation.PlaySuccessCard());
+                    builder.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
                         public void onEnd(Animation animation) {
                             HandUtils.Reparent(mPlayView, builder.getCard());
@@ -310,11 +307,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                         }
                     });
                     Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.1f));
-                    cardAnimation.Start();
+                    builder.build().Start();
                 }
                 else {
-                    cardAnimation = builder.setTweenCalculator(new CardAnimation.PlaySuccessBurnCard()).build();
-                    cardAnimation.addStatusListener(new Animation.AnimationStatusListener() {
+                    builder.setTweenCalculator(new CardAnimation.PlaySuccessBurnCard());
+                    builder.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
                         public void onEnd(Animation animation) {
                             HandUtils.Reparent(mPlayView, builder.getCard());
@@ -332,7 +329,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                     cameraZoomAnimation.Start();
                     Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("cardSlide"), 0.45f));
-                    cardAnimation.Start();
+                    builder.build().Start();
                 }
                 TableView.this.getHand(hand.getID()).CheckDisabledCards();
             }
@@ -836,14 +833,6 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 return h;
         }
         return null;
-    }
-
-    @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        super.drawDebug(shapes);
-        if (mHelperText.getText().length() > 0)
-            mHelperText.drawDebug(shapes);
-
     }
 
     @Override
