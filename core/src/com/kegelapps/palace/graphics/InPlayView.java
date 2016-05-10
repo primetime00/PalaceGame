@@ -168,7 +168,7 @@ public class InPlayView extends Group implements ReparentViews, Resettable {
         int lastCol = size % cardsHorizontal;
         float height = (width * overlapPercentY * (currentRow));
         if (size == 0)
-            return new Vector2(0,0);
+            return new Vector2(0,getHeight() - mCardHeight);
         float y = -currentRow*width*overlapPercentY;
         float x;
         if (currentRow %2 == 0)

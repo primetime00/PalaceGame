@@ -49,7 +49,7 @@ public class EventSystem implements Disposable{
         DISMISS_ACKNOWLEDGEMENTS,
         MAIN_SCREEN,
         CHAT_MESSAGE,
-        CHAT_COMMENT,
+        CHAT_COMMENT, SORT_HAND,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;
@@ -166,6 +166,21 @@ public class EventSystem implements Disposable{
         public void handle(Object params[]) {
 
         }
+    }
+
+    public static void Error(String event) {
+        throw new IllegalArgumentException(String.format("Invalid parameters for %s", event));
+    }
+
+    public static void CheckParams(Object[] params, int i, String ename) {
+        if (params == null || params.length != i)
+            Error(ename);
+    }
+
+    public static Object CheckParam(Object param, Class<?> c, String name) {
+        if (!c.isInstance(param))
+            Error(name);
+        return param;
     }
 
 

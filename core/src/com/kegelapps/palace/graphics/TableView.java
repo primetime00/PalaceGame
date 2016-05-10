@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,14 +14,11 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.kegelapps.palace.CardResource;
-import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.*;
 import com.kegelapps.palace.audio.SoundEvent;
 import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
-import com.kegelapps.palace.Input;
 import com.kegelapps.palace.animations.*;
 import com.kegelapps.palace.engine.Card;
 import com.kegelapps.palace.engine.Hand;
@@ -58,6 +56,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
     private TextView mHelperText;
 
+    private CommentEngine mComments;
+
     public TableView(Table table, CardCamera cam) {
         mTable = table;
         mDeck = new DeckView(table.getDeck());
@@ -92,8 +92,6 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         }
         addActor(mDeck);
         addActor(mPlayView);
-
-
 
         createTableEvents();
 
@@ -232,10 +230,10 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         EventSystem.EventListener mTapDeckEventListener = new EventSystem.EventListener(EventSystem.EventType.STATE_CHANGE) {
             @Override
             public void handle(Object params[]) {
-                if (params == null || params.length != 1 || !(params[0] instanceof State)) {
-                    throw new IllegalArgumentException("Invalid parameters for STATE_CHANGE");
-                }
-                TapDeckToStart((params[0] instanceof TapToStart));
+                final String ename = "STATE_CHANGE";
+                EventSystem.CheckParams(params, 1, ename);
+                State s = (State) EventSystem.CheckParam(params[0], State.class, ename);
+                TapDeckToStart(s instanceof TapToStart);
                 mPlayView.OrganizeCards();
                 CheckForQuickGame();
             }
@@ -246,12 +244,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         EventSystem.EventListener mCardPlayFailed = new EventSystem.EventListener(EventSystem.EventType.CARD_PLAY_FAILED) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 2 || !(params[0] instanceof Card) || !(params[1] instanceof Hand)) {
-                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_FAILED");
-                }
-                Hand hand =  (Hand) params[1];
+                final String ename = "CARD_PLAY_FAILED";
+                EventSystem.CheckParams(params, 2, ename);
+                Hand hand =  (Hand) EventSystem.CheckParam(params[1], Hand.class, ename);
 
-                CardView cardView = CardView.getCardView((Card) params[0]);
+                CardView cardView = CardView.getCardView((Card) EventSystem.CheckParam(params[0], Card.class, ename));
                 cardView.toFront();
 
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
@@ -275,18 +272,17 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         EventSystem.EventListener mCardPlaySuccess = new EventSystem.EventListener(EventSystem.EventType.CARD_PLAY_SUCCESS) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 3 || !(params[0] instanceof Card) || !(params[1] instanceof Hand) || !(params[2] instanceof Boolean)) {
-                    throw new IllegalArgumentException("Invalid parameters for CARD_PLAY_SUCCESS");
-                }
-                Hand hand =  (Hand) params[1];
+                final String ename = "CARD_PLAY_SUCCESS";
+                EventSystem.CheckParams(params, 3, ename);
+                Hand hand =  (Hand) EventSystem.CheckParam(params[1], Hand.class, ename);
 
-                Card c = (Card) params[0];
+                Card c = (Card) EventSystem.CheckParam(params[0], Card.class, ename);
                 CardView cardView = CardView.getCardView(c);
 
                 HandUtils.Reparent(TableView.this, cardView);
 
                 //are we playing a burn?
-                boolean isBurnPlay = (boolean) params[2];
+                boolean isBurnPlay = (boolean) EventSystem.CheckParam(params[2], Boolean.class, ename);
 
                 final AnimationBuilder builder = AnimationFactory.get().createAnimationBuilder(AnimationFactory.AnimationType.CARD);
                 builder.setPause(true).setDescription(String.format("Success card %s", c.toString())).setTable(TableView.this).setCard(cardView).setHandID(hand.getID());
@@ -310,6 +306,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                     builder.build().Start();
                 }
                 else {
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHAT_COMMENT, CommentEngine.CommentType.BURN);
                     builder.setTweenCalculator(new CardAnimation.PlaySuccessBurnCard());
                     builder.addStatusListener(new Animation.AnimationStatusListener() {
                         @Override
@@ -464,10 +461,9 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.PICK_UP_STACK) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 2 || !(params[0] instanceof Integer) || !(params[1] instanceof ArrayList)) {
-                    throw new IllegalArgumentException("Invalid parameters for PICK_UP_STACK");
-                }
-                int id = (int) params[0];
+                final String ename = "PICK_UP_STACK";
+                EventSystem.CheckParams(params, 2, ename);
+                int id = (int) EventSystem.CheckParam(params[0], Integer.class, ename);
                 HandView hand = null;
                 for (HandView h : getHands()) {
                     if (h.getHand().getID() == id)
@@ -481,7 +477,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                 mPlayView.setHighlight(false);
 
-                List<Card> cards = (List<Card>) params[1];
+                List<Card> cards = (List<Card>) EventSystem.CheckParam(params[1], List.class, ename);
                 //Collections.reverse(cards);
                 if (cards.size() > 4) {
                     Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("pickup"), 0.2f));
@@ -906,4 +902,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 Logic.get().setSimulate(true);*/
         }
     }
+
+    private GameScene getGameScene() {
+        if (getStage() instanceof GameScene)
+            return (GameScene) getStage();
+        return null;
+    }
+
 }

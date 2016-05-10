@@ -347,14 +347,13 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.CARDS_GONE){
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 1 || !(params[0] instanceof Integer)) {
-                    throw new IllegalArgumentException("Invalid parameters for CARDS_GONE");
-                }
+                final String ename = "CARDS_GONE";
+                EventSystem.CheckParams(params, 1, ename);
                 if ( !(getParent() instanceof TableView) ) {
-                    throw new RuntimeException("SELECT_MULTIPLE_CARDS requires a TableView parent.");
+                    throw new RuntimeException("CARDS_GONE requires a TableView parent.");
                 }
                 TableView table = (TableView)getParent();
-                int id = (int) params[0];
+                int id = (int) EventSystem.CheckParam(params[0], Integer.class, ename);
                 if (getHand().getID() != id)
                     return;
                 CoinView cv = createCoin();
@@ -407,6 +406,22 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                 });
 
                 builder.build().Start();
+            }
+        });
+
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.SORT_HAND){
+            @Override
+            public void handle(Object[] params) {
+                final String ename = "SORT_HAND";
+                EventSystem.CheckParams(params, 1, ename);
+                Hand h = (Hand) EventSystem.CheckParam(params[0], Hand.class, ename);
+                if (getHand().getID() != h.getID())
+                    return;
+                if ( !(getParent() instanceof TableView) ) {
+                    throw new RuntimeException("SORT_HAND requires a TableView parent.");
+                }
+                TableView table = (TableView)getParent();
+                OrganizeCards(true, true, false, false, true);
             }
         });
 

@@ -119,7 +119,6 @@ public class PlayCPUTurn extends PlayTurn {
             case SUCCESS_AGAIN:
                 return false;
             case SUCCESS_BURN:
-                Director.instance().getEventSystem().Fire(EventSystem.EventType.CHAT_COMMENT, "burn", 2f, mHand.getID(), true);
                 mTurnState = TurnState.BURN;
                 return false;
             default:

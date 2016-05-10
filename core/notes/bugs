@@ -1,2 +1,6 @@
-Card back changer
+Vertical Chatbox only has a small width
+Grayed out cards still work when in a set
+    King King King GrayKing
+    need to make grayking playable (on pickup, card is playable if you already hold another of the same rank)
+
 

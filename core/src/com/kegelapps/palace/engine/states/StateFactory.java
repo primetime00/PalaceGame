@@ -148,8 +148,10 @@ public class StateFactory {
         for (StateProtos.State proto : parentState.getChildrenStatesList()) {
             State s = sl.addState(State.Names.values()[proto.getType()], parent, proto.getId());
             s.ReadBuffer(proto);
-            if (s.getStatus() != State.Status.DONE && s.getStatus() != State.Status.NOT_STARTED && parent != null)
+            if (s.getStatus() != State.Status.DONE && s.getStatus() != State.Status.NOT_STARTED && parent != null) {
                 parent.addChild(s);
+                Logic.get().setCurrentState(s);
+            }
         }
         return sl;
     }

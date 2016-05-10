@@ -37,15 +37,6 @@ public class TapToStart extends State {
             return true;
         }
 
-        if (!HasTimeoutHandlers()) {
-            AddTimeoutHandler(2f, 3f, 10f, new Runnable() {
-                @Override
-                public void run() {
-                    Director.instance().getEventSystem().Fire(EventSystem.EventType.CHAT_COMMENT, "tap_deck", 2f, mTable.GetRandomCPUHandID(), false);
-                }
-            });
-        }
-
         for (int i=0; i<mTable.getHands().size(); ++i) {
             Hand mHand = mTable.getHands().get(i);
             if (mHand.getType() == Hand.HandType.HUMAN) {

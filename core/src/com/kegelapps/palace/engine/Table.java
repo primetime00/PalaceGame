@@ -1,8 +1,10 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
+import com.kegelapps.palace.CommentEngine;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.loaders.types.PlayerMap;
 import com.kegelapps.palace.protos.CardProtos;
@@ -30,6 +32,7 @@ public class Table  implements Serializer, Resettable{
     private int mCurrentDealTurn = 0;
     private int mNumberOfCardsPlayed = 0;
     private int mFirstDealHand;
+
 
     public interface TableListener {
         void onDealCard(Hand hand, Card c);
@@ -129,7 +132,6 @@ public class Table  implements Serializer, Resettable{
             if (isTenBurn)
                 mNumberOfCardsPlayed = 0;
             boolean isBurnPlay = isTenBurn || isNumberCardsBurn;
-            mUnplayableCards.clear();
             Director.instance().getEventSystem().Fire(EventSystem.EventType.CARD_PLAY_SUCCESS, activeCard, hand, isBurnPlay);
             mPlayCards.AddCard(activeCard);
             if (res != Logic.ChallengeResult.SUCCESS_BURN && isBurnPlay)
@@ -162,7 +164,7 @@ public class Table  implements Serializer, Resettable{
 
     public void PickUpStack(int id) {
         Hand h = getHands().get(id);
-        AddUnplayableCardsFromStack();
+        AddUnplayableCardsFromStack(h);
         h.PickUpStack(mPlayCards);
     }
 
@@ -320,11 +322,26 @@ public class Table  implements Serializer, Resettable{
         }
     }*/
 
-    public void AddUnplayableCardsFromStack() {
+    public void AddUnplayableCardsFromStack(Hand h) {
         if (mPlayCards.GetCards().size() == 0)
             return;
         mUnplayableCards.clear();
-        mUnplayableCards.addAll(mPlayCards.GetCards());
+        if (h.GetActiveCards().isEmpty()) {
+            mUnplayableCards.addAll(mPlayCards.GetCards());
+            return;
+        }
+        boolean found;
+        for (Card c1 : mPlayCards.GetCards()) {
+            found = false;
+            for (Card c2: h.GetActiveCards()) {
+                if (c1.getRank() == c2.getRank()) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                mUnplayableCards.add(c1);
+        }
     }
 
 
@@ -349,10 +366,10 @@ public class Table  implements Serializer, Resettable{
         mUnplayableCards.clear();
     }
 
-    public int GetRandomCPUHandID() {
+    public int GetRandomCPUHandID(int exclude) {
         ArrayList<Integer> vals = new ArrayList<>();
         for (Hand hand : getHands()) {
-            if (hand.getType() == Hand.HandType.CPU)
+            if (hand.getType() == Hand.HandType.CPU && hand.getID() != exclude)
                 vals.add(hand.getID());
         }
         if (vals.size() == 0)
@@ -360,6 +377,15 @@ public class Table  implements Serializer, Resettable{
         Random rn = new Random();
         int pick = rn.nextInt(vals.size());
         return vals.get(pick);
+    }
+
+
+    public int GetRandomCPUHandID() {
+        return GetRandomCPUHandID(-1);
+    }
+
+    public int GetCurrentPlayerId() {
+        return getHands().get(mCurrentPlayTurn).getID();
     }
 
 

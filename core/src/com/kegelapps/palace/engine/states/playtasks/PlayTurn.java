@@ -150,6 +150,11 @@ public class PlayTurn extends State {
                 mChildrenStates.getState(Names.WIN, getID()).Execute();
                 return false;
             case DONE:
+                if (!mTable.GetUnplayableCards().isEmpty()) {
+                    mTable.GetUnplayableCards().clear();
+                    Logic.get().SortActiveCards(mHand);
+                    Director.instance().getEventSystem().Fire(EventSystem.EventType.SORT_HAND, mHand);
+                }
                 return true;
             default:
                 throw new RuntimeException("PlayTurn State is in an unknown state?");

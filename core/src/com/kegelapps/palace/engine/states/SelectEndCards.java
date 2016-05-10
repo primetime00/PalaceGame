@@ -69,8 +69,10 @@ public class SelectEndCards extends State {
     public boolean OnRun() {
         switch (mState) {
             case 0:
-                for (Hand h: mTable.getHands())
-                    mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).Execute();
+                for (Hand h: mTable.getHands()) {
+                    if (mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).getStatus() != Status.DONE)
+                        mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).Execute();
+                }
                 break;
             case 1:
                 for (Hand h: mTable.getHands()) {

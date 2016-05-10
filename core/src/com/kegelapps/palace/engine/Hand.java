@@ -131,7 +131,7 @@ public class Hand implements Serializer, Resettable{
 
     public void AddActiveCard(Card card) {
         mActiveCards.add(card);
-        Collections.sort(mActiveCards);
+        sortActiveCards();
         Director.instance().getEventSystem().Fire(EventSystem.EventType.LAYOUT_ACTIVE_CARD, card, getID());
         Logic.log().info(String.format("Hand %d adding active card %s", mID, card));
     }
@@ -387,7 +387,7 @@ public class Hand implements Serializer, Resettable{
             cards.add(c);
         }
         GetActiveCards().addAll(cards);
-        Collections.sort(GetActiveCards());
+        sortActiveCards();
         Director.instance().getEventSystem().Fire(EventSystem.EventType.DRAW_TURN_END_CARDS, getID(), cards);
         Logic.log().info(String.format("Hand %d drawing turn cards", mID));
         for (Card c : cards) {
@@ -404,7 +404,7 @@ public class Hand implements Serializer, Resettable{
             cards.add(c);
         }
         GetActiveCards().addAll(cards);
-        Collections.sort(GetActiveCards());
+        sortActiveCards();
         stack.Clear();
         Director.instance().getEventSystem().Fire(EventSystem.EventType.PICK_UP_STACK, getID(), cards);
         Logic.log().info(String.format("Hand %d picking up stack cards", mID));
@@ -425,6 +425,10 @@ public class Hand implements Serializer, Resettable{
 
     public AI GetAI() {
         return mAI;
+    }
+
+    public void sortActiveCards() {
+        Logic.get().SortActiveCards(this);
     }
 
 

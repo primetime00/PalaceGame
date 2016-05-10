@@ -117,6 +117,7 @@ public class State implements Serializer{
         boolean ret;
         if (mStatus == Status.NOT_STARTED || mStatus == Status.DONE) {
             mStatus = Status.ACTIVE;
+            Logic.get().setCurrentState(this);
             Director.instance().getEventSystem().Fire(EventSystem.EventType.STATE_CHANGE, this);
             if (mParent != null) {
                 mParent.addChild(this);
@@ -126,6 +127,8 @@ public class State implements Serializer{
             mTimeHandlers = null;
             OnFirstRun();
         }
+        if (Logic.get().getCurrentState() == null)
+            Logic.get().setCurrentState(this);
         mActiveTime = StateFactory.get().GetTimeSinceStart() - mInitTime;
         checkHandlers();
         ret = OnRun();
@@ -206,6 +209,19 @@ public class State implements Serializer{
         return false;
     }
 
+    public boolean containsState(State state) {
+        if (this == state)
+            return true;
+        if (mChildren != null) {
+            for (State s : mChildren) {
+                if (s.containsState(state))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
     public State getState(Names name) {
         return getState(name, 0);
     }
@@ -223,7 +239,6 @@ public class State implements Serializer{
         }
         return null;
     }
-
 
     public void pause() {
         if (mStatus != Status.PAUSED)

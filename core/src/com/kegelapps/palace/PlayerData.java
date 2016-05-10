@@ -19,8 +19,8 @@ public class PlayerData {
     ObjectMap<String, CommentData> comments;
 
     static class CommentData {
-        private float rate;
-        private String comment;
+        public float rate;
+        public String comment;
 
         public CommentData(String comment, float rate) {
             this.comment = comment;

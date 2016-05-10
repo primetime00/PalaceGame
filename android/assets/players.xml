@@ -5,8 +5,16 @@
         <ai play_multiple="0.9" hidden_order="0" end_card_spread="0.2"/>
         <comments>
             <comment id="tap_deck" chance="1">Double tap the deck so we can start the game!</comment>
-            <comment id="burn01" chance="1">It's time to clear this pile!</comment>
-            <comment id="burn02" chance="1">Let's get rid of these cards now.</comment>
+            <comment id="burn01" chance="0.65">It's time to clear this pile!</comment>
+            <comment id="burn02" chance="0.65">Let's get rid of these cards now.</comment>
+            <comment id="pickup_self01" chance="0.65">I guess these are my cards now!</comment>
+            <comment id="pickup_self02" chance="0.65">I wish I had some better cards.</comment>
+            <comment id="pickup_other01" chance="0.65">At least it isn't me picking up the pile.</comment>
+            <comment id="pickup_other02" chance="0.65">Well, you can't win them all.</comment>
+            <comment id="win_first" chance="1.0">With the cards that I had, I couldn't lose!</comment>
+            <comment id="win_second" chance="1.0">Second place?  I'll take it.</comment>
+            <comment id="win_third" chance="1.0">I didn't get last place though.</comment>
+            <comment id="play_unable" chance="1.0">You can't play those cards this round.</comment>
         </comments>
     </player>
     <player id="1">
@@ -14,8 +22,16 @@
         <ai play_multiple="1.0" hidden_order="0" end_card_spread="0.2"/>
         <comments>
             <comment id="tap_deck" chance="1">If you double tap the deck, we can play the game.</comment>
-            <comment id="burn01" chance="1">We can get rid of this pile now.</comment>
-            <comment id="burn02" chance="1">We won't be using these cards any longer.</comment>
+            <comment id="burn01" chance="0.6">We can get rid of this pile now.</comment>
+            <comment id="burn02" chance="0.6">We won't be using these cards any longer.</comment>
+            <comment id="pickup_self01" chance="0.65">I do not like picking up the pile.</comment>
+            <comment id="pickup_self02" chance="0.65">Hopefully I will be able to use these cards.</comment>
+            <comment id="pickup_other01" chance="0.65">It's a relief that I'm not picking up.</comment>
+            <comment id="pickup_other02" chance="0.65">At least you will have some better cards now right?</comment>
+            <comment id="win_first" chance="1.0">I am the winner this time!</comment>
+            <comment id="win_second" chance="1.0">If I played a little differently, I might have been first.</comment>
+            <comment id="win_third" chance="1.0">Let's just end this game.</comment>
+            <comment id="play_unable" chance="1.0">Since you just picked that card up, you have to wait to play it.</comment>
         </comments>
     </player>
     <player id="2">
@@ -23,8 +39,16 @@
         <ai play_multiple="0.8" hidden_order="1" end_card_spread="0.1"/>
         <comments>
             <comment id="tap_deck" chance="1">Double tap on the deck.  I'm ready to play!</comment>
-            <comment id="burn01" chance="1">I feel a burn coming on!</comment>
-            <comment id="burn02" chance="1">Feel the burn!</comment>
+            <comment id="burn01" chance="0.75">I feel a burn coming on!</comment>
+            <comment id="burn02" chance="0.75">Feel the burn!</comment>
+            <comment id="pickup_self01" chance="0.65">Well that stinks!</comment>
+            <comment id="pickup_self02" chance="0.65">What a sad day.</comment>
+            <comment id="pickup_other01" chance="0.65">You can't win them all!</comment>
+            <comment id="pickup_other02" chance="0.65">I feel sorry for you.</comment>
+            <comment id="win_first" chance="1.0">I'm number 1!  I'm number 1!</comment>
+            <comment id="win_second" chance="1.0">I did well for the terrible card that I had.</comment>
+            <comment id="win_third" chance="1.0">It's good to finish the game at least.</comment>
+            <comment id="play_unable" chance="1.0">That card is not playable yet!</comment>
         </comments>
     </player>
     <player id="3">
@@ -32,8 +56,16 @@
         <ai play_multiple="0.8" hidden_order="0" end_card_spread="0.3"/>
         <comments>
             <comment id="tap_deck" chance="1">Double tapping the deck shall start the game.</comment>
-            <comment id="burn01" chance="1">These cards will no longer be in play.</comment>
-            <comment id="burn02" chance="1">I believe that I shall burn the play pile.</comment>
+            <comment id="burn01" chance="0.7">These cards will no longer be in play.</comment>
+            <comment id="burn02" chance="0.7">I believe that I shall burn the play pile.</comment>
+            <comment id="pickup_self01" chance="0.65">My cards are not adequate.</comment>
+            <comment id="pickup_self02" chance="0.65">I will acquire these cards.</comment>
+            <comment id="pickup_other01" chance="0.65">Picking up the pile is part of the natural order of the game.</comment>
+            <comment id="pickup_other02" chance="0.65">The feeling of picking up the pile is never enjoyable.</comment>
+            <comment id="win_first" chance="1.0">With luck and an infallible strategy, I will prevail every time!</comment>
+            <comment id="win_second" chance="1.0">I did not play as wisely as I would have liked.</comment>
+            <comment id="win_third" chance="1.0">This match was just dreadful.</comment>
+            <comment id="play_unable" chance="1.0">You must select another card.  That one shall be played later.</comment>
         </comments>
     </player>
     <player id="4">
@@ -41,8 +73,16 @@
         <ai play_multiple="0.85" hidden_order="-1" end_card_spread="0.25"/>
         <comments>
             <comment id="tap_deck" chance="1">Can we play now?  Just double tap the deck.</comment>
-            <comment id="burn01" chance="1">Smell that?  It smells like a fire!</comment>
-            <comment id="burn02" chance="1">These cards...  They are gone!</comment>
+            <comment id="burn01" chance="0.8">Smell that?  It smells like a fire!</comment>
+            <comment id="burn02" chance="0.8">These cards...  They are gone!</comment>
+            <comment id="pickup_self01" chance="0.65">These cards better help me later!</comment>
+            <comment id="pickup_self02" chance="0.65">I won't be winning if I have to pick up cards.</comment>
+            <comment id="pickup_other01" chance="0.65">Ouch!</comment>
+            <comment id="pickup_other02" chance="0.65">You must have used up all your good cards.</comment>
+            <comment id="win_first" chance="1.0">I cannot be beat!</comment>
+            <comment id="win_second" chance="1.0">I didn't win... but I didn't lose.</comment>
+            <comment id="win_third" chance="1.0">My cards were just horrible!</comment>
+            <comment id="play_unable" chance="1.0">That card was pick up from the pile.  It can be played later!</comment>
         </comments>
     </player>
 </resources>

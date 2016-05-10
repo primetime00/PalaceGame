@@ -16,6 +16,8 @@ import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.*;
 
 /**
@@ -27,6 +29,14 @@ public class Logic implements Serializer, Resettable{
     private static Logger mLog;
 
     private Debug mDebug;
+
+    public State getCurrentState() {
+        return mCurrentState;
+    }
+
+    public void setCurrentState(State state) {
+        this.mCurrentState = state;
+    }
 
     public enum ChallengeResult {
         FAIL,
@@ -48,6 +58,7 @@ public class Logic implements Serializer, Resettable{
 
     //states
     private Main mMainState;
+    private State mCurrentState;
 
     private Table mTable;
 
@@ -251,13 +262,14 @@ public class Logic implements Serializer, Resettable{
             return false;
         if (!mDebug.isSavesEnabled())
             return false;
+        String fname = mDebug.getNextSave();
         StatusProtos.Status.Builder statBuilder = StatusProtos.Status.newBuilder();
         statBuilder.setTable((CardsProtos.Table) GetTable().WriteBuffer());
         statBuilder.setMainState((StateProtos.State) GetMainState().WriteBuffer());
         statBuilder.setLogic((LogicProtos.Logic) Logic.get().WriteBuffer());
         StatusProtos.Status st = statBuilder.build();
         try {
-            FileOutputStream bs = new FileOutputStream(mDebug.getNextSave());
+            FileOutputStream bs = new FileOutputStream(fname);
             CodedOutputStream output = CodedOutputStream.newInstance(bs);
             st.writeTo(output);
             output.flush();
@@ -266,7 +278,7 @@ public class Logic implements Serializer, Resettable{
             e.printStackTrace();
             return false;
         }
-        System.out.print("Saved State!\n");
+        log().info(String.format("Saved State: %s", fname));
         return true;
     }
 
@@ -316,4 +328,18 @@ public class Logic implements Serializer, Resettable{
     public void setSimulate(boolean mSimulate) {
         this.mSimulate = mSimulate;
     }
+
+    public void SortActiveCards(Hand hand) {
+        if (mTable.GetUnplayableCards().isEmpty()) {
+            Collections.sort(hand.GetActiveCards());
+            return;
+        }
+        //ArrayList<Card> cList = new ArrayList<>();
+        Collections.sort(mTable.GetUnplayableCards());
+        Collections.sort(hand.GetActiveCards());
+        //cList.addAll(hand.GetActiveCards());
+        hand.GetActiveCards().removeAll(mTable.GetUnplayableCards());
+        hand.GetActiveCards().addAll(mTable.GetUnplayableCards());
+    }
+
 }
