@@ -1,13 +1,10 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.CommentEngine;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
-import com.kegelapps.palace.engine.states.State;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.loaders.types.PlayerMap;
-import com.kegelapps.palace.protos.CardProtos;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;
@@ -263,6 +260,10 @@ public class Table  implements Serializer, Resettable{
         mCurrentDealTurn++;
         mCurrentDealTurn%=mHands.size();
         return mCurrentDealTurn == mFirstDealHand;
+    }
+
+    public Hand GetFirstDealHand() {
+        return getHands().get(mFirstDealHand);
     }
 
     public int getCurrentPlayTurn() {

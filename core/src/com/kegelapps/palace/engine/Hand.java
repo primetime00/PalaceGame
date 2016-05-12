@@ -1,7 +1,7 @@
 package com.kegelapps.palace.engine;
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.engine.ai.AI;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;

@@ -1,4 +1,4 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.loaders.types;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;

@@ -113,7 +113,7 @@ public class CardAnimation extends Animation {
             int angleVariation = (MathUtils.random(roundSize) - (roundSize/2))*10;
             float powerVariation = (hiddenRect.getHeight() - MathUtils.random(hiddenRect.getHeight()))/2.0f;
             float rotation;
-            float duration = 0.5f;
+            float duration = 0.3f;
 
             mAnimation.beginParallel();
 

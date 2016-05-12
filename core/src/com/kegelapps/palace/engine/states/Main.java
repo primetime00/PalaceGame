@@ -2,7 +2,7 @@ package com.kegelapps.palace.engine.states;
 
 import com.google.protobuf.Message;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.engine.Deck;
 import com.kegelapps.palace.engine.Table;
 import com.kegelapps.palace.events.EventSystem;

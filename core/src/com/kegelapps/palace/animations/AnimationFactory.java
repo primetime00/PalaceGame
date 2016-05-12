@@ -1,7 +1,7 @@
 package com.kegelapps.palace.animations;
 
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.engine.Logic;
 
 /**

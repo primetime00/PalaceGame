@@ -1,4 +1,4 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.loaders.types;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -18,7 +18,11 @@ public class PlayerData {
     private float end_card_spread;
     ObjectMap<String, CommentData> comments;
 
-    static class CommentData {
+    public ObjectMap<String, CommentData> getComments() {
+        return comments;
+    }
+
+    static public class CommentData {
         public float rate;
         public String comment;
 

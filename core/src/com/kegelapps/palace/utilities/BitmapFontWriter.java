@@ -1,4 +1,4 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.utilities;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;

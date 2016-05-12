@@ -2,8 +2,6 @@ package com.kegelapps.palace.graphics;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kegelapps.palace.CommentEngine;
-import com.kegelapps.palace.graphics.ui.GameStatsDialog;
 
 /**
  * Created by keg45397 on 2/4/2016.

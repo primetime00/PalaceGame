@@ -70,7 +70,8 @@ public class SelectEndCards extends State {
         switch (mState) {
             case 0:
                 for (Hand h: mTable.getHands()) {
-                    if (mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).getStatus() != Status.DONE)
+                    Status s = mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).getStatus();
+                    if (s != Status.DONE || h.getType() == Hand.HandType.HUMAN)
                         mChildrenStates.getState(Names.PLACE_END_CARD, h.getID()).Execute();
                 }
                 break;

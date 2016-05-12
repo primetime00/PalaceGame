@@ -17,7 +17,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.kegelapps.palace.BitmapFontWriter;
+import com.kegelapps.palace.utilities.BitmapFontWriter;
 
 /**
  * Created by keg45397 on 3/1/2016.

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.kegelapps.palace.*;
 import com.kegelapps.palace.audio.SoundEvent;
+import com.kegelapps.palace.loaders.types.CardResource;
 import com.kegelapps.palace.loaders.types.SoundMap;
 import com.kegelapps.palace.graphics.ui.common.StringMap;
 import com.kegelapps.palace.scenes.GameScene;
@@ -29,6 +29,7 @@ import com.kegelapps.palace.engine.states.dealtasks.TapToStart;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.utils.HandUtils;
 import com.kegelapps.palace.input.TablePanListener;
+import com.kegelapps.palace.utilities.Resettable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -180,12 +181,12 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         EventSystem.EventListener mDealCardEventListener = new EventSystem.EventListener(EventSystem.EventType.DEAL_CARD) {
             @Override
             public void handle(Object params[]) {
-                if (params == null || params.length < 2 || !(params[0] instanceof Card) || !(params[1] instanceof Integer))
-                    throw new IllegalArgumentException("Invalid parameters for DEAL_HIDDEN_CARD");
-                CardView cardView = CardView.getCardView((Card) params[0]);
-                final int id =  (int) params[1];
+                final String ename = "DEAL_CARD";
+                EventSystem.CheckParams(params, 2, 3, ename);
+                CardView cardView = CardView.getCardView((Card) EventSystem.CheckParam(params[0], Card.class, ename));
+                final int id =  (int) EventSystem.CheckParam(params[1], Integer.class, ename);
 
-                float duration = params.length >= 3 && params[2] instanceof Float ? (float)params[2] : 0.5f;
+                float duration = params.length == 3 && params[2] instanceof Float ? (float)params[2] : 0.3f;
                 cardView.setSide(CardView.Side.BACK);
 
                 HandUtils.Reparent(TableView.this, cardView);
@@ -530,12 +531,11 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.ATTEMPT_HIDDEN_PLAY) {
             @Override
             public void handle(Object[] params) {
-                if (params == null || params.length != 3 || !(params[0] instanceof Integer) || !(params[1] instanceof Card) || !(params[2] instanceof Boolean)) {
-                    throw new IllegalArgumentException("Invalid parameters for ATTEMPT_HIDDEN_PLAY");
-                }
+                final String ename = "ATTEMPT_HIDDEN_PLAY";
+                EventSystem.CheckParams(params, 3, ename);
                 final float startDelay = 1.5f;
-                int id = (int) params[0];
-                Card card = (Card) params[1];
+                int id = (int) EventSystem.CheckParam(params[0], Integer.class, ename);
+                Card card = (Card) EventSystem.CheckParam(params[1], Card.class, ename);
                 HandView hand = null;
                 for (HandView h : getHands()) {
                     if (h.getHand().getID() == id)
@@ -559,7 +559,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
 
                 //lets bring the hand zindex to the front.
                 mPlayView.toBack();
-                boolean dramatic = (boolean) params[2];
+                boolean dramatic = (boolean) EventSystem.CheckParam(params[2], Boolean.class, ename);
 
                 if (dramatic) {
                     Director.instance().getAudioManager().QueueSound(new SoundEvent(Director.instance().getAssets().get("sounds", SoundMap.class).getRandom("drama"),0.3f));

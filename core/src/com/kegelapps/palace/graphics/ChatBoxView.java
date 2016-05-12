@@ -108,7 +108,6 @@ public class ChatBoxView extends Table implements TweenCallback {
         mOldCalcs.set(mTextLabel.getGlyphLayout().width, mTextLabel.getGlyphLayout().height);
         Logic.get().log().info(String.format("Texts: %s %s", mOldText, mTextLabel.getText().toString()));
         super.layout();
-        //if (mOldCalcs.x != mTextLabel.getGlyphLayout().width || mOldCalcs.y != mTextLabel.getGlyphLayout().height) {
         if (!mOldText.equals(mTextLabel.getText().toString())) {
             setHeight(mTextLabel.getPrefHeight());
             setWidth(mTextLabel.getGlyphLayout().width);

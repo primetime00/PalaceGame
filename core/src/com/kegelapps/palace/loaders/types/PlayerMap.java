@@ -2,8 +2,6 @@ package com.kegelapps.palace.loaders.types;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.kegelapps.palace.PlayerData;
-import com.kegelapps.palace.protos.PlayersProto;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -47,6 +47,7 @@ public class PlayCPUTurn extends PlayTurn {
                     mPlayMode = CheckPlayMode();
                     return res;
                 }
+                card = mHand.GetAI().SelectPlayCard();
                 break;
             case END:
                 for (Card c : mHand.GetEndCards()) {

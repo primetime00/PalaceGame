@@ -1,4 +1,4 @@
-package com.kegelapps.palace;
+package com.kegelapps.palace.utilities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -9,7 +9,7 @@ import java.io.FileFilter;
 /**
  * Created by keg45397 on 4/21/2016.
  */
-public class Debug implements Resettable{
+public class Debug implements Resettable {
     public static String mSaveFile = "savedTurn";
     public static String mSaveFileExt = ".dat";
     public static int mSaveCounter = -1;

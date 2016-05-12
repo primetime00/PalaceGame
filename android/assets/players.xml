@@ -15,6 +15,13 @@
             <comment id="win_second" chance="1.0">Second place?  I'll take it.</comment>
             <comment id="win_third" chance="1.0">I didn't get last place though.</comment>
             <comment id="play_unable" chance="1.0">You can't play those cards this round.</comment>
+            <comment id="select_end" chance="1.0">Choose wisely, you'll use these cards when your hand is empty.</comment>
+            <comment id="dealing" chance="0.65">I have a good feeling about this game!</comment>
+            <comment id="play_low" chance="1.0">No, you can't play that card.  It needs to be the same or higher ranking!</comment>
+            <comment id="hidden_mid01" chance="0.8">Here we go...</comment>
+            <comment id="hidden_mid02" chance="0.8">Can I beat this?</comment>
+            <comment id="hidden_mid03" chance="0.8">What will it be?</comment>
+            <comment id="hidden_hard01" chance="0.8">This will be a hard one to beat.</comment>
         </comments>
     </player>
     <player id="1">
@@ -32,6 +39,13 @@
             <comment id="win_second" chance="1.0">If I played a little differently, I might have been first.</comment>
             <comment id="win_third" chance="1.0">Let's just end this game.</comment>
             <comment id="play_unable" chance="1.0">Since you just picked that card up, you have to wait to play it.</comment>
+            <comment id="select_end" chance="1.0">I usually choose my best cards now.  In the end I will need them.</comment>
+            <comment id="dealing" chance="0.65">Please let me have good cards!</comment>
+            <comment id="play_low" chance="1.0">Play a card that is ranked either higher or the same.</comment>
+            <comment id="hidden_mid01" chance="0.8">Oh the suspense!</comment>
+            <comment id="hidden_mid02" chance="0.8">We can do this...</comment>
+            <comment id="hidden_mid03" chance="0.8">I need the higher card!</comment>
+            <comment id="hidden_hard01" chance="0.8">Please let this be a good card!</comment>
         </comments>
     </player>
     <player id="2">
@@ -49,6 +63,13 @@
             <comment id="win_second" chance="1.0">I did well for the terrible card that I had.</comment>
             <comment id="win_third" chance="1.0">It's good to finish the game at least.</comment>
             <comment id="play_unable" chance="1.0">That card is not playable yet!</comment>
+            <comment id="select_end" chance="1.0">Use your 10's and 2's for your end cards.  You'll thank me later.</comment>
+            <comment id="dealing" chance="0.65">I'm ready to play!</comment>
+            <comment id="play_low" chance="1.0">You do know you have to play a card that is the same or higher right?</comment>
+            <comment id="hidden_mid01" chance="0.8">Come on, high card now!</comment>
+            <comment id="hidden_mid02" chance="0.8">............</comment>
+            <comment id="hidden_mid03" chance="0.8">I've got to have a high card here.</comment>
+            <comment id="hidden_hard01" chance="0.8">I do not have a good feeling about this one.</comment>
         </comments>
     </player>
     <player id="3">
@@ -66,6 +87,13 @@
             <comment id="win_second" chance="1.0">I did not play as wisely as I would have liked.</comment>
             <comment id="win_third" chance="1.0">This match was just dreadful.</comment>
             <comment id="play_unable" chance="1.0">You must select another card.  That one shall be played later.</comment>
+            <comment id="select_end" chance="1.0">A sound strategy would be to select your high ranking cards for end play.</comment>
+            <comment id="dealing" chance="0.65">There is no science to dealing.  I can only hope for superior cards.</comment>
+            <comment id="play_low" chance="1.0">You must play a card of equal or greater ranking.</comment>
+            <comment id="hidden_mid01" chance="0.8">Statistically, I can beat this.</comment>
+            <comment id="hidden_mid02" chance="0.8">If luck exists, I require it.</comment>
+            <comment id="hidden_mid03" chance="0.8">I am confident in my chances.</comment>
+            <comment id="hidden_hard01" chance="0.8">Unfortunately, this result is out of my control.</comment>
         </comments>
     </player>
     <player id="4">
@@ -83,6 +111,13 @@
             <comment id="win_second" chance="1.0">I didn't win... but I didn't lose.</comment>
             <comment id="win_third" chance="1.0">My cards were just horrible!</comment>
             <comment id="play_unable" chance="1.0">That card was pick up from the pile.  It can be played later!</comment>
+            <comment id="select_end" chance="1.0">What you pick here is what you'll use at the end!</comment>
+            <comment id="dealing" chance="0.65">It is time that I get some good cards!</comment>
+            <comment id="play_low" chance="1.0">Do you know how to play?  Use a card that is higher or the same!</comment>
+            <comment id="hidden_mid01" chance="0.8">I can't lose now!</comment>
+            <comment id="hidden_mid02" chance="0.8">I feel nervous.</comment>
+            <comment id="hidden_mid03" chance="0.8">Lady luck, where are you now?</comment>
+            <comment id="hidden_hard01" chance="0.8">Not very likely to win this one.</comment>
         </comments>
     </player>
 </resources>

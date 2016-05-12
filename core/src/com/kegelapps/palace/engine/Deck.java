@@ -1,7 +1,7 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.protos.CardsProtos;
 
 import java.util.ArrayList;

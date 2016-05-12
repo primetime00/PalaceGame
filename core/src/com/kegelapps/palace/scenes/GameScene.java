@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kegelapps.palace.CommentEngine;
+import com.kegelapps.palace.graphics.CommentEngine;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.audio.AudioManager;
 import com.kegelapps.palace.engine.Logic;

@@ -3,7 +3,7 @@ package com.kegelapps.palace.graphics;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.kegelapps.palace.CoinResource;
+import com.kegelapps.palace.loaders.types.CoinResource;
 import com.kegelapps.palace.Director;
 
 /**

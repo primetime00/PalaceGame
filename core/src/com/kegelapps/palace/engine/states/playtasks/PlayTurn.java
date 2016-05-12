@@ -55,6 +55,11 @@ public class PlayTurn extends State {
                         mPlayMode = CheckPlayMode();
                         if (mPlayMode == PlayMode.HIDDEN)
                             mTurnState = TurnState.PLAY_HIDDEN_CARD;
+                        if (!mTable.GetUnplayableCards().isEmpty()) {
+                            mTable.GetUnplayableCards().clear();
+                            Logic.get().SortActiveCards(mHand);
+                            Director.instance().getEventSystem().Fire(EventSystem.EventType.SORT_HAND, mHand);
+                        }
                     }
                 });
 

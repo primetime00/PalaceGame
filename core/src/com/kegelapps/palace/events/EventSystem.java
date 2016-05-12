@@ -173,9 +173,25 @@ public class EventSystem implements Disposable{
     }
 
     public static void CheckParams(Object[] params, int i, String ename) {
-        if (params == null || params.length != i)
-            Error(ename);
+        CheckParams(params, i, 0, ename);
     }
+
+    public static void CheckParams(Object[] params, int min, int max, String ename) {
+        if (params == null)
+            Error(ename);
+        if (max == 0) {
+            if (params.length != min)
+                Error(ename);
+        }
+        else if  (max < min){
+            Error(ename);
+        }
+        else {
+            if (params.length < min || params.length > max)
+                Error(ename);
+        }
+    }
+
 
     public static Object CheckParam(Object param, Class<?> c, String name) {
         if (!c.isInstance(param))

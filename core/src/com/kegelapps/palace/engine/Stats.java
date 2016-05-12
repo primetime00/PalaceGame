@@ -1,8 +1,8 @@
 package com.kegelapps.palace.engine;
 
 import com.google.protobuf.Message;
-import com.kegelapps.palace.CoinResource;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.loaders.types.CoinResource;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.protos.LogicProtos;
 
 /**

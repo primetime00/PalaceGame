@@ -3,9 +3,9 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Message;
-import com.kegelapps.palace.Debug;
+import com.kegelapps.palace.utilities.Debug;
 import com.kegelapps.palace.Director;
-import com.kegelapps.palace.Resettable;
+import com.kegelapps.palace.utilities.Resettable;
 import com.kegelapps.palace.engine.states.Main;
 import com.kegelapps.palace.engine.states.State;
 import com.kegelapps.palace.engine.states.StateFactory;
@@ -16,7 +16,6 @@ import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.*;
 
@@ -65,8 +64,8 @@ public class Logic implements Serializer, Resettable{
     public Logic() {
         mStats = new Stats();
         mDebug = new Debug();
-        //mDebug.setCPUPlayOnly(true);
-        //mDebug.disableSaves();
+        mDebug.setCPUPlayOnly(true);
+        mDebug.disableSaves();
     }
 
     static public Logic get() {
