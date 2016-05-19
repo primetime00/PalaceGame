@@ -25,7 +25,7 @@ public class PlayTurn extends State {
         SELECT_CARDS,
         PLAY_HIDDEN_CARD,
         CARDS_GONE,
-        DONE
+        CHECK_HAND, DONE
     }
 
     protected enum PlayMode {
@@ -38,7 +38,7 @@ public class PlayTurn extends State {
     public PlayTurn(State parent, Table table) {
         super(parent);
         mTable = table;
-        mTurnState = TurnState.PLAY_CARD;
+        mTurnState = TurnState.CHECK_HAND;
         mPlayMode = PlayMode.ACTIVE;
     }
 
@@ -51,7 +51,7 @@ public class PlayTurn extends State {
                 mChildrenStates.addState(Names.BURN_CARDS, this, id).setStateListener(new StateListener() {
                     @Override
                     public void onDoneState() {
-                        mTurnState = TurnState.PLAY_CARD;
+                        mTurnState = TurnState.CHECK_HAND;
                         mPlayMode = CheckPlayMode();
                         if (mPlayMode == PlayMode.HIDDEN)
                             mTurnState = TurnState.PLAY_HIDDEN_CARD;
@@ -79,7 +79,9 @@ public class PlayTurn extends State {
                         mPlayMode = CheckPlayMode();
                         switch (res) {
                             case SUCCESS: mTurnState = mHand.HasAnyCards() ? TurnState.DONE : TurnState.CARDS_GONE; break;
-                            case FAIL: mTurnState = TurnState.PLAY_CARD; break;
+                            case FAIL: //had to pick up
+                                mTurnState = TurnState.CHECK_HAND;
+                                break;
                             case SUCCESS_AGAIN: mTurnState = mHand.HasAnyCards() ? TurnState.PLAY_HIDDEN_CARD : TurnState.CARDS_GONE; break;
                             case SUCCESS_BURN: mTurnState = TurnState.BURN; break;
                             default:break;
@@ -102,7 +104,7 @@ public class PlayTurn extends State {
     protected void OnFirstRun() {
         Logic.log().info(String.format("It is player %d turn", mID));
         Logic.log().info("--------------------------------------");
-        mTurnState = TurnState.PLAY_CARD;
+        mTurnState = TurnState.CHECK_HAND;
         mPlayMode = CheckPlayMode();
         if (mPlayMode == PlayMode.HIDDEN)
             mTurnState = TurnState.PLAY_HIDDEN_CARD;
@@ -136,6 +138,13 @@ public class PlayTurn extends State {
             throw new RuntimeException("PlayTurn need a proper hand!");
 
         switch (mTurnState) {
+            case CHECK_HAND:
+                if (mTable.AllCardsUnplayable(mHand.getID())) {
+                    mTurnState = TurnState.DONE;
+                    return false;
+                }
+                mTurnState = TurnState.PLAY_CARD;
+                return false;
             case PLAY_CARD:
                 if (DoPlayCard())
                     mTurnState = TurnState.SELECT_CARDS;
@@ -166,6 +175,12 @@ public class PlayTurn extends State {
         }
     }
 
+    protected boolean CheckForStaleMate() {
+        if (mTable.CountActivePlayers() == 2)
+            return Logic.get().checkStaleMap();
+        return false;
+    }
+
     @Override
     public Message WriteBuffer() {
         StateProtos.State s = (StateProtos.State) super.WriteBuffer();
@@ -185,7 +200,7 @@ public class PlayTurn extends State {
 
     @Override
     public void Reset() {
-        mTurnState = TurnState.PLAY_CARD;
+        mTurnState = TurnState.CHECK_HAND;
         mPlayMode = PlayMode.ACTIVE;
 
         super.Reset();

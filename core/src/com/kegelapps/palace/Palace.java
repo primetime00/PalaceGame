@@ -1,6 +1,7 @@
 package com.kegelapps.palace;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.scenes.GameScene;
@@ -33,6 +34,7 @@ public class Palace extends ApplicationAdapter {
 	@Override
 	public void pause() {
 		super.pause();
+		Gdx.graphics.requestRendering();
 	}
 
 	@Override

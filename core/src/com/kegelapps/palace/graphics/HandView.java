@@ -400,7 +400,6 @@ public class HandView extends Group implements ReparentViews, Resettable, Dispos
                             case SILVER: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("2nd_place"), name), 1.0f, Color.GRAY, true); break;
                             case BRONZE: ((GameScene)getStage()).ShowMessage(String.format("%s: %s", StringMap.getString("3rd_place"), name), 1.0f, Color.BROWN, true); break;
                         }
-                        builder.getTable().SimulateGame(mHand, 2.0f);
                     }
                 });
 

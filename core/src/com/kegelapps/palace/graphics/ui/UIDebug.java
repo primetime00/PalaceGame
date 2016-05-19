@@ -28,6 +28,7 @@ public class UIDebug {
     private static UIDebug ourInstance = new UIDebug();
 
     private float mBaseTime;
+    private boolean mEnable;
 
     public static UIDebug get() {
         return ourInstance;
@@ -36,6 +37,7 @@ public class UIDebug {
     private UIDebug() {
         mChangeListenerList = new ObjectMap<>();
         mBaseTime = 0;
+        mEnable = false;
     }
 
     public void addChangeListener(String id, ChangeListener listener, float timer) {
@@ -43,6 +45,8 @@ public class UIDebug {
     }
 
     public void addChangeListener(String id, ChangeListener listener, float timer, Actor actor) {
+        if (!mEnable)
+            return;
         if (!mChangeListenerList.containsKey(id)) {
             mChangeListenerList.put(id, new Entry(actor, listener, timer+mBaseTime));
         }
@@ -50,6 +54,8 @@ public class UIDebug {
 
 
     public void update(float delta) {
+        if (!mEnable)
+            return;
         mBaseTime += delta;
         for (Iterator it = mChangeListenerList.iterator(); it.hasNext();) {
             ObjectMap.Entry<String, Entry> entry = (ObjectMap.Entry<String, Entry>) it.next();

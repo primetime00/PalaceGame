@@ -6,6 +6,9 @@ import com.kegelapps.palace.engine.ai.AI;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.protos.CardsProtos;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -174,6 +177,26 @@ public class Hand implements Serializer, Resettable{
     public int getID() {
         return mID;
     }
+
+    public byte[] hashString() {
+        String text = "";
+        for (Card c : GetActiveCards()) {
+            text += c.getRank().toString();
+            text += c.getSuit().toString();
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(text.getBytes("UTF-8"));
+            return md.digest();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return new byte[] {0};
+    }
+
+
 
 
     public List<Card> GetEndCards() {

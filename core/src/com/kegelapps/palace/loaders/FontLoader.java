@@ -114,7 +114,7 @@ public class FontLoader extends SynchronousAssetLoader<BitmapFont, FontLoader.Fo
     }
 
     private static FileHandle getFontFile(String filename) {
-        return Gdx.files.local("generated-fonts/" + filename);
+        return Gdx.files.local("generated-assets/fonts/" + filename);
     }
 
     private BitmapFont findFont(String filename) {

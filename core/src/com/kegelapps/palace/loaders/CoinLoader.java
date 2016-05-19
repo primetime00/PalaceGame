@@ -23,7 +23,7 @@ public class CoinLoader extends SynchronousAssetLoader<CoinResource, CoinLoader.
     public CoinResource load(AssetManager assetManager, String fileName, FileHandle file, CoinParams parameter) {
         if (parameter == null)
         parameter = new CoinParams();
-        CoinResource r = new CoinResource(new TextureAtlas(file), parameter.scale);
+        CoinResource r = new CoinResource(parameter.directory, parameter.scale);
         return r;
     }
 
@@ -34,6 +34,7 @@ public class CoinLoader extends SynchronousAssetLoader<CoinResource, CoinLoader.
 
     static public class CoinParams extends AssetLoaderParameters<CoinResource> {
         public float scale = 0.5f;
+        public String directory = "art/coins/";
     }
 
 }

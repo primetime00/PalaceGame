@@ -1,5 +1,6 @@
 package com.kegelapps.palace.loaders.types;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -19,7 +20,10 @@ public class CoinResource implements Disposable {
     private float mScale;
     private Vector2 mOrigin;
 
-    public CoinResource(TextureAtlas atlas, float scale) {
+    public CoinResource(String directory, float scale) {
+        String filename = directory+"/coins.pack";
+        TextureAtlas atlas;
+        atlas = new TextureAtlas(new FileHandle(filename));
         if (atlas == null || scale == 0) {
             throw new RuntimeException("Coin atlas cannot be null or scale can't be 0!");
         }

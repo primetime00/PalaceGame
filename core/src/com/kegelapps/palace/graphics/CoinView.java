@@ -16,7 +16,7 @@ public class CoinView extends Actor {
 
     public CoinView(CoinResource.CoinType type) {
         mType = type;
-        mCoinRegion = Director.instance().getAssets().get("coins.pack", CoinResource.class).getCoin(type);
+        mCoinRegion = Director.instance().getAssets().get("coins", CoinResource.class).getCoin(type);
         setWidth(mCoinRegion.originalWidth);
         setHeight(mCoinRegion.originalHeight);
         setOrigin(mCoinRegion.originalWidth/2, mCoinRegion.originalWidth/2);

@@ -34,6 +34,7 @@ public class Win extends State {
                 mState = 1;
                 return false;
             case 1:
+                Director.instance().getEventSystem().Fire(EventSystem.EventType.PLAYER_DONE, getID());
                 return true;
         }
         return true;

@@ -24,7 +24,7 @@ public class FrameView extends Table{
 
     public FrameView() {
         super();
-        TextureRegion t = ((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("card-board-small");
+        TextureRegion t = ((TextureAtlas) Director.instance().getAssets().get("ui")).findRegion("card-board-small");
         mShadow = new ShadowView();
         mNeedsRedraw = true;
         int w = t.getRegionWidth();

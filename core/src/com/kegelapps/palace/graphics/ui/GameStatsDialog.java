@@ -47,10 +47,6 @@ public class GameStatsDialog extends FrameView {
         btnStyle.font = style.font;
 
 
-//        NinePatch btnUp = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button"), 8, 8, 8, 8);
-//        NinePatch btnDn = new NinePatch (((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("button_down"), 8, 8, 8, 8);
-
-
 /*        btnStyle = new TextButton.TextButtonStyle(new NinePatchDrawable(btnUp),
                 new NinePatchDrawable(btnDn), null, style.font);*/
 

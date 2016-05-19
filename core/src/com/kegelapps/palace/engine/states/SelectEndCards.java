@@ -119,6 +119,7 @@ public class SelectEndCards extends State {
     @Override
     public void Reset() {
         mState = 0;
+        mDoneHands.clear();
         super.Reset();
     }
 }

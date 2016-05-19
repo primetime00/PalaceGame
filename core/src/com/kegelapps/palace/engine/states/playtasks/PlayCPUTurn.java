@@ -20,10 +20,12 @@ public class PlayCPUTurn extends PlayTurn {
 
     private long mTime;
     private boolean mPlayMultiple;
+    private boolean mStalemate;
 
 
     public PlayCPUTurn(State parent, Table table) {
         super(parent, table);
+        mStalemate = false;
     }
 
     @Override
@@ -41,13 +43,15 @@ public class PlayCPUTurn extends PlayTurn {
                 mTurnState = TurnState.PLAY_HIDDEN_CARD;
                 return false;
             case ACTIVE:
-                card = mHand.GetAI().SelectPlayCard();
+                if (mStalemate)
+                    card = mHand.GetAI().SelectLowCard();
+                else
+                    card = mHand.GetAI().SelectPlayCard();
                 if (card != null) {
                     res = PlayCard(card);
                     mPlayMode = CheckPlayMode();
                     return res;
                 }
-                card = mHand.GetAI().SelectPlayCard();
                 break;
             case END:
                 for (Card c : mHand.GetEndCards()) {
@@ -67,6 +71,17 @@ public class PlayCPUTurn extends PlayTurn {
         }
         // Logic challenge failed!
         mTable.PickUpStack(mHand.getID());
+        Logic.get().log().info(String.format("My cards: %s", mHand.getID()));
+        ArrayList<Card> blah = new ArrayList<>();
+        blah.addAll(mHand.GetActiveCards());
+        Collections.sort(blah);
+        for (Card c : blah) {
+            Logic.get().log().info(String.format("   %s", c.toString()));
+        }
+        if (CheckForStaleMate()) {
+            mStalemate = true;
+            Logic.get().log().info("THERE IS A STALEMATE!!!!!!!!!!!!!!!!!");
+        }
         mPlayMode = CheckPlayMode();
         if (mTable.AllCardsUnplayable(mHand.getID())) {
             mTable.SkipTurn();
@@ -159,5 +174,9 @@ public class PlayCPUTurn extends PlayTurn {
         mPlayMultiple = playState.getPlayMultiple();
     }
 
-
+    @Override
+    public void Reset() {
+        super.Reset();
+        mStalemate = false;
+    }
 }

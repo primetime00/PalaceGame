@@ -23,7 +23,7 @@ public class Debug implements Resettable {
         filter = new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.getAbsolutePath().contains(mSaveFile);
+                return pathname.getAbsolutePath().contains("\\"+mSaveFile);
             }
         };
         mSaveEnabled = true;

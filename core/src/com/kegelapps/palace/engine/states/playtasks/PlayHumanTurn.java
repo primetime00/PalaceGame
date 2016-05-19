@@ -55,6 +55,9 @@ public class PlayHumanTurn extends PlayTurn {
         }
         if (mPlayTapped) {
             mTable.PickUpStack(mHand.getID());
+            if (CheckForStaleMate()) {
+                throw new RuntimeException("THERE IS A STALEMATE!");
+            }
             mPlayMode = CheckPlayMode();
             if (mTable.AllCardsUnplayable(mHand.getID())) {
                 mTable.SkipTurn();

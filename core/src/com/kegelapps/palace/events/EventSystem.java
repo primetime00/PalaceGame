@@ -49,7 +49,7 @@ public class EventSystem implements Disposable{
         DISMISS_ACKNOWLEDGEMENTS,
         MAIN_SCREEN,
         CHAT_MESSAGE,
-        CHAT_COMMENT, SORT_HAND,
+        CHAT_COMMENT, SORT_HAND, PLAYER_DONE,
     }
 
     ObjectMap<EventType, Array<EventListener>> mListeners;

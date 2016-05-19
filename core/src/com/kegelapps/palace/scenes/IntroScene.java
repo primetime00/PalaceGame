@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.engine.Card;
+import com.kegelapps.palace.engine.Logic;
 import com.kegelapps.palace.events.EventSystem;
 import com.kegelapps.palace.graphics.CardView;
 import com.kegelapps.palace.graphics.ClipView;
@@ -34,7 +36,6 @@ public class IntroScene extends Scene {
 
     private CardView cards[];
     private TweenCallback mCallback;
-    private Timeline mDropAnimation, mFlyAnimation;
     private TextView mTitle;
 
     private ClipView mClipFrame;
@@ -43,11 +44,25 @@ public class IntroScene extends Scene {
     private ShadowView mShadow;
     private boolean mShownAnimation;
 
+    private Timeline mCardFlyAnimation, mCardDropAnimation;
+
+
+    private enum IntroState {
+        BUILD,
+        START,
+        FLY,
+        PAUSE,
+        DROP,
+        TITLE,
+        DONE
+    };
+    private IntroState mState;
+
     private AcknowledgementDialog mAckDialog;
 
     private final float titleFadeTime = 1.0f;
     private final float screenFadeTime = 1.0f;
-    private final float initialAnimationDelayTime = 13.0f;
+    private final float initialAnimationDelayTime = 0.0f;
 
 
     public IntroScene(Viewport viewport) {
@@ -75,11 +90,14 @@ public class IntroScene extends Scene {
         mCallback = new TweenCallback() {
             @Override
             public void onEvent(int type, BaseTween<?> source) {
-                if (type == TweenCallback.END) {
-                    if (source == mFlyAnimation)
-                        startDropAnimation();
-                    else if (source == mDropAnimation)
-                        showTitle();
+                if (type == TweenCallback.END && mState == IntroState.PAUSE) {
+                    if (source == mCardFlyAnimation) { //show the drop animation
+                        mState = IntroState.DROP;
+                        mShownAnimation = true;
+                    }
+                    else if (source == mCardDropAnimation) { //show the title
+                        mState = IntroState.TITLE;
+                    }
                 }
             }
         };
@@ -90,6 +108,7 @@ public class IntroScene extends Scene {
             public boolean keyUp(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {//Exit game (need a dialog)
                     //Director.instance().getEventSystem().FireLater(EventSystem.EventType.OPTIONS);
+                    Director.instance().dispose();
                     Gdx.app.exit();
                 }
                 return super.keyUp(event, keycode);
@@ -115,8 +134,8 @@ public class IntroScene extends Scene {
         mOptionTable = new OptionsTable();
         mMainTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
         mOptionTable.setColor(Color.RED.r, Color.RED.g, Color.RED.b, 0.0f);
-        //mShownAnimation = false;
-        mShownAnimation = true;
+        mShownAnimation = false;
+        mState = IntroState.START;
 
     }
 
@@ -248,23 +267,6 @@ public class IntroScene extends Scene {
         alpha.start(getTweenManager());
     }
 
-    private void placeCards() {
-        Vector3 pos;
-        calculateViewportSize();
-        //left
-        pos = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
-        cards[0].setPosition(pos.x, pos.y);
-        addActor(cards[0]);
-        //bottom
-        pos = new Vector3((mViewWidth-cards[0].getWidth())/2.0f, mViewHeight + cards[0].getHeight(), 0);
-        cards[1].setPosition(pos.x, pos.y);
-        addActor(cards[1]);
-        //right
-        pos = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
-        cards[2].setPosition(pos.x, pos.y);
-        addActor(cards[2]);
-    }
-
     private boolean previousContains(Card[] cards, Card.Suit s, Card.Rank r) {
         for (int j = 0; j<cards.length; ++j) {
             if (cards[j] != null && (cards[j].getSuit() == s || cards[j].getRank() == r)) {
@@ -277,12 +279,16 @@ public class IntroScene extends Scene {
     @Override
     public void enter() {
         super.enter();
+        calculateViewportSize();
         getTweenManager().killAll();
         setupScene();
-        if (!mShownAnimation)
-            createAnimations();
-        else
-            startDropAnimation();
+    }
+
+    @Override
+    public void exit() {
+        super.exit();
+        mCardDropAnimation = null;
+        mCardFlyAnimation = null;
     }
 
     private void setupScene() {
@@ -290,89 +296,173 @@ public class IntroScene extends Scene {
         for (Actor a : children) {
             a.remove();
         }
-        placeCards();
+        for (CardView c : cards) {
+            addActor(c);
+        }
+        hideCards();
+        cards[0].setOrigin(Align.bottom | Align.center);
+        cards[1].setOrigin(Align.bottom | Align.center);
+        cards[2].setOrigin(Align.bottom | Align.center);
+        mState = IntroState.START;
     }
 
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        switch (mState) {
+            case BUILD:
+                if (mCardFlyAnimation == null)
+                    mCardFlyAnimation = createFlyAnimations();
+                if (mCardDropAnimation == null)
+                    mCardDropAnimation = createDropAnimation();
+                mState = IntroState.START;
+                break;
+            case START:
+                if (mCardFlyAnimation == null || mCardDropAnimation == null) {
+                    mState = IntroState.BUILD;
+                    break;
+                }
+                if (mShownAnimation)
+                    mState = IntroState.DROP;
+                else
+                    mState = IntroState.FLY;
+                break;
+            case FLY: //play the fly animation
+                hideCards();
+                mCardFlyAnimation.start(getTweenManager());
+                mState = IntroState.PAUSE;
+                break;
+            case DROP:
+                hideCards();
+                mCardDropAnimation.start(getTweenManager());
+                mState = IntroState.PAUSE;
+                break;
+            case TITLE:
+                showTitle();
+                mState = IntroState.DONE;
+                break;
+            default:
+            case DONE:
+            case PAUSE:
+                break;
+        }
+    }
 
-    private void createAnimations() {
+    private Timeline createFlyAnimations() {
         final float duration = 1.00f;
         final float gap = 0.5f;
-        final float firstDelay = initialAnimationDelayTime;
-        final float secondDelay = firstDelay + 0.25f + duration;
-        final float thirdDelay = secondDelay + 0.25f + duration;
-        Vector3 pos1, pos2, pos3;
-        mShownAnimation = true;
+        final float firstDelay = 0.5f;
+        final float secondDelay = 0.5f;
+        final float thirdDelay = 0.5f;
+        Vector3 pos1, pos2, pos3, initPos;
+
+        Timeline res = Timeline.createSequence();
+        //place the cards
+        res.beginParallel();
+            initPos = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight()/2f)/2.0f), 0);
+            res.push(Tween.set(cards[0], ActorAccessor.POSITION_XY).target(initPos.x, initPos.y));
+            initPos = new Vector3((mViewWidth-cards[0].getWidth()/2f)/2.0f, mViewHeight + cards[0].getHeight(), 0);
+            res.push(Tween.set(cards[1], ActorAccessor.POSITION_XY).target(initPos.x, initPos.y));
+            initPos = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight()/2f)/2.0f), 0);
+            res.push(Tween.set(cards[2], ActorAccessor.POSITION_XY).target(initPos.x, initPos.y));
+        res.end();
+        res.pushPause(initialAnimationDelayTime);
+        res.push(Tween.call(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                showCards();
+            }
+        }));
         //left to right
-        Timeline c1 = Timeline.createSequence();
-        c1.pushPause(firstDelay);
-        c1.beginParallel();
-        pos1 = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
-        c1.push(Tween.to(cards[0], ActorAccessor.POSITION_XY, duration).target(pos1.x, pos1.y).ease(TweenEquations.easeOutQuad));
-        c1.push(Tween.to(cards[0], ActorAccessor.ROTATION, duration).target(360)).end();
-        c1.start(getTweenManager());
+        res.beginSequence();
+            res.pushPause(firstDelay);
+            res.beginParallel();
+                pos1 = new Vector3(mViewWidth, ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
+                res.push(Tween.to(cards[0], ActorAccessor.POSITION_XY, duration).target(pos1.x, pos1.y));
+                res.push(Tween.to(cards[0], ActorAccessor.ROTATION, duration).target(360));
+            res.end();
+        res.end();
 
         //bottom to top
-        Timeline c2 = Timeline.createSequence();
-        c2.pushPause(secondDelay);
-        c2.beginParallel();
-        pos2 = new Vector3 ((mViewWidth-cards[0].getWidth())/2.0f, -cards[0].getHeight(), 0);
-        c2.push(Tween.to(cards[1], ActorAccessor.POSITION_XY,duration).target(pos2.x, pos2.y).ease(TweenEquations.easeOutQuad));
-        c2.push(Tween.to(cards[1], ActorAccessor.ROTATION, duration).target(360)).end();
-        c2.start(getTweenManager());
+        res.beginSequence();
+            res.pushPause(secondDelay);
+            res.beginParallel();
+                pos2 = new Vector3 ((mViewWidth-cards[0].getWidth())/2.0f, -cards[0].getHeight(), 0);
+                res.push(Tween.to(cards[1], ActorAccessor.POSITION_XY,duration).target(pos2.x, pos2.y));
+                res.push(Tween.to(cards[1], ActorAccessor.ROTATION, duration).target(360));
+            res.end();
+        res.end();
 
 
         //right to left
-        Timeline c3 = Timeline.createSequence();
-        c3.pushPause(thirdDelay);
-        c3.beginParallel();
-        pos3 = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
-        c3.push(Tween.to(cards[2], ActorAccessor.POSITION_XY, duration).target(pos3.x, pos3.y).ease(TweenEquations.easeOutQuad));
-        c3.push(Tween.to(cards[2], ActorAccessor.ROTATION, duration).target(360)).end();
-        c3.pushPause(gap);
-        c3.setCallbackTriggers(TweenCallback.END);
-        c3.setCallback(mCallback);
-        mFlyAnimation = c3;
-        c3.start(getTweenManager());
-
-
+        res.beginSequence();
+            res.pushPause(thirdDelay);
+            res.beginParallel();
+                pos3 = new Vector3(-cards[0].getWidth(), ( (mViewHeight-cards[0].getHeight())/2.0f), 0);
+                res.push(Tween.to(cards[2], ActorAccessor.POSITION_XY, duration).target(pos3.x, pos3.y));
+                res.push(Tween.to(cards[2], ActorAccessor.ROTATION, duration).target(360));
+            res.end();
+        res.end();
+        res.pushPause(gap);
+        res.setCallbackTriggers(TweenCallback.END);
+        res.setCallback(mCallback);
+        return res;
     }
 
-    private void startDropAnimation() {
-        Vector3 pos;
+    private void showCards() {
+        cards[0].setVisible(true);
+        cards[1].setVisible(true);
+        cards[2].setVisible(true);
+    }
+
+    private void hideCards() {
+        cards[0].setVisible(false);
+        cards[1].setVisible(false);
+        cards[2].setVisible(false);
+    }
+
+    private Timeline createDropAnimation() {
         float w = cards[0].getWidth();
-        float h = cards[0].getHeight();
         final float duration = 1.0f;
         float topEnd = mTitle.getY() + mTitle.getHeight() /2.0f;
+        Vector3 startCardPos[] = new Vector3[3];
+        Vector3 finalPosition;
 
         float angle1 = 55;
         float angle2 = 30;
         float angle3 = 10;
 
-        pos = getCamera().unproject(new Vector3(mTitle.getX()-(w*.1f), -cards[0].getHeight()*2, 0));
+        startCardPos[0] = getCamera().unproject(new Vector3(mTitle.getX()-(w*.1f), -cards[0].getHeight()*2, 0));
 
-        cards[0].setPosition(pos.x, pos.y);
-        cards[1].setPosition((float) (cards[0].getX()+ w*-Math.sin(angle1-angle2)), (float) (cards[0].getY()-(w*Math.cos(angle1-angle2))));
-        cards[2].setPosition((float) (cards[1].getX()+ w*-Math.sin(angle1-angle2)), (float) (cards[1].getY()-(w*Math.cos(angle1-angle2))));
+        Timeline res = Timeline.createSequence();
+        res.beginParallel();
+            res.push(Tween.set(cards[0], ActorAccessor.POSITION_XY).target(startCardPos[0].x, startCardPos[0].y));
+            res.push(Tween.set(cards[0], ActorAccessor.ROTATION).target(angle1));
+            startCardPos[1] = new Vector3(startCardPos[0].x+w*-MathUtils.sin(angle1-angle2), startCardPos[0].y-(w*MathUtils.cos(angle1-angle2)), 0);
+            res.push(Tween.set(cards[1], ActorAccessor.POSITION_XY).target(startCardPos[1].x, startCardPos[1].y));
+            res.push(Tween.set(cards[1], ActorAccessor.ROTATION).target(angle2));
+            startCardPos[2] = new Vector3(startCardPos[1].x+ w*-MathUtils.sin(angle1-angle2), startCardPos[1].y-(w*MathUtils.cos(angle1-angle2)), 0);
+            res.push(Tween.set(cards[2], ActorAccessor.POSITION_XY).target(startCardPos[2].x, startCardPos[2].y));
+            res.push(Tween.set(cards[2], ActorAccessor.ROTATION).target(angle3));
+        res.end();
 
+        res.push(Tween.call(new TweenCallback() {
+            @Override
+            public void onEvent(int type, BaseTween<?> source) {
+                showCards();
+            }
+        }));
 
-        cards[0].setOrigin(Align.bottom | Align.center);
-        cards[1].setOrigin(Align.bottom | Align.center);
-        cards[2].setOrigin(Align.bottom | Align.center);
-
-        cards[0].setRotation(angle1);
-        cards[1].setRotation(angle2);
-        cards[2].setRotation(angle3);
-
-        mDropAnimation = Timeline.createSequence();
-        mDropAnimation.beginParallel();
-        pos = getCamera().unproject(new Vector3(pos.x, topEnd, 0));
-        pos.y = topEnd;
-        mDropAnimation.push(Tween.to(cards[0], ActorAccessor.POSITION_XY, duration).target(cards[0].getX(), pos.y));
-        mDropAnimation.push(Tween.to(cards[1], ActorAccessor.POSITION_XY, duration).target(cards[1].getX(), pos.y));
-        mDropAnimation.push(Tween.to(cards[2], ActorAccessor.POSITION_XY, duration).target(cards[2].getX(), pos.y));
-        mDropAnimation.setCallbackTriggers(TweenCallback.END);
-        mDropAnimation.setCallback(mCallback);
-        mDropAnimation.start(getTweenManager());
+        res.beginParallel();
+            finalPosition = getCamera().unproject(new Vector3(startCardPos[0].x, topEnd, 0));
+            finalPosition.y = topEnd;
+            res.push(Tween.to(cards[0], ActorAccessor.POSITION_XY, duration).target(startCardPos[0].x, finalPosition.y));
+            res.push(Tween.to(cards[1], ActorAccessor.POSITION_XY, duration).target(startCardPos[1].x, finalPosition.y));
+            res.push(Tween.to(cards[2], ActorAccessor.POSITION_XY, duration).target(startCardPos[2].x, finalPosition.y));
+        res.end();
+        res.setCallbackTriggers(TweenCallback.END);
+        res.setCallback(mCallback);
+        return res;
 
     }
 
@@ -388,8 +478,8 @@ public class IntroScene extends Scene {
         }
         mShadow = null;
         mCallback = null;
-        mDropAnimation = null;
-        mFlyAnimation = null;
+        mCardFlyAnimation = null;
+        mCardDropAnimation = null;
         mTitle = null;
         mMainTable.reset();
         mMainTable = null;

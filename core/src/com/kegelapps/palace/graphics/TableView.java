@@ -85,7 +85,7 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
         mCardHeight = Director.instance().getAssets().get("cards", CardResource.class).getHeight();
         mCardWidth = Director.instance().getAssets().get("cards", CardResource.class).getWidth();
 
-        mBackground = new TiledDrawable(((TextureAtlas) Director.instance().getAssets().get("ui.pack")).findRegion("tabletop"));
+        mBackground = new TiledDrawable(((TextureAtlas) Director.instance().getAssets().get("ui")).findRegion("tabletop"));
 
         onScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         for (HandView hView : mHands){
@@ -236,7 +236,6 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
                 State s = (State) EventSystem.CheckParam(params[0], State.class, ename);
                 TapDeckToStart(s instanceof TapToStart);
                 mPlayView.OrganizeCards();
-                CheckForQuickGame();
             }
         };
         Director.instance().getEventSystem().RegisterEvent(mTapDeckEventListener);
@@ -720,7 +719,14 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
             }
         });
 
-
+        Director.instance().getEventSystem().RegisterEvent(new EventSystem.EventListener(EventSystem.EventType.PLAYER_DONE) {
+            @Override
+            public void handle(Object[] params) {
+                final String ename = "PLAYER_DONE";
+                EventSystem.CheckParams(params, 1, ename);
+                CheckForQuickGame();
+            }
+        });
 
     }
 
@@ -878,6 +884,8 @@ public class TableView extends Group implements Input.BoundObject, Resettable, D
             Logic.get().setSimulate(false);
             return;
         }
+        if (mTable.CountActivePlayers() <= 1)
+            return;
         if (mTable.isEveryPlayerCPU())
             hand = mHands.get(0).getHand();
         else {

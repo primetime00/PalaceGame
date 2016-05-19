@@ -86,4 +86,8 @@ public class AI implements Serializer, Resettable{
     public void Reset(boolean newGame) {
         mSelectedCards.clear();
     }
+
+    public Card SelectLowCard() {
+        return mPlayCardAI.SelectLowCard();
+    }
 }

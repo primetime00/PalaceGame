@@ -1,5 +1,6 @@
 package com.kegelapps.palace.input;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
@@ -25,6 +26,9 @@ public class CardGestureListener extends ActorGestureListener {
         super.fling(event, velocityX, velocityY, button);
         if (event.getTarget() instanceof CardView) {
             Card c = ((CardView)event.getTarget()).getCard();
+            float xVelo = Math.abs(velocityX);
+            if (xVelo > Math.abs(velocityY))
+                return;
             if (velocityY > 300.0f) {
                 if (mHand.getHand().GetActiveCards().contains(c))
                     Logic.get().PlayerSelectCard(mHand.getHand(), c);

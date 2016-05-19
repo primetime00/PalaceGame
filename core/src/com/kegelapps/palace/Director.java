@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureAtlasLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -143,7 +144,7 @@ public class Director implements Disposable{
 
     private void loadOptions() {
         try {
-            mOptions = OptionProtos.Options.parseFrom(new FileInputStream(Gdx.files.getLocalStoragePath()+"/options.dat"));
+            mOptions = OptionProtos.Options.parseFrom(new FileInputStream(Gdx.files.getLocalStoragePath()+"/generated-assets/options.dat"));
         } catch (IOException e) {
             System.out.print("Could not find / parse options.dat file\n");
             mOptions = OptionProtos.Options.getDefaultInstance();
@@ -152,7 +153,7 @@ public class Director implements Disposable{
 
     public void saveOptions() {
         try {
-            mOptions.writeTo(new FileOutputStream(Gdx.files.getLocalStoragePath()+"/options.dat", false));
+            mOptions.writeTo(new FileOutputStream(Gdx.files.getLocalStoragePath()+"/generated-assets/options.dat", false));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -227,22 +228,23 @@ public class Director implements Disposable{
         //lets load out font first
         float fontScale = Director.instance.getViewHeight() / 480.0f;
         //fontScale *= 0.6f / Gdx.graphics.getDensity();
+        final String fontDirectory = "art/fonts/";
         mAssetManager.setLoader(BitmapFont.class, new FontLoader(new InternalFileHandleResolver()));
         FontLoader.FontParams fontParam = new FontLoader.FontParams();
-        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.filename = fontDirectory + "Actor-Regular.ttf";
         fontParam.size =  MathUtils.round(28*fontScale);
         fontParam.border = MathUtils.round(2*fontScale);
         mAssetManager.load("default_font", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
-        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.filename = fontDirectory + "Actor-Regular.ttf";
         fontParam.size =  MathUtils.round(18*fontScale);
         fontParam.border = MathUtils.round(1*fontScale);
         mAssetManager.load("small_font", BitmapFont.class, fontParam);
 
 
         fontParam = new FontLoader.FontParams();
-        fontParam.filename = "Actor-Regular.ttf";
+        fontParam.filename = fontDirectory + "Actor-Regular.ttf";
         fontParam.size = MathUtils.round(50*fontScale);
         fontParam.border = MathUtils.round(3*fontScale);
         mAssetManager.load("message_font", BitmapFont.class, fontParam);
@@ -251,13 +253,13 @@ public class Director implements Disposable{
         fontParam = new FontLoader.FontParams();
         fontParam.size = MathUtils.round(120*fontScale);
         fontParam.border = MathUtils.round(3*fontScale);
-        fontParam.filename = "title_font.ttf";
+        fontParam.filename = fontDirectory + "title_font.ttf";
         mAssetManager.load("title_font_large", BitmapFont.class, fontParam);
 
         fontParam = new FontLoader.FontParams();
         fontParam.size = MathUtils.round(30*fontScale);
         fontParam.border = MathUtils.round(2*fontScale);
-        fontParam.filename = "title_font.ttf";
+        fontParam.filename = fontDirectory + "title_font.ttf";
         mAssetManager.load("title_font_small", BitmapFont.class, fontParam);
 
 
@@ -265,9 +267,10 @@ public class Director implements Disposable{
         mAssetManager.load("cards", CardResource.class);
 
         mAssetManager.setLoader(CoinResource.class, new CoinLoader(new InternalFileHandleResolver()));
-        mAssetManager.load("coins.pack", CoinResource.class);
+        mAssetManager.load("coins", CoinResource.class);
 
-        mAssetManager.load("ui.pack", TextureAtlas.class);
+        mAssetManager.setLoader(UIAtlas.class, new UILoader(new InternalFileHandleResolver()));
+        mAssetManager.load("ui", UIAtlas.class);
 
         mAssetManager.setLoader(ShadowView.ShadowTexture.class, new ShadowLoader(new InternalFileHandleResolver()));
         mAssetManager.load("shadow", ShadowView.ShadowTexture.class);

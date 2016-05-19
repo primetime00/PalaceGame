@@ -3,6 +3,7 @@ package com.kegelapps.palace.engine;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Message;
+import com.kegelapps.palace.StaleMate;
 import com.kegelapps.palace.utilities.Debug;
 import com.kegelapps.palace.Director;
 import com.kegelapps.palace.utilities.Resettable;
@@ -16,7 +17,10 @@ import com.kegelapps.palace.protos.StateProtos;
 import com.kegelapps.palace.protos.StatusProtos;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.*;
 
 /**
@@ -28,6 +32,8 @@ public class Logic implements Serializer, Resettable{
     private static Logger mLog;
 
     private Debug mDebug;
+
+    private StaleMate mStaleChecker;
 
     public State getCurrentState() {
         return mCurrentState;
@@ -63,9 +69,9 @@ public class Logic implements Serializer, Resettable{
 
     public Logic() {
         mStats = new Stats();
-        mDebug = new Debug();
-        mDebug.setCPUPlayOnly(true);
-        mDebug.disableSaves();
+        //mDebug = new Debug();
+        //mDebug.setCPUPlayOnly(true);
+        //mDebug.disableSaves();
     }
 
     static public Logic get() {
@@ -254,10 +260,16 @@ public class Logic implements Serializer, Resettable{
         StateFactory.get().SetTable(mTable);
         if (mMainState == null)
             mMainState = (Main) StateFactory.get().createState(State.Names.MAIN, null);
+
+        if (mStaleChecker == null)
+            mStaleChecker = new StaleMate(mTable);
+        mStaleChecker.clear();
     }
 
     public boolean SaveState() {
         if (GetTable() == null || GetMainState() == null)
+            return false;
+        if (mDebug == null)
             return false;
         if (!mDebug.isSavesEnabled())
             return false;
@@ -339,6 +351,10 @@ public class Logic implements Serializer, Resettable{
         //cList.addAll(hand.GetActiveCards());
         hand.GetActiveCards().removeAll(mTable.GetUnplayableCards());
         hand.GetActiveCards().addAll(mTable.GetUnplayableCards());
+    }
+
+    public boolean checkStaleMap() {
+        return mStaleChecker.CheckStales(1);
     }
 
 }

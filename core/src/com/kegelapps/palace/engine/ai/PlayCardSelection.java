@@ -204,5 +204,13 @@ public class PlayCardSelection {
         return playableCards;
     }
 
+    public Card SelectLowCard() {
+        ArrayList<Card> playableCards = getAvailablePlayCards();
+        if (playableCards.isEmpty())
+            return null;
+        organizeCardClass(playableCards);
+        return lowestCard();
+    }
+
 
 }
