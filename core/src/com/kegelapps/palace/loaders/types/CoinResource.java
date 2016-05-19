@@ -23,7 +23,7 @@ public class CoinResource implements Disposable {
     public CoinResource(String directory, float scale) {
         String filename = directory+"/coins.pack";
         TextureAtlas atlas;
-        atlas = new TextureAtlas(new FileHandle(filename));
+        atlas = new TextureAtlas(filename);
         if (atlas == null || scale == 0) {
             throw new RuntimeException("Coin atlas cannot be null or scale can't be 0!");
         }

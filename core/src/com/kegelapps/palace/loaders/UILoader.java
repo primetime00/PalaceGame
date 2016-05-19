@@ -25,7 +25,7 @@ public class UILoader extends SynchronousAssetLoader<UIAtlas, UILoader.UILoaderP
         final String name = "ui.pack";
         if (parameter == null)
             parameter = new UILoaderParams();
-        atlas = new UIAtlas(new FileHandle(parameter.directory+"/"+name));
+        atlas = new UIAtlas(parameter.directory+"/"+name);
         return atlas;
     }
 
