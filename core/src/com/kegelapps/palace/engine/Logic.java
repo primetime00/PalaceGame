@@ -325,7 +325,8 @@ public class Logic implements Serializer, Resettable{
         log().info("------------------------");
         log().info("The game has been reset");
         log().info("------------------------");
-        mDebug.Reset(newGame);
+        if (mDebug != null)
+            mDebug.Reset(newGame);
     }
 
     public Debug debug() {
